@@ -33,8 +33,8 @@
         "php": ">= 8.2",
         "kamermans/guzzle-oauth2-subscriber": "^1.1.0",
         "svix/svix": "^1.56.0",
-        "shopware/core": "*",
-        "shopware/storefront": "*"
+        "shopware/core": "6.6.*",
+        "shopware/storefront": "6.6.*"
     },
     "require-dev": {
         "phpunit/phpunit": "^11.5.6",
