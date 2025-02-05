@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
 
       - name: 📋 Install shopware-cli
-        uses: FriendsOfShopware/shopware-cli-action@v1
+        uses: shopware/shopware-cli-action@v1
         with:
           version: 'latest'
 
