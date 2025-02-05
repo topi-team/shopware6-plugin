@@ -4,6 +4,12 @@
     "type": "shopware-platform-plugin",
     "license": "UNLICENSED",
     "version": "0.0.1",
+    "authors": [
+        {
+            "name": "nuonic Digital GmbH & Co. KG",
+            "homepage": "https://nuonic.de"
+        }
+    ],
     "extra": {
         "shopware-plugin-class": "TopiPaymentIntegration\\TopiPaymentIntegrationPlugin",
         "author": "nuonic Digital GmbH & Co. KG",
