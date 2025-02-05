@@ -1,0 +1,55 @@
+{
+    "name": "topi-team/showpare6-plugin",
+    "description": "Topi Integration for Shopware 6",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "extra": {
+        "shopware-plugin-class": "TopiPaymentIntegration\\TopiPaymentIntegrationPlugin",
+        "author": "nuonic Digital GmbH & Co. KG",
+        "description": {
+            "de-DE": "",
+            "en-GB": ""
+        },
+        "manufacturerLink": {
+            "de-DE": "",
+            "en-GB": ""
+        },
+        "supportLink": {
+            "de-DE": "",
+            "en-GB": ""
+        },
+        "label": {
+            "de-DE": "Topi Integration for Shopware 6",
+            "en-GB": "Topi Integration for Shopware 6"
+        }
+    },
+    "scripts": {
+        "check-licenses": "composer-license-checker check $(cat allowed-licenses.txt | xargs -I {} echo --allowlist {}) --blocklist GPL --allow dominikb/composer-license-checker",
+        "phpstan": "phpstan analyse --memory-limit=2G",
+        "style-check": "php-cs-fixer check",
+        "style-fix": "php-cs-fixer fix"
+    },
+    "require": {
+        "php": ">= 8.2",
+        "kamermans/guzzle-oauth2-subscriber": "^1.1.0",
+        "svix/svix": "^1.56.0",
+        "shopware/core": "*",
+        "shopware/storefront": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.5.6",
+        "phpstan/phpstan": "^2.1.2",
+        "friendsofphp/php-cs-fixer": "^3.66",
+        "dominikb/composer-license-checker": "^2.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "TopiPaymentIntegration\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "TopiPaymentIntegration\\Tests\\": "tests/"
+        }
+    }
+}

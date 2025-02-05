@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="TopiPaymentIntegration\Config\PluginConfigService" class="TopiPaymentIntegration\Config\PluginConfigService">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument key="$configDomain">TopiPaymentIntegrationPlugin.config</argument>
+        </service>
+
+        <service class="TopiPaymentIntegration\ApiClient\Client" id="topi_payment_integration.api_client.client" public="true">
+            <argument type="service" id="topi_payment_integration.api_client.factory.guzzle_client_factory"/>
+            <argument type="service" id="topi_payment_integration.logger" />
+        </service>
+
+        <service class="TopiPaymentIntegration\ApiClient\Factory\GuzzleClientFactory" id="topi_payment_integration.api_client.factory.guzzle_client_factory">
+            <argument type="service" id="topi_payment_integration.service.connection_configuration.config_token_persistence"/>
+            <argument type="service" id="shopware.plugin.config_reader"/>
+            <argument type="service" id="topi_payment_integration.service.plugin.flag_loader"/>
+        </service>
+    </services>
+</container>

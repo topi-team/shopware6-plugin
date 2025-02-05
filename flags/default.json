@@ -1,0 +1,11 @@
+{
+  "identityTokenUri": "https://identity.topi.eu/oauth2/token",
+  "apiBaseUrl": {
+    "sandbox": "https://seller-api.topi-sandbox.eu/v1/",
+    "production": "https://seller-api.topi.eu/v1/"
+  },
+  "tokenScopes": [
+    "client"
+  ],
+  "pdpWidgetJsUrl": "https://widgets.topi.eu/pdp_widget.umd.js"
+}
