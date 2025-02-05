@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  EXTENSION_NAME: 'TopiPaymentIntegration'
+  EXTENSION_NAME: 'TopiPaymentIntegrationPlugin'
 
 jobs:
   build:
