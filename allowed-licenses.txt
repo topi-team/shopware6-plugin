@@ -1,2 +1,6 @@
 MIT
 BSD-3-Clause
+LGPL-2.1
+LGPL-2.1-or-later
+LGPL-3.0-or-later
+Apache-2.0
