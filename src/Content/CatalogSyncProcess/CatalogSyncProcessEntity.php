@@ -84,6 +84,7 @@ class CatalogSyncProcessEntity extends Entity
     public function setCatalogSyncBatches(CatalogSyncBatchCollection $catalogSyncBatches): CatalogSyncProcessEntity
     {
         $this->catalogSyncBatches = $catalogSyncBatches;
+
         return $this;
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\Service;
 
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;

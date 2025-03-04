@@ -19,6 +19,7 @@ use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchDefinition;
 
 /**
  * @phpstan-import-type CatalogSyncBatchData from CatalogSyncBatchDefinition
+ *
  * @phpstan-type CatalogSyncProcessData array{
  *     id?: string,
  *     startDate?: \DateTimeInterface,

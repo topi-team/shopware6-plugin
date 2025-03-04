@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\ApiClient\Catalog;
 
-use GuzzleHttp\Exception\RequestException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use TopiPaymentIntegration\ApiClient\Common\ProductReferenceCollection;
@@ -34,7 +33,6 @@ class CatalogClient
         $this->client->request('POST', 'catalog/import', array_merge([
             'json' => $jsonData,
         ], $options));
-
     }
 
     /**
@@ -91,7 +89,6 @@ class CatalogClient
         $response = $this->client->request('POST', 'catalog/pricing', $this->preProcessOptions(array_merge([
             'json' => $jsonData,
         ], $options)));
-
 
         $responseData = $response->toArray();
 

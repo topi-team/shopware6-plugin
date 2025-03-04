@@ -9,7 +9,7 @@ class CatalogSyncContext
     /**
      * @param ($useQueue is true ? null : \Closure(int))        $onStart
      * @param ($useQueue is true ? null : \Closure(int))        $onProgress
-     * @param ($useQueue is true ? null : \Closure(string))           $onSuccess
+     * @param ($useQueue is true ? null : \Closure(string))     $onSuccess
      * @param ($useQueue is true ? null : \Closure(\Exception)) $onFailure
      */
     public function __construct(

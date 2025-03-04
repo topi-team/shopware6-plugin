@@ -71,6 +71,7 @@ class HttpClientFactory
     /**
      * @see flags.json
      * @see Resources/config/config.xml
+     *
      * @return array{baseUrl: string, identityTokenUrl: string}
      */
     protected function getEnvironmentConfig(): array

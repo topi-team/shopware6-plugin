@@ -64,6 +64,7 @@ class CatalogSyncBatchEntity extends Entity
 
     /**
      * @param value-of<CatalogSyncBatchStatusEnum> $status
+     *
      * @return $this
      */
     public function setStatus(string $status): CatalogSyncBatchEntity
