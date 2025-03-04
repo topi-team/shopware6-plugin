@@ -1,8 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/master/src/Core/System/SystemConfig/Schema/config.xsd">
     <card>
         <title>topi Settings</title>
         <title lang="de-DE">topi Einstellungen</title>
+
+        <input-field type="checkbox">
+            <name>catalogSyncActiveInSalesChannel</name>
+            <label>Activate catalog-synchronization in this sales-channel</label>
+            <label lang="de-DE">Katalogsynchronisierung für diesen Verkaufskanal aktivieren</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <component name="sw-entity-multi-id-select">
+            <name>categories</name>
+            <entity>category</entity>
+            <label>Choose categories to sync product data to topi</label>
+            <label lang="de-DE">Kategorien für den Katalog-Sync auswählen</label>
+        </component>
+
+        <input-field type="single-select">
+            <name>environment</name>
+            <options>
+                <option>
+                    <id>sandbox</id>
+                    <name>Sandbox</name>
+                </option>
+                <option>
+                    <id>staging</id>
+                    <name>Staging</name>
+                </option>
+                <option>
+                    <id>production</id>
+                    <name>Production</name>
+                </option>
+            </options>
+            <defaultValue>sandbox</defaultValue>
+            <label>Environment</label>
+            <label lang="de-DE">Umgebung</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>clientId</name>
+            <label>Client-ID</label>
+            <label lang="de-DE">Client-ID</label>
+            <helpText>You can get your client-id from topi</helpText>
+            <helpText lang="de-DE">Ihre Client-ID bekommen Sie von topi</helpText>
+        </input-field>
+
+        <input-field type="password">
+            <name>clientSecret</name>
+            <label>Client-Secret</label>
+            <label lang="de-DE">Client-Secret</label>
+            <helpText>You can get your client-secret from topi</helpText>
+            <helpText lang="de-DE">Ihr Client-Secret bekommen Sie von topi</helpText>
+        </input-field>
+
+        <input-field type="text">
+            <name>webhookSigningSecrets</name>
+            <label lang="de-DE">Webhook-Signatur-Keys</label>
+            <label>Webhook signing secrets</label>
+            <helpText lang="de-DE">Ihr(e) Signatur-Key(s) bekommen sie von topi. Wenn Sie mehr als einen Key erhalten haben, fügen Side diese, durch ein Komma getrennt, hier ein</helpText>
+            <helpText>You can get your signing secret(s) from topi. If you got more than one secret, paste them separated by commas.</helpText>
+        </input-field>
+
+        <input-field type="checkbox">
+            <name>enableWebhookSignatureChecks</name>
+            <label lang="de-DE">Webhook-Signaturen prüfen</label>
+            <label>Verify webhook signatures</label>
+            <defaultValue>false</defaultValue>
+        </input-field>
     </card>
 </config>

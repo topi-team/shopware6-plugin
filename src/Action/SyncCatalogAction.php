@@ -1,0 +1,160 @@
+<?php
+
+declare(strict_types=1);
+
+namespace TopiPaymentIntegration\Action;
+
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Symfony\Component\Messenger\MessageBusInterface;
+use TopiPaymentIntegration\CatalogSyncContext;
+use TopiPaymentIntegration\Config\PluginConfigService;
+use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchDefinition;
+use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchStatusEnum;
+use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessCollection;
+use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessDefinition;
+use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessEntity;
+use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessStatusEnum;
+use TopiPaymentIntegration\Service\CatalogSyncBatch\CatalogSyncBatchHandler;
+use TopiPaymentIntegration\Service\CatalogSyncBatch\CatalogSyncBatchMessage;
+use TopiPaymentIntegration\Service\CatalogSyncBatchEmitter;
+use TopiPaymentIntegration\TopiPaymentIntegrationPlugin;
+
+readonly class SyncCatalogAction
+{
+    public function __construct(
+        private CatalogSyncBatchEmitter $batchEmitter,
+        private EntityRepository $catalogSyncProcessRepository,
+        private EntityRepository $catalogBatchRepository,
+        private EntityRepository $salesChannelRepository,
+        private PluginConfigService $pluginConfigService,
+        private MessageBusInterface $messageBus,
+        private CatalogSyncBatchHandler $catalogSyncBatchHandler,
+    ) {
+    }
+
+    public function execute(Context $context, CatalogSyncContext $syncContext): void
+    {
+        if ($syncContext->useQueue && $currentProcesses = $this->getCurrentSyncProcesses($context)) {
+            foreach ($currentProcesses as $process) {
+                $status = CatalogSyncBatchStatusEnum::getCounts();
+                foreach ($process->getCatalogSyncBatches() as $batch) {
+                    ++$status[$batch->getStatus()];
+                }
+
+                $batchCount = $process->getCatalogSyncBatches()->count();
+
+                if ($status[CatalogSyncBatchStatusEnum::COMPLETED->value] === $batchCount) {
+                    // all batches are completed
+                    $this->completeProcess($process->getId(), $context);
+                }
+
+                if ($status[CatalogSyncBatchStatusEnum::ERROR->value] > 0) {
+                    // more than one error occurred
+                    $this->errorProcess($process->getId(), $context);
+                }
+
+                // when no previous if matched, the process is still running.
+            }
+
+            return;
+        }
+
+        $criteria = new Criteria();
+        $salesChannels = $this->salesChannelRepository->searchIds($criteria, $context)->getIds();
+
+        foreach ($salesChannels as $salesChannelId) {
+            if ($this->pluginConfigService->getBool('catalogSyncActiveInSalesChannel', $salesChannelId)) {
+                $this->processSalesChannel($salesChannelId, $context, $syncContext);
+            }
+        }
+    }
+
+    private function completeProcess(string $processId, Context $context): void
+    {
+        $this->catalogSyncProcessRepository->upsert([[
+            'id' => $processId,
+            'status' => CatalogSyncProcessStatusEnum::COMPLETED->value,
+            'endDate' => new \DateTime(),
+        ]], $context);
+    }
+
+    private function errorProcess(string $processId, Context $context): void
+    {
+        $this->catalogSyncProcessRepository->upsert([[
+            'id' => $processId,
+            'status' => CatalogSyncProcessStatusEnum::ERROR->value,
+            'endDate' => new \DateTime(),
+        ]], $context);
+    }
+
+    private function processSalesChannel(string $salesChannelId, Context $context, CatalogSyncContext $syncContext): void
+    {
+        $queries = array_map(
+            static fn (string $categoryId) => new ContainsFilter('categoryTree', $categoryId),
+            $this->pluginConfigService->get('categories', $salesChannelId)
+        );
+
+        $criteria = (new Criteria())->addFilter(new OrFilter($queries));
+
+        $currentProcess = $this->createSyncProcess($salesChannelId, $context);
+        $batches = $this->batchEmitter->emit(
+            TopiPaymentIntegrationPlugin::CATALOG_SYNC_BATCH_SIZE,
+            $context,
+            $criteria
+        );
+
+        if (!$syncContext->useQueue && $count = $this->batchEmitter->countProducts($context, $criteria)) {
+            $syncContext->start($count);
+            $i = 0;
+        }
+
+        foreach ($batches as $batch) {
+            [$entityId] = $this->catalogBatchRepository->create([[
+                ...$batch,
+                'catalogSyncProcessId' => $currentProcess->getId(),
+            ]], $context)->getPrimaryKeys(CatalogSyncBatchDefinition::ENTITY_NAME);
+
+            // just queue the tasks when using queue
+            if ($syncContext->useQueue) {
+                $this->messageBus->dispatch(new CatalogSyncBatchMessage($entityId));
+                continue;
+            }
+
+            try {
+                ($this->catalogSyncBatchHandler)(new CatalogSyncBatchMessage($entityId));
+            } catch (\Exception $e) {
+                $syncContext->fail($e);
+                throw $e;
+            } finally {
+                $syncContext->progress(count($batch['productIds']));
+            }
+        }
+
+        $syncContext->success(sprintf('Finished sync for sales channel "%s"', $salesChannelId));
+    }
+
+    private function getCurrentSyncProcesses(Context $context): ?CatalogSyncProcessCollection
+    {
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('status', CatalogSyncProcessStatusEnum::IN_PROGRESS->value))
+            ->addAssociation('catalogSyncBatches');
+
+        return $this->catalogSyncProcessRepository->search($criteria, $context)->getEntities();
+    }
+
+    private function createSyncProcess(string $salesChannelId, Context $context): CatalogSyncProcessEntity
+    {
+        [$entityId] = $this->catalogSyncProcessRepository->create([[
+            'status' => CatalogSyncProcessStatusEnum::IN_PROGRESS->value,
+            'startDate' => new \DateTimeImmutable(),
+            'salesChannelId' => $salesChannelId,
+        ]], $context)->getPrimaryKeys(CatalogSyncProcessDefinition::ENTITY_NAME);
+
+        return $this->catalogSyncProcessRepository->search(new Criteria([$entityId]), $context)->first();
+    }
+}

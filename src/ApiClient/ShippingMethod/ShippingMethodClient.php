@@ -4,34 +4,23 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\ApiClient\ShippingMethod;
 
-use GuzzleHttp\Client as GuzzleClient;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 readonly class ShippingMethodClient
 {
     public function __construct(
-        private GuzzleClient $client,
+        private HttpClientInterface $client,
     ) {
     }
 
-    /**
-     * @param array<mixed> $options additional cURL options
-     *
-     * @throws \JsonException
-     */
+    /** @param array<mixed> $options additional cURL options */
     public function list(array $options = []): \Generator
     {
-        $responseString = (string) $this->client->get('shipping-method', array_merge([
+        $responseData = $this->client->request('GET', 'shipping-method', array_merge([
             'query' => [
                 'page' => 0,
             ],
-        ], $options))->getBody();
-
-        $responseData = json_decode(
-            $responseString,
-            true,
-            512,
-            JSON_THROW_ON_ERROR
-        );
+        ], $options))->toArray();
 
         yield from $responseData['data'];
         if ($responseData['pagination']['has_more']) {
@@ -42,7 +31,7 @@ readonly class ShippingMethodClient
     /** @param array<mixed> $options */
     public function create(ShippingMethod $shippingMethod, array $options = []): void
     {
-        $this->client->post('shipping-method/method', array_merge([
+        $this->client->request('POST', 'shipping-method/method', array_merge([
             'json' => $shippingMethod,
         ], $options));
     }

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\ApiClient\Catalog;
 
-use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use TopiPaymentIntegration\ApiClient\Common\ProductReferenceCollection;
 use TopiPaymentIntegration\ApiClient\Common\ProductSummary;
 use TopiPaymentIntegration\ApiClient\PreProcessOptionsTrait;
@@ -19,7 +19,7 @@ class CatalogClient
     private array $responseCache = [];
 
     public function __construct(
-        private readonly GuzzleClient $client,
+        private readonly HttpClientInterface $client,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -31,21 +31,10 @@ class CatalogClient
             'products' => $productBatch->getProducts(),
         ];
 
-        $start = microtime(true);
-        $response = $this->client->post('catalog/import', array_merge([
+        $this->client->request('POST', 'catalog/import', array_merge([
             'json' => $jsonData,
         ], $options));
 
-        $time_elapsed_secs = microtime(true) - $start;
-        $this->logger->debug('Topi API took: '.$time_elapsed_secs.'s');
-
-        $start = microtime(true);
-        json_encode($jsonData);
-        $time_elapsed_secs = microtime(true) - $start;
-
-        $this->logger->debug('JSON encoding took: '.$time_elapsed_secs.'s');
-
-        $this->logger->debug('Response: '.$response->getStatusCode().' Data: '.$response->getBody()->getContents());
     }
 
     /**
@@ -76,18 +65,8 @@ class CatalogClient
             return $this->responseCache[__METHOD__][$cacheKey];
         }
 
-        $response = $this->client->post('catalog/check-supported', $this->preProcessOptions($requestOptions));
-
-        $time_elapsed_secs = microtime(true) - $start;
-        $this->logger->debug('Topi API took: '.$time_elapsed_secs.'s');
-        $this->logger->debug('Response: '.$response->getStatusCode().' Data: '.$response->getBody());
-
-        $responseData = json_decode(
-            (string) $response->getBody(),
-            true,
-            512,
-            JSON_THROW_ON_ERROR
-        );
+        $response = $this->client->request('POST', 'catalog/check-supported', $this->preProcessOptions($requestOptions));
+        $responseData = $response->toArray();
 
         $result = [];
         foreach ($responseData['products'] as $productSummaryData) {
@@ -109,40 +88,12 @@ class CatalogClient
             'pricing_request' => $pricingRequest,
         ];
 
-        $start = microtime(true);
-        try {
-            $response = $this->client->post('catalog/pricing', $this->preProcessOptions(array_merge([
-                'json' => $jsonData,
-            ], $options)));
-        } catch (RequestException $e) {
-            if (!$e->hasResponse()) {
-                throw $e;
-            }
+        $response = $this->client->request('POST', 'catalog/pricing', $this->preProcessOptions(array_merge([
+            'json' => $jsonData,
+        ], $options)));
 
-            if (404 !== $e->getResponse()->getStatusCode()) {
-                $this->logger->debug('Error: '.$e->getMessage().'; Response: '.$e->getResponse()->getBody());
-            }
 
-            throw $e;
-        }
-
-        $time_elapsed_secs = microtime(true) - $start;
-        $this->logger->debug('Topi API took: '.$time_elapsed_secs.'s');
-
-        $start = microtime(true);
-        json_encode($jsonData);
-        $time_elapsed_secs = microtime(true) - $start;
-
-        $this->logger->debug('JSON encoding took: '.$time_elapsed_secs.'s');
-
-        $this->logger->debug('Response: '.$response->getStatusCode().' Data: '.$response->getBody());
-
-        $responseData = json_decode(
-            (string) $response->getBody(),
-            true,
-            512,
-            JSON_THROW_ON_ERROR
-        );
+        $responseData = $response->toArray();
 
         $result = new CalculatePricingResponse();
         $result->applyData($responseData);

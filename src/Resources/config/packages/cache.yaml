@@ -1,0 +1,8 @@
+framework:
+  cache:
+    prefix_seed: "%kernel.cache.hash%"
+    pools:
+      cache.topi_oauth_tokens:
+        default_lifetime: 172800
+        adapter: cache.app
+        tags: cache.tags

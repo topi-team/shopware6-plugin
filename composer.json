@@ -43,7 +43,7 @@
     },
     "require": {
         "php": ">= 8.2",
-        "kamermans/guzzle-oauth2-subscriber": "^1.1.0",
+        "benjaminfavre/oauth2-http-client": "^3.0.1",
         "svix/svix": "^1.56.0",
         "shopware/core": "~6.6.0",
         "shopware/storefront": "~6.6.0"

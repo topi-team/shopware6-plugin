@@ -6,7 +6,7 @@ namespace TopiPaymentIntegration\ApiClient;
 
 use Psr\Log\LoggerInterface;
 use TopiPaymentIntegration\ApiClient\Catalog\CatalogClient;
-use TopiPaymentIntegration\ApiClient\Factory\GuzzleClientFactory;
+use TopiPaymentIntegration\ApiClient\Factory\HttpClientFactory;
 use TopiPaymentIntegration\ApiClient\Offer\OfferClient;
 use TopiPaymentIntegration\ApiClient\Order\OrderClient;
 use TopiPaymentIntegration\ApiClient\ShippingMethod\ShippingMethodClient;
@@ -34,8 +34,8 @@ class Client
     private array $orderClients = [];
 
     public function __construct(
-        private GuzzleClientFactory $clientFactory,
-        private LoggerInterface $logger,
+        readonly private HttpClientFactory $clientFactory,
+        readonly private LoggerInterface $logger,
     ) {
     }
 

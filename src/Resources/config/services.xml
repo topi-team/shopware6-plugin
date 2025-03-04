@@ -4,20 +4,83 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="TopiPaymentIntegration\Config\PluginConfigService" class="TopiPaymentIntegration\Config\PluginConfigService">
+        <service id="TopiPaymentIntegration\Config\PluginConfigService">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
             <argument key="$configDomain">TopiPaymentIntegrationPlugin.config</argument>
         </service>
 
-        <service class="TopiPaymentIntegration\ApiClient\Client" id="topi_payment_integration.api_client.client" public="true">
-            <argument type="service" id="topi_payment_integration.api_client.factory.guzzle_client_factory"/>
-            <argument type="service" id="topi_payment_integration.logger" />
+        <service id="TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchDefinition">
+            <tag name="shopware.entity.definition" />
         </service>
 
-        <service class="TopiPaymentIntegration\ApiClient\Factory\GuzzleClientFactory" id="topi_payment_integration.api_client.factory.guzzle_client_factory">
-            <argument type="service" id="topi_payment_integration.service.connection_configuration.config_token_persistence"/>
-            <argument type="service" id="shopware.plugin.config_reader"/>
-            <argument type="service" id="topi_payment_integration.service.plugin.flag_loader"/>
+        <service id="TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessDefinition">
+            <tag name="shopware.entity.definition" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Service\Plugin\FlagLoaderInterface" class="TopiPaymentIntegration\Service\Plugin\JsonFileFlagLoader">
+        </service>
+
+        <service id="TopiPaymentIntegration\ApiClient\Factory\HttpClientFactory">
+            <argument type="service" id="TopiPaymentIntegration\Config\PluginConfigService" />
+            <argument type="service" id="TopiPaymentIntegration\Service\Plugin\FlagLoaderInterface" />
+            <argument type="service" id="cache.topi_oauth_tokens" />
+            <argument type="service" id="http_client" />
+        </service>
+
+        <service id="TopiPaymentIntegration\ApiClient\Client" public="true">
+            <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\HttpClientFactory"/>
+            <argument type="service" id="monolog.logger.topi_integration_plugin" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Service\CatalogSyncTask\CatalogSyncScheduledTask">
+            <tag name="shopware.scheduled.task" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Service\CatalogSyncBatchEmitter">
+            <argument type="service" id="product.repository" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Service\ShopwareProductToTopiProductConverter">
+        </service>
+
+        <service id="TopiPaymentIntegration\Service\CatalogSyncBatch\CatalogSyncBatchHandler">
+            <argument type="service" id="topi_catalog_sync_batch.repository" />
+            <argument type="service" id="sales_channel.product.repository" />
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" />
+            <argument type="service" id="TopiPaymentIntegration\Service\ShopwareProductToTopiProductConverter" />
+            <argument type="service" id="TopiPaymentIntegration\ApiClient\Client" />
+            <tag name="messenger.message_handler" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Action\SyncCatalogAction">
+            <argument type="service" id="TopiPaymentIntegration\Service\CatalogSyncBatchEmitter" />
+            <argument type="service" id="topi_catalog_sync_process.repository" />
+            <argument type="service" id="topi_catalog_sync_batch.repository" />
+            <argument type="service" id="sales_channel.repository" />
+            <argument type="service" id="TopiPaymentIntegration\Config\PluginConfigService" />
+            <argument type="service" id="messenger.default_bus" />
+            <argument type="service" id="TopiPaymentIntegration\Service\CatalogSyncBatch\CatalogSyncBatchHandler" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Service\CatalogSyncTask\CatalogSyncScheduledTaskHandler">
+            <argument type="service" id="scheduled_task.repository" />
+            <argument type="service" id="TopiPaymentIntegration\Action\SyncCatalogAction" />
+            <tag name="messenger.message_handler" />
+        </service>
+
+        <service id="TopiPaymentIntegration\PaymentHandler\TopiAsyncPaymentHandler">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler" />
+            <tag name="shopware.payment.method" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Command\StartCatalogImportCommand">
+            <argument type="service" id="TopiPaymentIntegration\Action\SyncCatalogAction" />
+            <tag name="console.command" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Command\CompleteCatalogImportCommand">
+            <argument type="service" id="TopiPaymentIntegration\Action\SyncCatalogAction" />
+            <tag name="console.command" />
         </service>
     </services>
 </container>

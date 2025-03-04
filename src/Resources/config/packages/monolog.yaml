@@ -1,0 +1,8 @@
+monolog:
+  channels: ['topi_integration_plugin']
+  handlers:
+    topiLogHandler:
+      type: rotating_file
+      path: "%kernel.logs_dir%/topi_integration_%kernel.environment%.log"
+      level: error
+      channels: [ "topi_integration_plugin" ]
