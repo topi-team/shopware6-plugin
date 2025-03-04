@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\Installer;
 
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use TopiPaymentIntegration\PaymentMethod\PaymentMethodInterface;
 use TopiPaymentIntegration\PaymentMethod\TopiAsyncPaymentMethod;
 use TopiPaymentIntegration\TopiPaymentIntegrationPlugin;
@@ -36,24 +38,17 @@ class PaymentMethodInstaller implements InstallerInterface
         TopiAsyncPaymentMethod::class,
     ];
 
-    private EntityRepository $paymentMethodRepository;
-
-    private PluginIdProvider $pluginIdProvider;
-
-    private EntityRepository $salesChannelRepository;
-
-    private EntityRepository $paymentMethodSalesChannelRepository;
-
+    /**
+     * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
+     * @param EntityRepository<SalesChannelCollection>  $salesChannelRepository
+     * @param EntityRepository<PaymentMethodCollection> $paymentMethodSalesChannelRepository
+     */
     public function __construct(
-        EntityRepository $paymentMethodRepository,
-        EntityRepository $salesChannelRepository,
-        EntityRepository $paymentMethodSalesChannelRepository,
-        PluginIdProvider $pluginIdProvider,
+        private EntityRepository $paymentMethodRepository,
+        private EntityRepository $salesChannelRepository,
+        private EntityRepository $paymentMethodSalesChannelRepository,
+        private PluginIdProvider $pluginIdProvider,
     ) {
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->pluginIdProvider = $pluginIdProvider;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->paymentMethodSalesChannelRepository = $paymentMethodSalesChannelRepository;
     }
 
     public function install(InstallContext $installContext): void
@@ -104,9 +99,12 @@ class PaymentMethodInstaller implements InstallerInterface
 
     private function findPaymentMethodEntity(string $id, Context $context): ?PaymentMethodEntity
     {
-        return $this->paymentMethodRepository
+        /** @var PaymentMethodEntity|null $paymentMethod */
+        $paymentMethod = $this->paymentMethodRepository
             ->search(new Criteria([$id]), $context)
             ->first();
+
+        return $paymentMethod;
     }
 
     private function upsertPaymentMethod(PaymentMethodInterface $paymentMethod, Context $context): void

@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchDefinition;
 use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessDefinition;
-use TopiPaymentIntegration\Content\ConnectionConfiguration\ConnectionConfigurationDefinition;
 
 class DatabaseInstaller implements InstallerInterface
 {
@@ -33,7 +32,6 @@ class DatabaseInstaller implements InstallerInterface
         $tables = [
             CatalogSyncBatchDefinition::ENTITY_NAME,
             CatalogSyncProcessDefinition::ENTITY_NAME,
-            ConnectionConfigurationDefinition::ENTITY_NAME,
         ];
 
         foreach ($tables as $table) {

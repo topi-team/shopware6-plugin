@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('topi_payment_integration')]
+#[Package('core')]
 class Migration1741107209TopiCatalogSyncProcess extends MigrationStep
 {
     public function getCreationTimestamp(): int

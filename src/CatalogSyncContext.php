@@ -7,10 +7,10 @@ namespace TopiPaymentIntegration;
 class CatalogSyncContext
 {
     /**
-     * @param ($useQueue is true ? null : \Closure(int))        $onStart
-     * @param ($useQueue is true ? null : \Closure(int))        $onProgress
-     * @param ($useQueue is true ? null : \Closure(string))     $onSuccess
-     * @param ($useQueue is true ? null : \Closure(\Exception)) $onFailure
+     * @param ($useQueue is true ? null : \Closure(int): void)        $onStart
+     * @param ($useQueue is true ? null : \Closure(int): void)        $onProgress
+     * @param ($useQueue is true ? null : \Closure(string): void)     $onSuccess
+     * @param ($useQueue is true ? null : \Closure(\Exception): void) $onFailure
      */
     public function __construct(
         public bool $useQueue = true,

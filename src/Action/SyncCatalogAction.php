@@ -10,9 +10,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Symfony\Component\Messenger\MessageBusInterface;
 use TopiPaymentIntegration\CatalogSyncContext;
 use TopiPaymentIntegration\Config\PluginConfigService;
+use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchCollection;
 use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchDefinition;
 use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchStatusEnum;
 use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessCollection;
@@ -26,6 +28,11 @@ use TopiPaymentIntegration\TopiPaymentIntegrationPlugin;
 
 readonly class SyncCatalogAction
 {
+    /**
+     * @param EntityRepository<CatalogSyncProcessCollection> $catalogSyncProcessRepository
+     * @param EntityRepository<CatalogSyncBatchCollection>   $catalogBatchRepository
+     * @param EntityRepository<SalesChannelCollection>       $salesChannelRepository
+     */
     public function __construct(
         private CatalogSyncBatchEmitter $batchEmitter,
         private EntityRepository $catalogSyncProcessRepository,
@@ -39,7 +46,7 @@ readonly class SyncCatalogAction
 
     public function execute(Context $context, CatalogSyncContext $syncContext): void
     {
-        if ($syncContext->useQueue && $currentProcesses = $this->getCurrentSyncProcesses($context)) {
+        if ($syncContext->useQueue && ($currentProcesses = $this->getCurrentSyncProcesses($context))->count() > 0) {
             foreach ($currentProcesses as $process) {
                 $status = CatalogSyncBatchStatusEnum::getCounts();
                 foreach ($process->getCatalogSyncBatches() as $batch) {
@@ -138,7 +145,7 @@ readonly class SyncCatalogAction
         $syncContext->success(sprintf('Finished sync for sales channel "%s"', $salesChannelId));
     }
 
-    private function getCurrentSyncProcesses(Context $context): ?CatalogSyncProcessCollection
+    private function getCurrentSyncProcesses(Context $context): CatalogSyncProcessCollection
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('status', CatalogSyncProcessStatusEnum::IN_PROGRESS->value))
@@ -155,6 +162,11 @@ readonly class SyncCatalogAction
             'salesChannelId' => $salesChannelId,
         ]], $context)->getPrimaryKeys(CatalogSyncProcessDefinition::ENTITY_NAME);
 
-        return $this->catalogSyncProcessRepository->search(new Criteria([$entityId]), $context)->first();
+        /** @var CatalogSyncProcessEntity|null $entity */
+        $entity = $this->catalogSyncProcessRepository->search(new Criteria([$entityId]), $context)->first();
+        // we just wrote this entity, so it should be there
+        assert($entity instanceof CatalogSyncProcessEntity);
+
+        return $entity;
     }
 }

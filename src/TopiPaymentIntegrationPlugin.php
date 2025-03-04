@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TopiPaymentIntegration;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -93,11 +95,11 @@ class TopiPaymentIntegrationPlugin extends Plugin
 
     private function getPaymentMethodInstaller(): PaymentMethodInstaller
     {
-        /** @var EntityRepository $paymentMethodRepository */
+        /** @var EntityRepository<PaymentMethodCollection> $paymentMethodRepository */
         $paymentMethodRepository = $this->container->get('payment_method.repository');
-        /** @var EntityRepository $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = $this->container->get('sales_channel.repository');
-        /** @var EntityRepository $paymentMethodSalesChannelRepository */
+        /** @var EntityRepository<PaymentMethodCollection> $paymentMethodSalesChannelRepository */
         $paymentMethodSalesChannelRepository = $this->container->get('sales_channel_payment_method.repository');
         /** @var PluginIdProvider $pluginIdProvider */
         $pluginIdProvider = $this->container->get(PluginIdProvider::class);

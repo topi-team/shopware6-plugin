@@ -14,6 +14,7 @@ class CatalogSyncBatchEntity extends Entity
 
     protected string $catalogSyncProcessId;
     protected ?CatalogSyncProcessEntity $catalogSyncProcess;
+    /** @var string[] */
     protected array $productIds = [];
     /** @var value-of<CatalogSyncBatchStatusEnum> */
     protected string $status;
@@ -42,11 +43,19 @@ class CatalogSyncBatchEntity extends Entity
         return $this;
     }
 
+    /**
+     * @return string[]
+     */
     public function getProductIds(): array
     {
         return $this->productIds;
     }
 
+    /**
+     * @param string[] $productIds
+     *
+     * @return $this
+     */
     public function setProductIds(array $productIds): CatalogSyncBatchEntity
     {
         $this->productIds = $productIds;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\Service\CatalogSyncBatch;
 
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -15,6 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use TopiPaymentIntegration\ApiClient\Catalog\ProductBatch;
 use TopiPaymentIntegration\ApiClient\Client;
+use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchCollection;
 use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchEntity;
 use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessEntity;
 use TopiPaymentIntegration\Service\ShopwareProductToTopiProductConverter;
@@ -22,6 +24,10 @@ use TopiPaymentIntegration\Service\ShopwareProductToTopiProductConverter;
 #[AsMessageHandler(handles: CatalogSyncBatchMessage::class)]
 readonly class CatalogSyncBatchHandler
 {
+    /**
+     * @param EntityRepository<CatalogSyncBatchCollection>          $catalogSyncBatchRepository
+     * @param SalesChannelRepository<SalesChannelProductCollection> $salesChannelRepository
+     */
     public function __construct(
         private EntityRepository $catalogSyncBatchRepository,
         private SalesChannelRepository $salesChannelRepository,

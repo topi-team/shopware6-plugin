@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\Service;
 
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
@@ -17,6 +18,9 @@ use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchStatusEnum;
  */
 readonly class CatalogSyncBatchEmitter
 {
+    /**
+     * @param EntityRepository<ProductCollection> $productRepository
+     */
     public function __construct(
         private EntityRepository $productRepository,
     ) {

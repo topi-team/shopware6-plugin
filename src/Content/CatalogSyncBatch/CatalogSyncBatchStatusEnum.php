@@ -11,7 +11,7 @@ enum CatalogSyncBatchStatusEnum: string
     case ERROR = 'ERROR';
 
     /**
-     * @return array<value-of<self>,int<0>>
+     * @return array<value-of<self>,0>
      */
     public static function getCounts(): array
     {

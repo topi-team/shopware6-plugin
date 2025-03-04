@@ -24,7 +24,7 @@ class ShopwareProductToTopiProductConverter
         $topiProduct->title = $shopwareProduct->getTranslated()['name'];
         $topiProduct->subtitle = $shopwareProduct->getTranslated()['metaDescription'] ?? '';
         $description = $shopwareProduct->getTranslated()['description'] ?? '';
-        $topiProduct->description = $description ?? '';
+        $topiProduct->description = $description;
         $topiProduct->descriptionLines = explode("\n", $description);
 
         foreach ($shopwareProduct->getCategoriesRo() as $category) {
