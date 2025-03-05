@@ -2,7 +2,7 @@
     "name": "topi-team/showpare6-plugin",
     "description": "Topi Integration for Shopware 6",
     "type": "shopware-platform-plugin",
-    "license": "UNLICENSED",
+    "license": "proprietary",
     "version": "0.0.1",
     "authors": [
         {
