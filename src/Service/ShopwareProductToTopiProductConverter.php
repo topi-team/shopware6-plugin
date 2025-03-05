@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\Service;
 
-use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use TopiPaymentIntegration\ApiClient\Catalog\Category;
 use TopiPaymentIntegration\ApiClient\Catalog\ExtraProductDetails;
+use TopiPaymentIntegration\ApiClient\Catalog\Image;
 use TopiPaymentIntegration\ApiClient\Catalog\MoneyAmountWithOptionalTax;
 use TopiPaymentIntegration\ApiClient\Catalog\Product;
 use TopiPaymentIntegration\ApiClient\Catalog\ProductIdentifier;
@@ -17,7 +18,7 @@ use TopiPaymentIntegration\ApiClient\Common\ProductReference;
 
 class ShopwareProductToTopiProductConverter
 {
-    public function convert(ProductEntity $shopwareProduct, SalesChannelEntity $salesChannel): Product
+    public function convert(SalesChannelProductEntity $shopwareProduct, SalesChannelEntity $salesChannel): Product
     {
         $topiProduct = new Product();
 
@@ -39,7 +40,6 @@ class ShopwareProductToTopiProductConverter
         $topiProduct->isActive = $shopwareProduct->getActive() ?? false;
 
         $currency = $salesChannel->getCurrency();
-
         assert($currency instanceof CurrencyEntity);
 
         $price = new MoneyAmountWithOptionalTax();
@@ -50,6 +50,12 @@ class ShopwareProductToTopiProductConverter
 
         $topiProduct->price = $price;
 
+        if ($cover = $shopwareProduct->getCover()?->getMedia()) {
+            $image = new Image();
+            $image->url = $cover->getUrl();
+            $topiProduct->image = $image;
+        }
+
         $topiProduct->manufacturer = $shopwareProduct->getManufacturer()?->getName() ?? '';
         $mpn = $shopwareProduct->getManufacturerNumber();
         if (!is_null($mpn)) {
@@ -57,6 +63,14 @@ class ShopwareProductToTopiProductConverter
             $supplierIdentifier->identifierType = 'MPN';
             $supplierIdentifier->id = $mpn;
             $topiProduct->productStandardIdentifiers[] = $supplierIdentifier;
+        }
+
+        $ean = $shopwareProduct->getEan();
+        if (!is_null($ean) && '' !== ($ean = trim($ean))) {
+            $eanIdentifier = new ProductIdentifier();
+            $eanIdentifier->identifierType = 'EAN';
+            $eanIdentifier->id = $ean;
+            $topiProduct->productStandardIdentifiers[] = $eanIdentifier;
         }
 
         $shopwareIdReference = new ProductReference();
@@ -75,6 +89,16 @@ class ShopwareProductToTopiProductConverter
             $extraProductDetail->value = $property->getName();
 
             $topiProduct->extraDetails[] = $extraProductDetail;
+        }
+
+        if (!is_null($shopwareProduct->getParentId())) {
+            foreach ($shopwareProduct->getOptions() as $property) {
+                $extraProductDetail = new ExtraProductDetails();
+                $extraProductDetail->property = $property->getGroup()?->getName() ?? 'UNKNOWN';
+                $extraProductDetail->value = $property->getName();
+
+                $topiProduct->extraDetails[] = $extraProductDetail;
+            }
         }
 
         $salesChannelUrl = $salesChannel->getDomains()?->first()?->getUrl();

@@ -83,7 +83,7 @@ readonly class SyncCatalogAction
 
     private function completeProcess(string $processId, Context $context): void
     {
-        $this->catalogSyncProcessRepository->upsert([[
+        $this->catalogSyncProcessRepository->update([[
             'id' => $processId,
             'status' => CatalogSyncProcessStatusEnum::COMPLETED->value,
             'endDate' => new \DateTime(),
@@ -92,7 +92,7 @@ readonly class SyncCatalogAction
 
     private function errorProcess(string $processId, Context $context): void
     {
-        $this->catalogSyncProcessRepository->upsert([[
+        $this->catalogSyncProcessRepository->update([[
             'id' => $processId,
             'status' => CatalogSyncProcessStatusEnum::ERROR->value,
             'endDate' => new \DateTime(),
@@ -115,9 +115,9 @@ readonly class SyncCatalogAction
             $criteria
         );
 
+        // only count all products if we need the count for output
         if (!$syncContext->useQueue && $count = $this->batchEmitter->countProducts($context, $criteria)) {
             $syncContext->start($count);
-            $i = 0;
         }
 
         foreach ($batches as $batch) {
@@ -136,10 +136,17 @@ readonly class SyncCatalogAction
                 ($this->catalogSyncBatchHandler)(new CatalogSyncBatchMessage($entityId));
             } catch (\Exception $e) {
                 $syncContext->fail($e);
+
+                $this->errorProcess($currentProcess->getId(), $context);
+
                 throw $e;
             } finally {
                 $syncContext->progress(count($batch['productIds']));
             }
+        }
+
+        if (!$syncContext->useQueue) {
+            $this->completeProcess($currentProcess->getId(), $context);
         }
 
         $syncContext->success(sprintf('Finished sync for sales channel "%s"', $salesChannelId));

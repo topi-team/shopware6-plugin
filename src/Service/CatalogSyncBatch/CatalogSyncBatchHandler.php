@@ -18,6 +18,7 @@ use TopiPaymentIntegration\ApiClient\Catalog\ProductBatch;
 use TopiPaymentIntegration\ApiClient\Client;
 use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchCollection;
 use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchEntity;
+use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchStatusEnum;
 use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessEntity;
 use TopiPaymentIntegration\Service\ShopwareProductToTopiProductConverter;
 
@@ -49,33 +50,58 @@ readonly class CatalogSyncBatchHandler
         /** @var CatalogSyncBatchEntity $batch */
         $batch = $this->catalogSyncBatchRepository->search($criteria, $context)->first();
 
+        try {
+            $this->run($batch);
+
+            $this->catalogSyncBatchRepository->update([[
+                'id' => $batch->getId(),
+                'status' => CatalogSyncBatchStatusEnum::COMPLETED->value,
+            ]], $context);
+        } catch (\Exception $e) {
+            $this->catalogSyncBatchRepository->update([[
+                'id' => $batch->getId(),
+                'status' => CatalogSyncBatchStatusEnum::ERROR->value,
+            ]], $context);
+
+            throw $e;
+        }
+    }
+
+    private function run(CatalogSyncBatchEntity $batch): void
+    {
         $process = $batch->getCatalogSyncProcess();
         assert($process instanceof CatalogSyncProcessEntity);
 
         $salesChannel = $process->getSalesChannel();
         assert($salesChannel instanceof SalesChannelEntity);
 
-        $criteria = (new Criteria($batch->getProductIds()))
-            ->addAssociation('translations')
-            ->addAssociation('categories')
-            ->addAssociation('categoriesRo')
-            ->addAssociation('properties')
-            ->addAssociation('properties.group')
-            ->addAssociation('seoUrls');
         $salesChannelContext = $this->salesChannelContextFactory->create(
             '',
             $salesChannel->getId(),
             [SalesChannelContextService::LANGUAGE_ID => $salesChannel->getLanguageId()]
         );
 
+        $criteria = (new Criteria($batch->getProductIds()))
+            ->addAssociation('translations')
+            ->addAssociation('manufacturer')
+            ->addAssociation('categories')
+            ->addAssociation('categoriesRo')
+            ->addAssociation('properties')
+            ->addAssociation('properties.group')
+            ->addAssociation('options.group')
+            ->addAssociation('options')
+            ->addAssociation('seoUrls')
+            ->addAssociation('cover')
+            ->addAssociation('cover.media');
+
         $products = $this->salesChannelRepository->search($criteria, $salesChannelContext)->getEntities();
 
-        $batch = new ProductBatch();
+        $topiProductBatch = new ProductBatch();
         /** @var SalesChannelProductEntity $product */
         foreach ($products as $product) {
-            $batch->add($this->productConverter->convert($product, $salesChannel));
+            $topiProductBatch->add($this->productConverter->convert($product, $salesChannel));
         }
 
-        $this->apiClient->catalog()->importCatalog($batch);
+        $this->apiClient->catalog()->importCatalog($topiProductBatch);
     }
 }

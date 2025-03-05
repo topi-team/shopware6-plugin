@@ -43,6 +43,11 @@ class CatalogSyncProcessDefinition extends EntityDefinition
         return CatalogSyncProcessEntity::class;
     }
 
+    public function getCollectionClass(): string
+    {
+        return CatalogSyncProcessCollection::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
