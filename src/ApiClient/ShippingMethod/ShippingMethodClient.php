@@ -51,8 +51,6 @@ readonly class ShippingMethodClient
     /**
      * @see \Symfony\Component\HttpClient\Response\CommonResponseTrait::checkStatusCode()
      *
-     * @param ResponseInterface $response
-     * @return void
      * @throws TransportExceptionInterface
      */
     private function checkStatusCode(ResponseInterface $response): void

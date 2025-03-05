@@ -9,6 +9,9 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     steps:
+      - name: ⚙ Install moreutils (for sponge)
+        run: sudo apt-get update && sudo apt-get install -y moreutils
+
       - name: ⬇️ Checkout Repository
         uses: actions/checkout@v4
         with:
@@ -32,7 +35,11 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: 🔗 Install dependencies
-        run: composer install --prefer-dist
+        run: |
+          cp composer.json composer.json.bak
+          jq 'del(.require["shopware/core"], .require["shopware/storefront"])' composer.json | sponge composer.json
+          composer install --prefer-dist
+          rm composer.json composer.lock && mv composer.json.bak composer.json
 
       - name: 🪮 Check code style
         run: composer style-check

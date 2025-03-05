@@ -11,12 +11,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use TopiPaymentIntegration\Action\CreateShippingMethodsAction;
-use TopiPaymentIntegration\Action\SyncCatalogAction;
 
 #[AsCommand('topi:shipping-methods:sync', 'Sync shipping methods to topi', ['t:sm:s'])]
 class SyncShippingMethodsCommand extends Command
 {
-
     public function __construct(
         private readonly CreateShippingMethodsAction $createShippingMethodsAction,
     ) {
