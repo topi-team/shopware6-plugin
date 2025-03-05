@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\ApiClient\ShippingMethod;
 
+use Symfony\Component\HttpClient\Exception\ClientException;
+use Symfony\Component\HttpClient\Exception\RedirectionException;
+use Symfony\Component\HttpClient\Exception\ServerException;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 readonly class ShippingMethodClient
 {
@@ -31,8 +36,37 @@ readonly class ShippingMethodClient
     /** @param array<mixed> $options */
     public function create(ShippingMethod $shippingMethod, array $options = []): void
     {
-        $this->client->request('POST', 'shipping-method/method', array_merge([
+        $response = $this->client->request('POST', 'shipping-method/method', array_merge([
             'json' => $shippingMethod,
         ], $options));
+
+        // allow 422 error responses which are caused by duplicate entries
+        if (422 === $response->getStatusCode()) {
+            return;
+        }
+
+        $this->checkStatusCode($response);
+    }
+
+    /**
+     * @see \Symfony\Component\HttpClient\Response\CommonResponseTrait::checkStatusCode()
+     *
+     * @param ResponseInterface $response
+     * @return void
+     * @throws TransportExceptionInterface
+     */
+    private function checkStatusCode(ResponseInterface $response): void
+    {
+        if (500 <= $response->getStatusCode()) {
+            throw new ServerException($response);
+        }
+
+        if (400 <= $response->getStatusCode()) {
+            throw new ClientException($response);
+        }
+
+        if (300 <= $response->getStatusCode()) {
+            throw new RedirectionException($response);
+        }
     }
 }

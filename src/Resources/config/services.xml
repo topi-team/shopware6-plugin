@@ -32,8 +32,31 @@
             <argument type="service" id="monolog.logger.topi_integration_plugin" />
         </service>
 
+        <service id="TopiPaymentIntegration\Action\CreateShippingMethodsAction">
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="TopiPaymentIntegration\ApiClient\Client" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Service\CreateShippingMethodsTask\CreateShippingMethodsScheduledTask">
+            <tag name="shopware.scheduled.task" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Service\CreateShippingMethodsTask\CreateShippingMethodsScheduledTaskHandler">
+            <argument type="service" id="scheduled_task.repository" />
+            <argument type="service" id="monolog.logger.topi_integration_plugin" />
+            <argument type="service" id="TopiPaymentIntegration\Action\CreateShippingMethodsAction" />
+            <tag name="messenger.message_handler" />
+        </service>
+
         <service id="TopiPaymentIntegration\Service\CatalogSyncTask\CatalogSyncScheduledTask">
             <tag name="shopware.scheduled.task" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Service\CatalogSyncTask\CatalogSyncScheduledTaskHandler">
+            <argument type="service" id="scheduled_task.repository" />
+            <argument type="service" id="monolog.logger.topi_integration_plugin" />
+            <argument type="service" id="TopiPaymentIntegration\Action\SyncCatalogAction" />
+            <tag name="messenger.message_handler" />
         </service>
 
         <service id="TopiPaymentIntegration\Service\CatalogSyncBatchEmitter">
@@ -62,12 +85,6 @@
             <argument type="service" id="TopiPaymentIntegration\Service\CatalogSyncBatch\CatalogSyncBatchHandler" />
         </service>
 
-        <service id="TopiPaymentIntegration\Service\CatalogSyncTask\CatalogSyncScheduledTaskHandler">
-            <argument type="service" id="scheduled_task.repository" />
-            <argument type="service" id="TopiPaymentIntegration\Action\SyncCatalogAction" />
-            <tag name="messenger.message_handler" />
-        </service>
-
         <service id="TopiPaymentIntegration\PaymentHandler\TopiAsyncPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler" />
             <tag name="shopware.payment.method" />
@@ -80,6 +97,11 @@
 
         <service id="TopiPaymentIntegration\Command\CompleteCatalogImportCommand">
             <argument type="service" id="TopiPaymentIntegration\Action\SyncCatalogAction" />
+            <tag name="console.command" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Command\SyncShippingMethodsCommand">
+            <argument type="service" id="TopiPaymentIntegration\Action\CreateShippingMethodsAction" />
             <tag name="console.command" />
         </service>
     </services>

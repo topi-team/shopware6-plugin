@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace TopiPaymentIntegration\Service\CatalogSyncTask;
+namespace TopiPaymentIntegration\Service\CreateShippingMethodsTask;
 
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
-class CatalogSyncScheduledTask extends ScheduledTask
+class CreateShippingMethodsScheduledTask extends ScheduledTask
 {
     public static function getTaskName(): string
     {
-        return 'topi_payment_integration.catalog_sync';
+        return 'topi_payment_integration.create_shipping_methods';
     }
 
     public static function getDefaultInterval(): int
     {
-        return 300;
+        return 86_400; // 1 day
     }
 }
