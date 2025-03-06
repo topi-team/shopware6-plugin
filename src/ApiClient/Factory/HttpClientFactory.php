@@ -8,6 +8,7 @@ use BenjaminFavre\OAuthHttpClient\OAuthHttpClient;
 use BenjaminFavre\OAuthHttpClient\TokensCache\SymfonyTokensCacheAdapter;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use TopiPaymentIntegration\ApiClient\Environment;
 use TopiPaymentIntegration\ApiClient\OAuth\GrantType\ScopedClientCredentialsGrantType;
 use TopiPaymentIntegration\Config\PluginConfigService;
 use TopiPaymentIntegration\Service\Plugin\FlagLoaderInterface;
@@ -20,28 +21,25 @@ class HttpClientFactory
     private array $clientCache = [];
 
     public function __construct(
-        private readonly PluginConfigService $config,
         private readonly FlagLoaderInterface $flagLoader,
         private readonly CacheInterface $cache,
         private readonly HttpClientInterface $httpClient,
     ) {
     }
 
-    public function make(?string $clientId = null, ?string $clientSecret = null): HttpClientInterface
+    public function make(Environment $environment): HttpClientInterface
     {
-        $cacheKey = $clientId.':'.$clientSecret;
+        $cacheKey = $environment->hash();
 
         if (!isset($this->clientCache[$cacheKey])) {
-            $this->clientCache[$cacheKey] = $this->createClientInstance($clientId, $clientSecret);
+            $this->clientCache[$cacheKey] = $this->createClientInstance($environment);
         }
 
         return $this->clientCache[$cacheKey];
     }
 
-    protected function createClientInstance(?string $clientId = null, ?string $clientSecret = null): HttpClientInterface
+    protected function createClientInstance(Environment $environment): HttpClientInterface
     {
-        $environmentUrls = $this->getEnvironmentConfig();
-
         $oauthHttpClient = $this->httpClient->withOptions([
             'headers' => [
                 'User-Agent' => self::USER_AGENT,
@@ -50,36 +48,21 @@ class HttpClientFactory
 
         $grantType = new ScopedClientCredentialsGrantType(
             $oauthHttpClient,
-            $environmentUrls['identityTokenUrl'],
-            $clientId ?: $this->config->get('clientId'),
-            $clientSecret ?: $this->config->get('clientSecret'),
+            $environment->config['identityTokenUrl'],
+            $environment->clientId,
+            $environment->clientSecret,
             implode(' ', $this->flagLoader->get()['tokenScopes'])
         );
 
         $httpClient = new OAuthHttpClient($this->httpClient->withOptions([
-            'base_uri' => $environmentUrls['baseUrl'],
+            'base_uri' => $environment->config['baseUrl'],
             'headers' => [
                 'User-Agent' => self::USER_AGENT,
             ],
         ]), $grantType);
 
-        $httpClient->setCache(new SymfonyTokensCacheAdapter($this->cache, md5($clientId.':'.$clientSecret)));
+        $httpClient->setCache(new SymfonyTokensCacheAdapter($this->cache, $environment->hash()));
 
         return $httpClient;
-    }
-
-    /**
-     * @see flags.json
-     * @see Resources/config/config.xml
-     *
-     * @return array{baseUrl: string, identityTokenUrl: string}
-     */
-    protected function getEnvironmentConfig(): array
-    {
-        if ($environment = $this->config->get('environment')) {
-            return $this->flagLoader->get()['environments'][$environment];
-        }
-
-        return $this->flagLoader->get()['environments']['sandbox'];
     }
 }

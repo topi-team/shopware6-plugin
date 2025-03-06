@@ -23,6 +23,8 @@ abstract class AbstractPaymentMethod implements PaymentMethodInterface
 
     protected int $position;
 
+    protected array $media;
+
     public function getId(): string
     {
         return $this->id;
@@ -56,5 +58,16 @@ abstract class AbstractPaymentMethod implements PaymentMethodInterface
     public function getTechnicalName(): string
     {
         return $this->technicalName;
+    }
+
+    /**
+     * @return array{
+     *     id: string,
+     *
+     * }
+     */
+    public function getMedia(): array
+    {
+        return $this->media;
     }
 }

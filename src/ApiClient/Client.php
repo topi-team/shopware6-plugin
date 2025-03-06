@@ -39,12 +39,12 @@ class Client
     ) {
     }
 
-    public function catalog(?string $clientId = null, ?string $clientSecret = null): CatalogClient
+    public function catalog(Environment $environment): CatalogClient
     {
-        $cacheKey = $this->getCacheKey($clientId, $clientSecret);
+        $cacheKey = $environment->hash();
         if (!isset($this->catalogClients[$cacheKey])) {
             $this->catalogClients[$cacheKey] = new CatalogClient(
-                $this->clientFactory->make($clientId, $clientSecret),
+                $this->clientFactory->make($environment),
                 $this->logger,
             );
         }
@@ -52,24 +52,24 @@ class Client
         return $this->catalogClients[$cacheKey];
     }
 
-    public function shippingMethod(?string $clientId = null, ?string $clientSecret = null): ShippingMethodClient
+    public function shippingMethod(Environment $environment): ShippingMethodClient
     {
-        $cacheKey = $this->getCacheKey($clientId, $clientSecret);
+        $cacheKey = $environment->hash();
         if (!isset($this->shippingMethodClients[$cacheKey])) {
             $this->shippingMethodClients[$cacheKey] = new ShippingMethodClient(
-                $this->clientFactory->make($clientId, $clientSecret),
+                $this->clientFactory->make($environment),
             );
         }
 
         return $this->shippingMethodClients[$cacheKey];
     }
 
-    public function offer(?string $clientId = null, ?string $clientSecret = null): OfferClient
+    public function offer(Environment $environment): OfferClient
     {
-        $cacheKey = $this->getCacheKey($clientId, $clientSecret);
+        $cacheKey = $environment->hash();
         if (!isset($this->offerClients[$cacheKey])) {
             $this->offerClients[$cacheKey] = new OfferClient(
-                $this->clientFactory->make($clientId, $clientSecret),
+                $this->clientFactory->make($environment),
                 $this->logger,
             );
         }
@@ -77,21 +77,16 @@ class Client
         return $this->offerClients[$cacheKey];
     }
 
-    public function order(?string $clientId = null, ?string $clientSecret = null): OrderClient
+    public function order(Environment $environment): OrderClient
     {
-        $cacheKey = $this->getCacheKey($clientId, $clientSecret);
+        $cacheKey = $environment->hash();
         if (!isset($this->orderClients[$cacheKey])) {
             $this->orderClients[$cacheKey] = new OrderClient(
-                $this->clientFactory->make($clientId, $clientSecret),
+                $this->clientFactory->make($environment),
                 $this->logger,
             );
         }
 
         return $this->orderClients[$cacheKey];
-    }
-
-    private function getCacheKey(?string $clientId = null, ?string $clientSecret = null): string
-    {
-        return ($clientId ?? 'default').':'.($clientSecret ?? 'default');
     }
 }

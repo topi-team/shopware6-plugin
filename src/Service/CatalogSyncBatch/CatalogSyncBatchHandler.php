@@ -16,10 +16,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use TopiPaymentIntegration\ApiClient\Catalog\ProductBatch;
 use TopiPaymentIntegration\ApiClient\Client;
+use TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory;
 use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchCollection;
 use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchEntity;
 use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchStatusEnum;
 use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessEntity;
+use TopiPaymentIntegration\Service\EmptyProductAvailableFilter;
 use TopiPaymentIntegration\Service\ShopwareProductToTopiProductConverter;
 
 #[AsMessageHandler(handles: CatalogSyncBatchMessage::class)]
@@ -35,6 +37,7 @@ readonly class CatalogSyncBatchHandler
         private AbstractSalesChannelContextFactory $salesChannelContextFactory,
         private ShopwareProductToTopiProductConverter $productConverter,
         private Client $apiClient,
+        private EnvironmentFactory $environmentFactory,
     ) {
     }
 
@@ -81,6 +84,12 @@ readonly class CatalogSyncBatchHandler
             [SalesChannelContextService::LANGUAGE_ID => $salesChannel->getLanguageId()]
         );
 
+        /**
+         * add an empty ProductAvailableFilter so the SalesChannelRepository does not remove inactive / invisible products.
+         *
+         * @see \Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface::processCriteria
+         * @see \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition::processCriteria
+         */
         $criteria = (new Criteria($batch->getProductIds()))
             ->addAssociation('translations')
             ->addAssociation('manufacturer')
@@ -92,7 +101,8 @@ readonly class CatalogSyncBatchHandler
             ->addAssociation('options')
             ->addAssociation('seoUrls')
             ->addAssociation('cover')
-            ->addAssociation('cover.media');
+            ->addAssociation('cover.media')
+            ->addFilter(new EmptyProductAvailableFilter());
 
         $products = $this->salesChannelRepository->search($criteria, $salesChannelContext)->getEntities();
 
@@ -102,6 +112,8 @@ readonly class CatalogSyncBatchHandler
             $topiProductBatch->add($this->productConverter->convert($product, $salesChannel));
         }
 
-        $this->apiClient->catalog()->importCatalog($topiProductBatch);
+        $this->apiClient->catalog(
+            $this->environmentFactory->makeEnvironment($salesChannel->getId()),
+        )->importCatalog($topiProductBatch);
     }
 }

@@ -13,9 +13,9 @@ class TopiAsyncPaymentMethod extends AbstractPaymentMethod
 
     protected string $id = self::UUID;
 
-    protected string $name = 'Invoice (credit limit)';
+    protected string $name = 'Rent with topi';
 
-    protected string $description = 'Pay by invoice within your credit limit';
+    protected string $description = 'Your effortless IT subscription for every business. Optimize your cash flow by renting your IT hardware at low monthly rates. Its flexible, fast, and fully digital.';
 
     protected string $paymentHandler = TopiAsyncPaymentHandler::class;
 
@@ -24,12 +24,12 @@ class TopiAsyncPaymentMethod extends AbstractPaymentMethod
      */
     protected array $translations = [
         'de-DE' => [
-            'name' => 'Rechnung (Kreditlimit)',
-            'description' => 'Zahle auf Rechnung innerhalb des Kreditlimits',
+            'name' => 'Mieten mit topi',
+            'description' => 'Die unkomplizierte IT-Miete für jedes Business. Optimieren Sie Ihren Cashflow und mieten Sie Ihre IT-Hardware zu niedrigen monatlichen Raten. Flexibel, schnell und komplett digital.',
         ],
         'en-GB' => [
-            'name' => 'Invoice (credit limit)',
-            'description' => 'Pay by invoice within your credit limit',
+            'name' => 'Rent with topi',
+            'description' => 'Your effortless IT subscription for every business. Optimize your cash flow by renting your IT hardware at low monthly rates. Its flexible, fast, and fully digital.',
         ],
     ];
 

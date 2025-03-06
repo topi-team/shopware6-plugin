@@ -103,10 +103,13 @@ readonly class SyncCatalogAction
     {
         $queries = array_map(
             static fn (string $categoryId) => new ContainsFilter('categoryTree', $categoryId),
-            $this->pluginConfigService->get('categories', $salesChannelId)
+            $this->pluginConfigService->get('categories', $salesChannelId) ?? []
         );
 
-        $criteria = (new Criteria())->addFilter(new OrFilter($queries));
+        $criteria = new Criteria();
+        if (!empty($queries)) {
+            $criteria->addFilter(new OrFilter($queries));
+        }
 
         $currentProcess = $this->createSyncProcess($salesChannelId, $context);
         $batches = $this->batchEmitter->emit(

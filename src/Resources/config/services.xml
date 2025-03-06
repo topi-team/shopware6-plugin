@@ -21,7 +21,6 @@
         </service>
 
         <service id="TopiPaymentIntegration\ApiClient\Factory\HttpClientFactory">
-            <argument type="service" id="TopiPaymentIntegration\Config\PluginConfigService" />
             <argument type="service" id="TopiPaymentIntegration\Service\Plugin\FlagLoaderInterface" />
             <argument type="service" id="cache.topi_oauth_tokens" />
             <argument type="service" id="http_client" />
@@ -35,6 +34,7 @@
         <service id="TopiPaymentIntegration\Action\CreateShippingMethodsAction">
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="TopiPaymentIntegration\ApiClient\Client" />
+            <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory" />
         </service>
 
         <service id="TopiPaymentIntegration\Service\CreateShippingMethodsTask\CreateShippingMethodsScheduledTask">
@@ -66,12 +66,18 @@
         <service id="TopiPaymentIntegration\Service\ShopwareProductToTopiProductConverter">
         </service>
 
+        <service id="TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory">
+            <argument type="service" id="TopiPaymentIntegration\Service\Plugin\FlagLoaderInterface" />
+            <argument type="service" id="TopiPaymentIntegration\Config\PluginConfigService" />
+        </service>
+
         <service id="TopiPaymentIntegration\Service\CatalogSyncBatch\CatalogSyncBatchHandler">
             <argument type="service" id="topi_catalog_sync_batch.repository" />
             <argument type="service" id="sales_channel.product.repository" />
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" />
             <argument type="service" id="TopiPaymentIntegration\Service\ShopwareProductToTopiProductConverter" />
             <argument type="service" id="TopiPaymentIntegration\ApiClient\Client" />
+            <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory" />
             <tag name="messenger.message_handler" />
         </service>
 

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use TopiPaymentIntegration\ApiClient\Client;
+use TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory;
 use TopiPaymentIntegration\ApiClient\ShippingMethod\ShippingMethod;
 
 readonly class CreateShippingMethodsAction
@@ -20,6 +21,7 @@ readonly class CreateShippingMethodsAction
     public function __construct(
         private EntityRepository $shippingMethodsRepository,
         private Client $apiClient,
+        private EnvironmentFactory $environmentFactory,
     ) {
     }
 
@@ -31,7 +33,9 @@ readonly class CreateShippingMethodsAction
             $shippingMethod->name = $shopwareShippingMethod->getName();
             $shippingMethod->sellerShippingMethodReference = $shopwareShippingMethod->getId();
 
-            $this->apiClient->shippingMethod()->create($shippingMethod);
+            $this->apiClient->shippingMethod(
+                $this->environmentFactory->makeEnvironment()
+            )->create($shippingMethod);
         }
     }
 }

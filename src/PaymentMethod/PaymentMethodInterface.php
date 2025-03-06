@@ -22,4 +22,6 @@ interface PaymentMethodInterface
     public function getPosition(): int;
 
     public function getTechnicalName(): string;
+
+    public function getMedia(): array;
 }
