@@ -45,7 +45,7 @@ class MediaInstaller
     public function installPaymentMethodMedia(AbstractMethodData $method, string $paymentMethodId, Context $context, bool $replace = false): void
     {
         $fileName = $method->getMediaFileName();
-        if ($fileName === null) {
+        if (null === $fileName) {
             return;
         }
 
@@ -53,7 +53,7 @@ class MediaInstaller
         $criteria->addAssociation('media');
         /** @var PaymentMethodEntity|null $paymentMethod */
         $paymentMethod = $this->paymentMethodRepository->search($criteria, $context)->first();
-        if ($paymentMethod === null) {
+        if (null === $paymentMethod) {
             throw PaymentException::unknownPaymentMethodById($paymentMethodId);
         }
 
@@ -85,7 +85,7 @@ class MediaInstaller
     private function getMediaId(string $fileName, PaymentMethodEntity $paymentMethod, Context $context): string
     {
         $media = $paymentMethod->getMedia();
-        if ($media !== null && $media->getFileName() === $fileName) {
+        if (null !== $media && $media->getFileName() === $fileName) {
             return $media->getId();
         }
 
@@ -93,7 +93,7 @@ class MediaInstaller
         $criteria->addFilter(new EqualsFilter('fileName', $fileName));
         $mediaId = $this->mediaRepository->searchIds($criteria, $context)->firstId();
 
-        if ($mediaId === null) {
+        if (null === $mediaId) {
             $mediaId = Uuid::randomHex();
         }
 

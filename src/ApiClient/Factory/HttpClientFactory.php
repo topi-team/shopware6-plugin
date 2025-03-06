@@ -10,7 +10,6 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use TopiPaymentIntegration\ApiClient\Environment;
 use TopiPaymentIntegration\ApiClient\OAuth\GrantType\ScopedClientCredentialsGrantType;
-use TopiPaymentIntegration\Config\PluginConfigService;
 use TopiPaymentIntegration\Service\Plugin\FlagLoaderInterface;
 
 class HttpClientFactory

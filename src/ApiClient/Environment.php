@@ -9,8 +9,6 @@ class Environment
     private string $hash;
 
     /**
-     * @param string $clientId
-     * @param string $clientSecret
      * @param array{baseUrl: string, identityTokenUrl: string} $config
      */
     public function __construct(
