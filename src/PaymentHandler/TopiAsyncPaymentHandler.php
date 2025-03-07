@@ -63,14 +63,14 @@ class TopiAsyncPaymentHandler extends AbstractPaymentHandler
             }
 
             $lineItem = new OfferLinePayload();
-            $lineItem->title = $shopwareLineItem->title;
+            $lineItem->title = $shopwareLineItem->getLabel();
             $lineItem->quantity = $shopwareLineItem->getQuantity();
             $price = new MoneyAmount();
             $price->currency = $order->getCurrency()?->getIsoCode();
 
-            $price->gross = (int) $shopwareLineItem->getTotalPrice() * 100;
-            $price->net = (int) ($shopwareLineItem->getPrice()?->getTotalPrice() ?? 0.0)
-                - ($shopwareLineItem->getPrice()?->getCalculatedTaxes()->getAmount() ?? 0.0) * 100;
+            $price->gross = (int) round($shopwareLineItem->getTotalPrice() * 100);
+            $price->net = (int) round((($shopwareLineItem->getPrice()?->getTotalPrice() ?? 0.0)
+                - ($shopwareLineItem->getPrice()?->getCalculatedTaxes()->getAmount() ?? 0.0)) * 100);
             $lineItem->price = $price;
 
             $productReference = new ProductReference();
@@ -154,10 +154,12 @@ class TopiAsyncPaymentHandler extends AbstractPaymentHandler
     {
         $criteria = new Criteria([$orderTransactionId]);
         $criteria->addAssociation('order.orderCustomer.customer');
+        $criteria->addAssociation('order.orderCustomer.customer.group');
         $criteria->addAssociation('order.orderCustomer.salutation');
         $criteria->addAssociation('order.language');
         $criteria->addAssociation('order.currency');
         $criteria->addAssociation('order.deliveries.shippingOrderAddress.country');
+        $criteria->addAssociation('order.deliveries.shippingMethod');
         $criteria->addAssociation('order.billingAddress.country');
         $criteria->addAssociation('order.lineItems');
         $criteria->addAssociation('order.transactions.stateMachineState');
