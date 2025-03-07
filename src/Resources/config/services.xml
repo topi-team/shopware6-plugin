@@ -113,5 +113,39 @@
             <argument type="service" id="TopiPaymentIntegration\Action\CreateShippingMethodsAction" />
             <tag name="console.command" />
         </service>
+
+        <service id="TopiPaymentIntegration\Controller\WebhookController">
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="TopiPaymentIntegration\Event\Registry">
+            <call method="addEventType">
+                <argument type="string">\TopiPaymentIntegration\Event\OfferEvent</argument>
+            </call>
+            <call method="addEventType">
+                <argument type="string">\TopiPaymentIntegration\Event\OrderEvent</argument>
+            </call>
+        </service>
+
+        <service id="TopiPaymentIntegration\Service\EventProcessing\UpdateOrderStatusFromAcceptedOfferProcessor">
+            <tag name="topi_payment_integration.service.event_processing.processor" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Service\EventProcessing\SetOrderIdProcessor">
+            <tag name="topi_payment_integration.service.event_processing.processor" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Service\EventProcessing\UpdateOrderStatusFromObsoleteOfferProcessor">
+            <tag name="topi_payment_integration.service.event_processing.processor" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Service\EventProcessing\CommonProcessor">
+            <argument type="tagged" tag="topi_payment_integration.service.event_processing.processor" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Service\EventProcessing\ProcessorInterface" alias="TopiPaymentIntegration\Service\EventProcessing\CommonProcessor">
+        </service>
     </services>
 </container>
