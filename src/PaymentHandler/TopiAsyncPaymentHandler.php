@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TopiPaymentIntegration\PaymentHandler;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
@@ -30,6 +31,9 @@ use TopiPaymentIntegration\ApiClient\Offer\ShippingInfo;
 
 class TopiAsyncPaymentHandler extends AbstractPaymentHandler
 {
+    /**
+     * @param EntityRepository<OrderTransactionCollection> $orderTransactionRepository
+     */
     public function __construct(
         private readonly EntityRepository $orderTransactionRepository,
         private readonly Client $client,
