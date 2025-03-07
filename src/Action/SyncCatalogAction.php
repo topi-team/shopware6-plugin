@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Symfony\Component\Messenger\MessageBusInterface;
 use TopiPaymentIntegration\CatalogSyncContext;
+use TopiPaymentIntegration\Config\ConfigValue;
 use TopiPaymentIntegration\Config\PluginConfigService;
 use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchCollection;
 use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchDefinition;
@@ -75,7 +76,7 @@ readonly class SyncCatalogAction
         $salesChannels = $this->salesChannelRepository->searchIds($criteria, $context)->getIds();
 
         foreach ($salesChannels as $salesChannelId) {
-            if ($this->pluginConfigService->getBool('catalogSyncActiveInSalesChannel', $salesChannelId)) {
+            if ($this->pluginConfigService->getBool(ConfigValue::CATALOG_SYNC_ACTIVE_IN_SALES_CHANNEL, $salesChannelId)) {
                 $this->processSalesChannel($salesChannelId, $context, $syncContext);
             }
         }
@@ -103,7 +104,7 @@ readonly class SyncCatalogAction
     {
         $queries = array_map(
             static fn (string $categoryId) => new ContainsFilter('categoryTree', $categoryId),
-            $this->pluginConfigService->get('categories', $salesChannelId) ?? []
+            $this->pluginConfigService->get(ConfigValue::CATEGORIES, $salesChannelId) ?? []
         );
 
         $criteria = new Criteria();

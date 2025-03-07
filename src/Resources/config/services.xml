@@ -32,7 +32,8 @@
         </service>
 
         <service id="TopiPaymentIntegration\Action\CreateShippingMethodsAction">
-            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="TopiPaymentIntegration\Config\PluginConfigService" />
             <argument type="service" id="TopiPaymentIntegration\ApiClient\Client" />
             <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory" />
         </service>
@@ -92,7 +93,9 @@
         </service>
 
         <service id="TopiPaymentIntegration\PaymentHandler\TopiAsyncPaymentHandler">
-            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler" />
+            <argument type="service" id="order_transaction.repository" />
+            <argument type="service" id="TopiPaymentIntegration\ApiClient\Client" />
+            <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory" />
             <tag name="shopware.payment.method" />
         </service>
 
