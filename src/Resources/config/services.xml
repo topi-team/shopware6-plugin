@@ -114,10 +114,18 @@
             <tag name="console.command" />
         </service>
 
+        <service id="TopiPaymentIntegration\Service\WebhookVerificationService">
+            <argument type="service" id="TopiPaymentIntegration\Config\PluginConfigService" />
+        </service>
+
         <service id="TopiPaymentIntegration\Controller\WebhookController">
+            <argument type="service" id="TopiPaymentIntegration\Event\Registry" />
+            <argument type="service" id="TopiPaymentIntegration\Service\EventProcessing\ProcessorInterface" />
+            <argument type="service" id="TopiPaymentIntegration\Service\WebhookVerificationService" />
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+            <tag name="controller.service_arguments" />
         </service>
 
         <service id="TopiPaymentIntegration\Event\Registry">
@@ -130,14 +138,18 @@
         </service>
 
         <service id="TopiPaymentIntegration\Service\EventProcessing\UpdateOrderStatusFromAcceptedOfferProcessor">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler" />
             <tag name="topi_payment_integration.service.event_processing.processor" />
         </service>
 
         <service id="TopiPaymentIntegration\Service\EventProcessing\SetOrderIdProcessor">
+            <argument type="service" id="order_transaction.repository" />
+            <argument type="service" id="order.repository" />
             <tag name="topi_payment_integration.service.event_processing.processor" />
         </service>
 
         <service id="TopiPaymentIntegration\Service\EventProcessing\UpdateOrderStatusFromObsoleteOfferProcessor">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler" />
             <tag name="topi_payment_integration.service.event_processing.processor" />
         </service>
 

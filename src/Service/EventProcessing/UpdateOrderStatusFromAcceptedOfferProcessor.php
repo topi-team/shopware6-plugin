@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\Service\EventProcessing;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Framework\Context;
 use TopiPaymentIntegration\Event\EventInterface;
 use TopiPaymentIntegration\Event\OfferEvent;
 
 class UpdateOrderStatusFromAcceptedOfferProcessor implements ProcessorInterface
 {
+    public function __construct(
+        private readonly OrderTransactionStateHandler $transactionStateHandler,
+    ) {
+    }
+
     public function canProcess(string $event): bool
     {
         return 'offer.accepted' === $event;
@@ -21,7 +27,6 @@ class UpdateOrderStatusFromAcceptedOfferProcessor implements ProcessorInterface
             return;
         }
 
-        // $event->offer->id,
-        // $event->offer->sellerOfferReference
+        $this->transactionStateHandler->paid($event->offer->sellerOfferReference, $context);
     }
 }

@@ -51,8 +51,8 @@ class WebhookController extends AbstractController
     public function executeWebhook(Request $request, Context $context): Response
     {
         /** @var string|null $event */
-        $event = $request->query['event'];
-        if (is_null($event)) {
+        $event = $request->query->getString('event');
+        if ('' === $event) {
             return $this->malformedRequestError();
         }
 
@@ -65,7 +65,7 @@ class WebhookController extends AbstractController
         ];
         $svixHeaderData = [];
         foreach ($svixHeaders as $header) {
-            $svixHeaderData[$header] = $request->headers[$header];
+            $svixHeaderData[$header] = $request->headers->get($header);
         }
 
         try {

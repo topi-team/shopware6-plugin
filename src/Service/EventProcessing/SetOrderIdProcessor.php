@@ -4,18 +4,25 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\Service\EventProcessing;
 
-use Shopware\Bundle\AttributeBundle\Service\DataPersisterInterface;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use TopiPaymentIntegration\Event\EventInterface;
 use TopiPaymentIntegration\Event\OrderEvent;
 
 class SetOrderIdProcessor implements ProcessorInterface
 {
-    private DataPersisterInterface $dataPersister;
-
-    public function __construct(DataPersisterInterface $dataPersister)
-    {
-        $this->dataPersister = $dataPersister;
+    /**
+     * @param EntityRepository<OrderTransactionCollection> $orderTransactionRepository
+     * @param EntityRepository<OrderCollection>            $orderRepository
+     */
+    public function __construct(
+        private readonly EntityRepository $orderTransactionRepository,
+        private readonly EntityRepository $orderRepository,
+    ) {
     }
 
     public function canProcess(string $event): bool
@@ -29,9 +36,18 @@ class SetOrderIdProcessor implements ProcessorInterface
             return;
         }
 
-        // $event->order->offerId,
-        // $event->order->sellerOfferReference,
+        $orderTransaction = $this->orderTransactionRepository->search(
+            new Criteria([$event->order->sellerOfferReference]),
+            $context
+        )->first();
 
-        // write order id $event->order->id to shopware order custom field
+        if (!$orderTransaction instanceof OrderTransactionEntity) {
+            return;
+        }
+
+        $this->orderRepository->update([[
+            'id' => $orderTransaction->getOrderId(),
+            'customFields' => ['topiOrderId' => $event->order->id],
+        ]], $context);
     }
 }
