@@ -88,14 +88,18 @@ class TopiAsyncPaymentHandler extends AbstractPaymentHandler
         $customerInfo = new CustomerInfo();
         $shopwareBillingAddress = $order->getBillingAddress();
 
+        $orderCustomer = $order->getOrderCustomer();
+
         $customerInfo->fullName = trim(($shopwareBillingAddress?->getFirstName() ?? '')
             .' '.($shopwareBillingAddress?->getLastName() ?? ''));
-        $customerInfo->customerGroup = $order->getOrderCustomer()?->getCustomer()?->getGroup()?->getName() ?? 'UNKNOWN';
-        $customerInfo->email = $order->getOrderCustomer()?->getEmail();
+        $customerInfo->customerGroup = $orderCustomer?->getCustomer()?->getGroup()?->getName() ?? 'UNKNOWN';
+        $customerInfo->email = $orderCustomer?->getEmail();
 
         $customerCompany = new CompanyInfo();
-        $customerCompany->name = $shopwareBillingAddress?->getCompany() ?? '';
-        $customerCompany->vatNumber = $shopwareBillingAddress?->getVatId();
+        $customerCompany->name = $orderCustomer?->getCompany()
+            ?? $shopwareBillingAddress?->getCompany()
+            ?? $customerInfo->fullName;
+        $customerCompany->vatNumber = ($orderCustomer?->getVatIds() ?? [null])[0] ?? $shopwareBillingAddress?->getVatId();
 
         $billingAddress = new PostalAddress();
         $billingAddress->city = $shopwareBillingAddress?->getCity() ?? '';
