@@ -5,19 +5,23 @@ declare(strict_types=1);
 namespace TopiPaymentIntegration\Installer;
 
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Swag\PayPal\Util\Lifecycle\Method\AbstractMethodData;
+use TopiPaymentIntegration\TopiPaymentIntegrationPlugin;
 
-class MediaInstaller
+readonly class MediaInstaller
 {
-    private const PAYMENT_METHOD_MEDIA_DIR = 'Resources/icons';
+    private const PAYMENT_METHOD_MEDIA_FILE = 'Resources/config/payment-badge.svg';
+    private const SAVED_MEDIA_FILENAME = 'topi_payment_integration_payment-badge';
 
     private EntityRepository $mediaRepository;
 
@@ -28,7 +32,9 @@ class MediaInstaller
     private FileSaver $fileSaver;
 
     /**
-     * @internal
+     * @param EntityRepository<MediaCollection>         $mediaRepository
+     * @param EntityRepository<MediaFolderCollection>   $mediaFolderRepository
+     * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
      */
     public function __construct(
         EntityRepository $mediaRepository,
@@ -42,13 +48,8 @@ class MediaInstaller
         $this->fileSaver = $fileSaver;
     }
 
-    public function installPaymentMethodMedia(AbstractMethodData $method, string $paymentMethodId, Context $context, bool $replace = false): void
+    public function installPaymentMethodMedia(string $paymentMethodId, Context $context, bool $replace = false): void
     {
-        $fileName = $method->getMediaFileName();
-        if (null === $fileName) {
-            return;
-        }
-
         $criteria = new Criteria([$paymentMethodId]);
         $criteria->addAssociation('media');
         /** @var PaymentMethodEntity|null $paymentMethod */
@@ -61,8 +62,8 @@ class MediaInstaller
             return;
         }
 
-        $mediaFile = $this->getMediaFile($fileName);
-        $savedFileName = \sprintf('swag_paypal_%s', $fileName);
+        $mediaFile = $this->getMediaFile();
+        $savedFileName = \sprintf(self::SAVED_MEDIA_FILENAME);
 
         $this->fileSaver->persistFileToMedia(
             $mediaFile,
@@ -111,9 +112,9 @@ class MediaInstaller
         return $mediaId;
     }
 
-    private function getMediaFile(string $fileName): MediaFile
+    private function getMediaFile(): MediaFile
     {
-        $filePath = \sprintf('%s/%s/%s.svg', \dirname(__DIR__, 3), self::PAYMENT_METHOD_MEDIA_DIR, $fileName);
+        $filePath = \sprintf('%s/%s', TopiPaymentIntegrationPlugin::getPluginDir(), self::PAYMENT_METHOD_MEDIA_FILE);
 
         return new MediaFile(
             $filePath,

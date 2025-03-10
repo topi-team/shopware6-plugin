@@ -14,13 +14,14 @@ use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use TopiPaymentIntegration\PaymentMethod\PaymentMethodInterface;
 use TopiPaymentIntegration\PaymentMethod\TopiAsyncPaymentMethod;
 use TopiPaymentIntegration\TopiPaymentIntegrationPlugin;
 
-class PaymentMethodInstaller implements InstallerInterface
+readonly class PaymentMethodInstaller implements InstallerInterface
 {
     /**
      * @var array<class-string<PaymentMethodInterface>, non-empty-string>
@@ -28,8 +29,6 @@ class PaymentMethodInstaller implements InstallerInterface
     public const PAYMENT_METHOD_IDS = [
         TopiAsyncPaymentMethod::class => '52c311058c8247609642ec773e30dd7b',
     ];
-
-    public const HANDLER_IDENTIFIER_ROOT_NAMESPACE = 'TopiPaymentIntegration';
 
     /**
      * @var class-string<PaymentMethodInterface>[]
@@ -48,6 +47,7 @@ class PaymentMethodInstaller implements InstallerInterface
         private EntityRepository $salesChannelRepository,
         private EntityRepository $paymentMethodSalesChannelRepository,
         private PluginIdProvider $pluginIdProvider,
+        private MediaInstaller $mediaInstaller,
     ) {
     }
 
@@ -55,6 +55,7 @@ class PaymentMethodInstaller implements InstallerInterface
     {
         foreach ($this->getPaymentMethods() as $paymentMethod) {
             $this->upsertPaymentMethod($paymentMethod, $installContext->getContext());
+            $this->mediaInstaller->installPaymentMethodMedia($paymentMethod->getId(), $installContext->getContext());
 
             $this->enablePaymentMethodForAllSalesChannels($paymentMethod, $installContext->getContext());
         }
@@ -80,6 +81,11 @@ class PaymentMethodInstaller implements InstallerInterface
     {
         foreach ($this->getPaymentMethods() as $paymentMethod) {
             $this->activatePaymentMethod($paymentMethod, $activateContext->getContext());
+            $this->mediaInstaller->installPaymentMethodMedia(
+                $paymentMethod->getId(),
+                $activateContext->getContext(),
+                true
+            );
         }
     }
 
@@ -219,5 +225,10 @@ class PaymentMethodInstaller implements InstallerInterface
         }
 
         $this->paymentMethodRepository->update([$data], $context);
+    }
+
+    public function update(UpdateContext $updateContext): void
+    {
+        // nothing to do
     }
 }

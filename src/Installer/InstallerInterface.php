@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 
 interface InstallerInterface
 {
@@ -18,4 +19,6 @@ interface InstallerInterface
     public function activate(ActivateContext $activateContext): void;
 
     public function deactivate(DeactivateContext $deactivateContext): void;
+
+    public function update(UpdateContext $updateContext): void;
 }

@@ -47,7 +47,7 @@ class SetOrderIdProcessor implements ProcessorInterface
 
         $this->orderRepository->update([[
             'id' => $orderTransaction->getOrderId(),
-            'customFields' => ['topiOrderId' => $event->order->id],
+            'customFields' => ['topi_order_id' => $event->order->id],
         ]], $context);
     }
 }

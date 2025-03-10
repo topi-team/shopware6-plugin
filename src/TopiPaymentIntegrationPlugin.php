@@ -6,6 +6,9 @@ namespace TopiPaymentIntegration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
+use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -13,6 +16,7 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
@@ -21,7 +25,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\DirectoryLoader;
 use Symfony\Component\DependencyInjection\Loader\GlobFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use TopiPaymentIntegration\Installer\CustomFieldInstaller;
 use TopiPaymentIntegration\Installer\DatabaseInstaller;
+use TopiPaymentIntegration\Installer\MediaInstaller;
 use TopiPaymentIntegration\Installer\PaymentMethodInstaller;
 use TopiPaymentIntegration\Installer\PluginInstaller;
 
@@ -79,7 +85,8 @@ class TopiPaymentIntegrationPlugin extends Plugin
     {
         return new PluginInstaller(
             $this->getPaymentMethodInstaller(),
-            $this->getDatabaseInstaller()
+            $this->getDatabaseInstaller(),
+            $this->getCustomFieldInstaller()
         );
     }
 
@@ -108,7 +115,35 @@ class TopiPaymentIntegrationPlugin extends Plugin
             $paymentMethodRepository,
             $salesChannelRepository,
             $paymentMethodSalesChannelRepository,
-            $pluginIdProvider
+            $pluginIdProvider,
+            $this->getMediaInstaller()
+        );
+    }
+
+    private function getCustomFieldInstaller(): CustomFieldInstaller
+    {
+        /** @var EntityRepository<CustomFieldSetCollection> $customFieldSetRepository */
+        $customFieldSetRepository = $this->container->get('custom_field_set.repository');
+
+        return new CustomFieldInstaller($customFieldSetRepository);
+    }
+
+    private function getMediaInstaller(): MediaInstaller
+    {
+        /** @var EntityRepository<MediaCollection> $mediaRepository */
+        $mediaRepository = $this->container->get('media.repository');
+        /** @var EntityRepository<MediaFolderCollection> $mediaFolderRepository */
+        $mediaFolderRepository = $this->container->get('media_folder.repository');
+        /** @var EntityRepository<PaymentMethodCollection> $paymentMethodRepository */
+        $paymentMethodRepository = $this->container->get('payment_method.repository');
+        /** @var FileSaver $fileSaver */
+        $fileSaver = $this->container->get('Shopware\Core\Content\Media\File\FileSaver');
+
+        return new MediaInstaller(
+            $mediaRepository,
+            $mediaFolderRepository,
+            $paymentMethodRepository,
+            $fileSaver
         );
     }
 }
