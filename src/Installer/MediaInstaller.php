@@ -20,7 +20,7 @@ use TopiPaymentIntegration\TopiPaymentIntegrationPlugin;
 
 readonly class MediaInstaller
 {
-    private const PAYMENT_METHOD_MEDIA_FILE = 'Resources/config/payment-badge.svg';
+    private const PAYMENT_METHOD_MEDIA_FILE = 'src/Resources/config/payment-badge.svg';
     private const SAVED_MEDIA_FILENAME = 'topi_payment_integration_payment-badge';
 
     private EntityRepository $mediaRepository;
