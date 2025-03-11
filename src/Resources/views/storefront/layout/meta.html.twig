@@ -1,0 +1,12 @@
+{% sw_extends '@Storefront/storefront/layout/meta.html.twig' %}
+
+
+{% block layout_head_javascript_jquery %}
+    {{ parent() }}
+
+    {% block layout_head_topi_script %}
+        <script src="https://elements.topi-sandbox-staging.eu/topi_elements.umd.js"
+                type="text/javascript">
+        </script>
+    {% endblock %}
+{% endblock %}
