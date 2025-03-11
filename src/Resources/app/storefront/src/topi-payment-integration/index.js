@@ -8,7 +8,7 @@ export default class TopiPaymentIntegrationPlugin extends Plugin {
   handlePdpElement() {
     const topi = new TopiElements({
       locale: "de",
-      widgetId: "pdpItem",
+      widgetId: "x-topi-product-rental-summary-label",
     });
 
     topi.pdpItem = {
