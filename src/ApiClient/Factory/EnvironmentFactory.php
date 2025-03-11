@@ -31,7 +31,7 @@ class EnvironmentFactory
     {
         $cacheKey = $salesChannelId ?? 'default';
         if (!isset($this->environmentCache[$cacheKey])) {
-            $this->environmentCache[$salesChannelId] = $this->getEnvironmentForSalesChannel($salesChannelId);
+            $this->environmentCache[$cacheKey] = $this->getEnvironmentForSalesChannel($salesChannelId);
         }
 
         return $this->environmentCache[$cacheKey];
