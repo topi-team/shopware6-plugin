@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 
 readonly class PluginInstaller implements InstallerInterface
 {
-
     public function __construct(
         private PaymentMethodInstaller $paymentMethodInstallationService,
         private DatabaseInstaller $databaseInstallationService,

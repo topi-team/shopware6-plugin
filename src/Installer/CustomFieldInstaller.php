@@ -17,7 +17,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 readonly class CustomFieldInstaller implements InstallerInterface
 {
-    public const CUSTOM_FIELD_SET_ID = '01958460a77371a7924ef42aa3182bf3'
+    public const CUSTOM_FIELD_SET_ID = '01958460a77371a7924ef42aa3182bf3';
 
     /**
      * @param EntityRepository<CustomFieldSetCollection> $customFieldSetRepository
