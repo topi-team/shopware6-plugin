@@ -5,9 +5,15 @@ declare(strict_types=1);
 namespace TopiPaymentIntegration\ApiClient\Catalog;
 
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use TopiPaymentIntegration\ApiClient\Common\ProductReferenceCollection;
 use TopiPaymentIntegration\ApiClient\Common\ProductSummary;
+use TopiPaymentIntegration\ApiClient\Exception\TopiApiException;
 use TopiPaymentIntegration\ApiClient\PreProcessOptionsTrait;
 
 class CatalogClient
@@ -48,7 +54,6 @@ class CatalogClient
             'seller_product_references' => $productReferences->getProductReferences(),
         ];
 
-        $start = microtime(true);
         $requestOptions = array_merge([
             'json' => $jsonData,
         ], $options);
@@ -63,8 +68,14 @@ class CatalogClient
             return $this->responseCache[__METHOD__][$cacheKey];
         }
 
-        $response = $this->client->request('POST', 'catalog/check-supported', $this->preProcessOptions($requestOptions));
-        $responseData = $response->toArray();
+        try {
+            $response = $this->client->request('POST', 'catalog/check-supported',
+                $this->preProcessOptions($requestOptions));
+            $responseData = $response->toArray();
+        } catch (TransportExceptionInterface|ClientExceptionInterface|DecodingExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
+            $this->logger->error($e);
+            throw new TopiApiException($e->getMessage(), $e->getResponse()?->getStatusCode() ?? $e->getCode(), $e);
+        }
 
         $result = [];
         foreach ($responseData['products'] as $productSummaryData) {
@@ -86,11 +97,16 @@ class CatalogClient
             'pricing_request' => $pricingRequest,
         ];
 
-        $response = $this->client->request('POST', 'catalog/pricing', $this->preProcessOptions(array_merge([
-            'json' => $jsonData,
-        ], $options)));
+        try {
+            $response = $this->client->request('POST', 'catalog/pricing', $this->preProcessOptions(array_merge([
+                'json' => $jsonData,
+            ], $options)));
 
-        $responseData = $response->toArray();
+            $responseData = $response->toArray();
+        } catch (TransportExceptionInterface|ClientExceptionInterface|DecodingExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
+            $this->logger->error($e);
+            throw new TopiApiException($e->getMessage(), $e->getResponse()?->getStatusCode() ?? $e->getCode(), $e);
+        }
 
         $result = new CalculatePricingResponse();
         $result->applyData($responseData);

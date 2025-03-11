@@ -58,6 +58,7 @@ class Client
         if (!isset($this->shippingMethodClients[$cacheKey])) {
             $this->shippingMethodClients[$cacheKey] = new ShippingMethodClient(
                 $this->clientFactory->make($environment),
+                $this->logger,
             );
         }
 

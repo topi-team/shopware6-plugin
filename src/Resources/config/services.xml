@@ -159,5 +159,16 @@
 
         <service id="TopiPaymentIntegration\Service\EventProcessing\ProcessorInterface" alias="TopiPaymentIntegration\Service\EventProcessing\CommonProcessor">
         </service>
+
+        <service id="TopiPaymentIntegration\Service\OrderUpdatedService">
+            <argument type="service" id="order.repository" />
+            <argument type="service" id="TopiPaymentIntegration\ApiClient\Client" />
+            <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Subscriber\ShipmentSubscriber">
+            <argument type="service" id="TopiPaymentIntegration\Service\OrderUpdatedService" />
+            <tag name="kernel.event_subscriber" />
+        </service>
     </services>
 </container>

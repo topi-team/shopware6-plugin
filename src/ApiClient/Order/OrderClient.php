@@ -5,7 +5,13 @@ declare(strict_types=1);
 namespace TopiPaymentIntegration\ApiClient\Order;
 
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use TopiPaymentIntegration\ApiClient\Exception\TopiApiException;
 use TopiPaymentIntegration\ApiClient\PreProcessOptionsTrait;
 
 readonly class OrderClient
@@ -18,19 +24,26 @@ readonly class OrderClient
     ) {
     }
 
-    /** @param array<mixed> $options */
+    /**
+     * @param array<mixed> $options
+     */
     public function setOrderMetadata(SetOrderMetadataData $data, array $options = []): Order
     {
-        $start = microtime(true);
-        $response = $this->client->request('PATCH', sprintf('orders/%s', $data->orderId), $this->preProcessOptions(array_merge([
-            'json' => [
-                'metadata' => $data->metadata,
-            ],
-        ], $options)));
+        try {
+            $response = $this->client->request('PATCH', sprintf('orders/%s', $data->orderId),
+                $this->preProcessOptions(array_merge([
+                    'json' => [
+                        'metadata' => $data->metadata,
+                    ],
+                ], $options)));
 
-        $order = new Order();
-        $order->applyData($response->toArray());
+            $order = new Order();
+            $order->applyData($response->toArray());
 
-        return $order;
+            return $order;
+        } catch (TransportExceptionInterface|ClientExceptionInterface|DecodingExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
+            $this->logger->error($e);
+            throw new TopiApiException($e->getMessage(), $e->getResponse()?->getStatusCode() ?? $e->getCode(), $e);
+        }
     }
 }

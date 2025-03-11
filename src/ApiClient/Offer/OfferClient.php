@@ -5,7 +5,13 @@ declare(strict_types=1);
 namespace TopiPaymentIntegration\ApiClient\Offer;
 
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use TopiPaymentIntegration\ApiClient\Exception\TopiApiException;
 use TopiPaymentIntegration\ApiClient\PreProcessOptionsTrait;
 
 readonly class OfferClient
@@ -21,26 +27,36 @@ readonly class OfferClient
     /** @param array<mixed> $options */
     public function createOffer(CreateOfferData $offer, array $options = []): CreatedOffer
     {
-        $response = $this->client->request('POST', 'offers', $this->preProcessOptions(array_merge([
-            'json' => $offer,
-        ], $options)));
+        try {
+            $response = $this->client->request('POST', 'offers', $this->preProcessOptions(array_merge([
+                'json' => $offer,
+            ], $options)));
 
-        $createdOffer = new CreatedOffer();
-        $createdOffer->applyData($response->toArray());
+            $createdOffer = new CreatedOffer();
+            $createdOffer->applyData($response->toArray());
 
-        return $createdOffer;
+            return $createdOffer;
+        } catch (TransportExceptionInterface|ClientExceptionInterface|DecodingExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
+            $this->logger->error($e);
+            throw new TopiApiException($e->getMessage(), $e->getResponse()?->getStatusCode() ?? $e->getCode(), $e);
+        }
     }
 
     /** @param array<mixed> $options */
     public function validateOffer(CreateOfferData $offer, array $options = []): PricingOverview
     {
-        $response = $this->client->request('POST', 'offers/validate', $this->preProcessOptions(array_merge([
-            'json' => $offer,
-        ], $options)));
+        try {
+            $response = $this->client->request('POST', 'offers/validate', $this->preProcessOptions(array_merge([
+                'json' => $offer,
+            ], $options)));
 
-        $pricingOverview = new PricingOverview();
-        $pricingOverview->applyData($response->toArray()['pricing_overview']);
+            $pricingOverview = new PricingOverview();
+            $pricingOverview->applyData($response->toArray()['pricing_overview']);
 
-        return $pricingOverview;
+            return $pricingOverview;
+        } catch (TransportExceptionInterface|ClientExceptionInterface|DecodingExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
+            $this->logger->error($e);
+            throw new TopiApiException($e->getMessage(), $e->getResponse()?->getStatusCode() ?? $e->getCode(), $e);
+        }
     }
 }
