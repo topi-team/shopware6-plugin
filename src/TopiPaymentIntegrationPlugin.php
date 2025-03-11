@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -79,6 +80,12 @@ class TopiPaymentIntegrationPlugin extends Plugin
     {
         $this->getPluginInstaller()->deactivate($deactivateContext);
         parent::deactivate($deactivateContext);
+    }
+
+    public function update(UpdateContext $updateContext): void
+    {
+        $this->getPluginInstaller()->update($updateContext);
+        parent::update($updateContext);
     }
 
     private function getPluginInstaller(): PluginInstaller
