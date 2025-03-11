@@ -11,8 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use TopiPaymentIntegration\ApiClient\Client;
-use TopiPaymentIntegration\ApiClient\Order\SetOrderMetadataData;
 use TopiPaymentIntegration\Service\OrderUpdatedService;
 
 readonly class ShipmentSubscriber implements EventSubscriberInterface
