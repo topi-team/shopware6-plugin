@@ -56,6 +56,7 @@ readonly class CustomFieldInstaller implements InstallerInterface
     {
         $this->customFieldSetRepository->upsert([
             [
+                'id' => self::CUSTOM_FIELD_SET_ID,
                 'name' => 'topi_order_details',
                 'config' => [
                     'label' => [
