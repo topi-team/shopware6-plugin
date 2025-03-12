@@ -1,0 +1,9 @@
+{% sw_extends '@Storefront/storefront/component/product/listing.html.twig' %}
+
+{% block product_listing %}
+    {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/cart-rental-summary-label-script.html.twig' with {
+        products: searchResult
+    } %}
+
+    {{ parent() }}
+{% endblock %}
