@@ -6,11 +6,6 @@ export default class TopiPaymentIntegrationPlugin extends Plugin {
   }
 
   handlePdpElement() {
-    const topi = new TopiElements({
-      locale: "de",
-      widgetId: "x-topi-product-rental-summary-label",
-    });
-
     topi.pdpItem = {
       price: {
         currency: "EUR",

@@ -10,6 +10,12 @@
         {% if page.hasExtension(extensionName) %}
             <script src="{{ page.getExtension(extensionName).widgetJsUrl }}" type="text/javascript">
             </script>
+            <script type="text/javascript">
+              const topi = new TopiElements({
+                locale: "de",
+                widgetId: "{{ page.getExtension(extensionName).widgetId }}",
+              });
+            </script>
         {% endif %}
     {% endblock %}
 {% endblock %}
