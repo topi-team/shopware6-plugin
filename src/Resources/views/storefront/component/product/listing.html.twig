@@ -2,8 +2,8 @@
 
 {% block product_listing %}
     {% block product_listing_topi_cart_summary_script %}
-        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/cart-rental-summary-label-script.html.twig' with {
-            products: searchResult
+        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/product-box-rental-summary-label-script.html.twig' with {
+            products: searchResult,
         } %}
     {% endblock %}
 

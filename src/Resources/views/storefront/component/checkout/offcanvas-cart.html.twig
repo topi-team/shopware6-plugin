@@ -1,0 +1,13 @@
+{% sw_extends '@Storefront/storefront/component/checkout/offcanvas-cart.html.twig' %}
+
+{% block component_offcanvas_cart_items %}
+    {% set lineItems = page.cart.lineItems %}
+
+    {% block product_listing_topi_cart_summary_script %}
+        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/cart-rental-summary-label-script.html.twig' with {
+            products: lineItems
+        } %}
+    {% endblock %}
+
+    {{ parent() }}
+{% endblock %}

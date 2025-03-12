@@ -3,28 +3,33 @@
         window.addEventListener("load", (event) => {
             topi.cartItems = [
                 {% for product in products %}
-                    {% set topiPrice = product.price|first %}
-                    {% set taxRate = product.tax.taxRate %}
-                    {% set topiQuantity = product.minPurchase %}
-                    {% set topiPriceGross = topiPrice.gross|number_format * 1000 %}
-                    {% set topiPriceNet = topiPrice.gross|number_format * 1000 %}
-                    {% set topiTax = taxRate * 100 %}
-                    {% set topiCurrencyIso = context.currency.isoCode %}
-                    {% set topiProductId = product.id %}
+                    {% set PRODUCT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
+                    {% set isProduct = product.type == PRODUCT_LINE_ITEM_TYPE %}
+                    {% if isProduct %}
 
-                    {
-                        price: {
-                            currency: "{{ topiCurrencyIso }}",
-                            gross: {{ topiPriceGross }},
-                            net: {{ topiPriceNet }},
-                            taxRate: {{ topiTax }},
+                        {% set topiPrice = product.price.totalprice %}
+                        {% set taxRate = product.price.calculatedTaxes|first %}
+                        {% set topiQuantity = product.minPurchase %}
+                        {% set topiPriceGross = topiPrice|number_format * 1000 %}
+                        {% set topiPriceNet = topiPrice|number_format %}
+                        {% set topiTax = taxRate.taxRate * 100 %}
+
+                        {% set topiCurrencyIso = context.currency.isoCode %}
+                        {% set topiProductId = product.id %}
+                        {
+                            price: {
+                                currency: "{{ topiCurrencyIso }}",
+                                gross: {{ topiPriceGross }},
+                                net: {{ topiPriceNet }},
+                                taxRate: {{ topiTax }},
+                            },
+                            quantity: {{ topiQuantity }},
+                            sellerProductReference: {
+                                reference: "{{ topiProductId }}",
+                                source: "shopware-ids",
+                            },
                         },
-                        quantity: {{ topiQuantity }},
-                        sellerProductReference: {
-                            reference: "{{ topiProductId }}",
-                            source: "shopware-ids",
-                        },
-                    },
+                    {% endif %}
                 {% endfor %}
             ];
         });
