@@ -1,0 +1,14 @@
+{% sw_extends '@Storefront/storefront/component/product/card/box-standard.html.twig' %}
+
+{% block component_product_box_price %}
+    {{ parent() }}
+
+    {% block component_product_box_price_topi_price_element %}
+       <div class="topi___price-element">
+           {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/cart-rental-summary-label-widget.html.twig' with {
+               topiProductId: product.id,
+               mode: "product"
+           } %}
+       </div>
+    {% endblock %}
+{% endblock %}

@@ -1,7 +1,30 @@
 {% sw_extends '@Storefront/storefront/component/buy-widget/buy-widget.html.twig' %}
 
 {% block buy_widget_tax %}
-    <div class="topi__element">
-        <x-topi-product-rental-summary-label></x-topi-product-rental-summary-label>
+    <div class="product-detail-tax-container">
+        {% if context.taxState == 'gross' %}
+            {% set taxText = 'general.grossTaxInformation'|trans|sw_sanitize %}
+        {% else %}
+            {% set taxText = 'general.netTaxInformation'|trans|sw_sanitize %}
+        {% endif %}
+
+        <p class="product-detail-tax">
+            {% block buy_widget_tax_link %}
+                {{ parent() }}
+            {% endblock %}
+        </p>
+
+        {% block buy_widget_topi_rental_summary %}
+            {% set topiPrice = product.price|first %}
+            {% set taxRate = product.tax.taxRate %}
+            {% set topiQuantity = product.minPurchase %}
+
+            {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/product-rental-summary-label.html.twig' with {
+                topiPrice: topiPrice,
+                taxRate: topiTax,
+                topiQuantity: topiQuantity,
+                topiProductId: product.id
+            } %}
+        {% endblock %}
     </div>
 {% endblock %}
