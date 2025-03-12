@@ -1,9 +1,11 @@
 {% sw_extends '@Storefront/storefront/component/product/listing.html.twig' %}
 
 {% block product_listing %}
-    {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/cart-rental-summary-label-script.html.twig' with {
-        products: searchResult
-    } %}
+    {% block product_listing_topi_cart_summary_script %}
+        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/cart-rental-summary-label-script.html.twig' with {
+            products: searchResult
+        } %}
+    {% endblock %}
 
     {{ parent() }}
 {% endblock %}
