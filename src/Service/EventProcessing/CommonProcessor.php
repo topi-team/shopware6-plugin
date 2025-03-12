@@ -9,11 +9,10 @@ use TopiPaymentIntegration\Event\EventInterface;
 
 class CommonProcessor implements ProcessorInterface
 {
-    /**
-     * @var ProcessorInterface[]
-     */
+    /** @var ProcessorInterface[] */
     private array $processorList = [];
 
+    /** @param iterable<ProcessorInterface> $processors */
     public function __construct(iterable $processors)
     {
         foreach ($processors as $processor) {

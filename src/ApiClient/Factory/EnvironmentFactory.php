@@ -7,6 +7,7 @@ namespace TopiPaymentIntegration\ApiClient\Factory;
 use TopiPaymentIntegration\ApiClient\Environment;
 use TopiPaymentIntegration\Config\ConfigValue;
 use TopiPaymentIntegration\Config\PluginConfigService;
+use TopiPaymentIntegration\Exception\InvalidEnvironmentException;
 use TopiPaymentIntegration\Service\Plugin\FlagLoaderInterface;
 
 class EnvironmentFactory
@@ -34,7 +35,25 @@ class EnvironmentFactory
             $this->environmentCache[$cacheKey] = $this->getEnvironmentForSalesChannel($salesChannelId);
         }
 
+        $this->validateEnvironment($this->environmentCache[$cacheKey], $salesChannelId);
+
         return $this->environmentCache[$cacheKey];
+    }
+
+    private function validateEnvironment(Environment $environment, ?string $salesChannelId = null): void
+    {
+        $catalogSyncActive = $this->config->getBool(ConfigValue::CATALOG_SYNC_ACTIVE_IN_SALES_CHANNEL, $salesChannelId);
+        if ($catalogSyncActive && in_array('', [
+            $environment->clientId,
+            $environment->clientSecret,
+        ], true)) {
+            throw new InvalidEnvironmentException('Required configuration value (clientId / clientSecret) is empty!');
+        }
+
+        $widgetsActive = $this->config->getBool(ConfigValue::ENABLE_WIDGETS, $salesChannelId);
+        if ($widgetsActive && '' === $environment->widgetId) {
+            throw new InvalidEnvironmentException('Required configuration value widgetId is empty!');
+        }
     }
 
     private function getEnvironmentForSalesChannel(?string $salesChannelId): Environment

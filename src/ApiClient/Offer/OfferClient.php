@@ -7,6 +7,7 @@ namespace TopiPaymentIntegration\ApiClient\Offer;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -38,7 +39,7 @@ readonly class OfferClient
             return $createdOffer;
         } catch (TransportExceptionInterface|ClientExceptionInterface|DecodingExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
             $this->logger->error($e);
-            throw new TopiApiException($e->getMessage(), $e->getResponse()?->getStatusCode() ?? $e->getCode(), $e);
+            throw new TopiApiException($e->getMessage(), $e instanceof HttpExceptionInterface ? $e->getResponse()->getStatusCode() : $e->getCode(), $e);
         }
     }
 
@@ -56,7 +57,7 @@ readonly class OfferClient
             return $pricingOverview;
         } catch (TransportExceptionInterface|ClientExceptionInterface|DecodingExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
             $this->logger->error($e);
-            throw new TopiApiException($e->getMessage(), $e->getResponse()?->getStatusCode() ?? $e->getCode(), $e);
+            throw new TopiApiException($e->getMessage(), $e instanceof HttpExceptionInterface ? $e->getResponse()->getStatusCode() : $e->getCode(), $e);
         }
     }
 }

@@ -17,7 +17,7 @@ class RawSalesChannelProductDefinition extends SalesChannelProductDefinition
     public const SKIP_DEFAULT_AVAILABLE_FILTER = 'skip-default-available-filter';
 
     /**
-     * copy of the original function without adding a ProductAvailableFilter when state is set
+     * copy of the original function without adding a ProductAvailableFilter when state is set.
      */
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {

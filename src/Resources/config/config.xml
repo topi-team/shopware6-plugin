@@ -2,22 +2,8 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/master/src/Core/System/SystemConfig/Schema/config.xsd">
     <card>
-        <title>topi Settings</title>
-        <title lang="de-DE">topi Einstellungen</title>
-
-        <input-field type="checkbox">
-            <name>catalogSyncActiveInSalesChannel</name>
-            <label>Activate catalog-synchronization in this sales-channel</label>
-            <label lang="de-DE">Katalogsynchronisierung für diesen Verkaufskanal aktivieren</label>
-            <defaultValue>true</defaultValue>
-        </input-field>
-
-        <component name="sw-entity-multi-id-select">
-            <name>categories</name>
-            <entity>category</entity>
-            <label>Choose categories to sync product data to topi</label>
-            <label lang="de-DE">Kategorien für den Katalog-Sync auswählen</label>
-        </component>
+        <title>API connection</title>
+        <title lang="de-DE">API Verbindung</title>
 
         <input-field type="single-select">
             <name>environment</name>
@@ -55,14 +41,30 @@
             <helpText>You can get your client-secret from topi</helpText>
             <helpText lang="de-DE">Ihr Client-Secret bekommen Sie von topi</helpText>
         </input-field>
+    </card>
 
-        <input-field type="text">
-            <name>widgetId</name>
-            <label>Widget-ID</label>
-            <label lang="de-DE">Widget-ID</label>
-            <helpText>You can get your widget-ID from topi</helpText>
-            <helpText lang="de-DE">Ihre Widget-ID bekommen Sie von topi</helpText>
+    <card>
+        <title>Catalog sync</title>
+        <title lang="de-DE">Katalogsynchronisation</title>
+
+        <input-field type="checkbox">
+            <name>catalogSyncActiveInSalesChannel</name>
+            <label>Activate catalog-synchronization in this sales-channel</label>
+            <label lang="de-DE">Katalogsynchronisierung für diesen Verkaufskanal aktivieren</label>
+            <defaultValue>true</defaultValue>
         </input-field>
+
+        <component name="sw-entity-multi-id-select">
+            <name>categories</name>
+            <entity>category</entity>
+            <label>Choose categories to sync product data to topi</label>
+            <label lang="de-DE">Kategorien für den Katalog-Sync auswählen</label>
+        </component>
+    </card>
+
+    <card>
+        <title>Webhooks</title>
+        <title lang="de-DE">Webhooks</title>
 
         <input-field type="text">
             <name>webhookSigningSecrets</name>
@@ -77,6 +79,29 @@
             <label lang="de-DE">Webhook-Signaturen prüfen</label>
             <label>Verify webhook signatures</label>
             <defaultValue>false</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
+        <title>topi Elements</title>
+        <title lang="de-DE">topi Elements</title>
+
+        <input-field type="checkbox">
+            <name>enableWidgets</name>
+            <label>Activate topi elements</label>
+            <label lang="de-DE">topi Elements aktivieren</label>
+            <helpText>You can get your client-secret from topi</helpText>
+            <helpText lang="de-DE">Steuert die Einblendung der topi Elements in der Storefront</helpText>
+            <helpText>Controls the embedding of topi elements in your storefront</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+
+        <input-field type="text">
+            <name>widgetId</name>
+            <label>Widget-ID</label>
+            <label lang="de-DE">Widget-ID</label>
+            <helpText>You can get your widget-ID from topi</helpText>
+            <helpText lang="de-DE">Ihre Widget-ID bekommen Sie von topi</helpText>
         </input-field>
     </card>
 </config>

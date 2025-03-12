@@ -38,8 +38,12 @@ readonly class WebhookVerificationService
     }
 
     /**
-     * @throws WebhookVerificationFailedException
+     * @param string[] $headers
+     *
+     * @return array<mixed>
+     *
      * @throws \JsonException
+     * @throws WebhookVerificationFailedException
      */
     public function verify(string $payload, array $headers): array
     {

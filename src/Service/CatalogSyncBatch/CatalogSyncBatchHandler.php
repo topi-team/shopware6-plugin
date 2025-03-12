@@ -22,14 +22,13 @@ use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchEntity;
 use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchStatusEnum;
 use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessEntity;
 use TopiPaymentIntegration\Content\Product\SalesChannel\RawSalesChannelProductDefinition;
-use TopiPaymentIntegration\Service\EmptyProductAvailableFilter;
 use TopiPaymentIntegration\Service\ShopwareProductToTopiProductConverter;
 
 #[AsMessageHandler(handles: CatalogSyncBatchMessage::class)]
 readonly class CatalogSyncBatchHandler
 {
     /**
-     * @param EntityRepository<CatalogSyncBatchCollection>             $catalogSyncBatchRepository
+     * @param EntityRepository<CatalogSyncBatchCollection>          $catalogSyncBatchRepository
      * @param SalesChannelRepository<SalesChannelProductCollection> $salesChannelRepository
      */
     public function __construct(

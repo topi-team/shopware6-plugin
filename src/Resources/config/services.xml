@@ -171,8 +171,16 @@
             <tag name="kernel.event_subscriber" />
         </service>
 
+        <service id="TopiPaymentIntegration\Service\PaymentMethodAvailabilityService">
+            <argument type="service" id="sales_channel.payment_method.repository" />
+            <argument type="service" id="Shopware\Core\Framework\Rule\RuleIdMatcher" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Util\PluginIdProvider" />
+        </service>
+
         <service id="TopiPaymentIntegration\Subscriber\StorefrontEnvironmentSubscriber">
             <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory" />
+            <argument type="service" id="TopiPaymentIntegration\Config\PluginConfigService" />
+            <argument type="service" id="TopiPaymentIntegration\Service\PaymentMethodAvailabilityService" />
             <tag name="kernel.event_subscriber" />
         </service>
 

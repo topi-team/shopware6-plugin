@@ -28,7 +28,7 @@ class CreateShippingMethodsScheduledTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $this->createShippingMethodsAction->execute($context);
     }

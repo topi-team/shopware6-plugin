@@ -15,6 +15,6 @@ class CatalogSyncScheduledTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 300;
+        return 21_600; // every 6 hours
     }
 }

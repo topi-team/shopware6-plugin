@@ -14,7 +14,7 @@ class OfferEvent implements EventInterface
     public CreatedOffer $offer;
 
     /**
-     * @var 'offer.voided'|'offer.accepted'|'offer.expired'
+     * @var 'offer.*'|'offer.voided'|'offer.accepted'|'offer.expired'
      */
     public string $event = 'offer.*';
 

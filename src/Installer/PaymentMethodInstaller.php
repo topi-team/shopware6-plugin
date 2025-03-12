@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
@@ -166,14 +165,15 @@ readonly class PaymentMethodInstaller implements InstallerInterface
     ): void {
         $channels = $this->salesChannelRepository->searchIds(new Criteria(), $context);
 
+        $workSet = [];
         foreach ($channels->getIds() as $channel) {
-            $data = [
+            $workSet[] = [
                 'salesChannelId' => $channel,
                 'paymentMethodId' => $paymentMethod->getId(),
             ];
-
-            $this->paymentMethodSalesChannelRepository->upsert([$data], $context);
         }
+
+        $this->paymentMethodSalesChannelRepository->upsert($workSet, $context);
     }
 
     private function deactivatePaymentMethod(PaymentMethodInterface $paymentMethod, Context $context): void
@@ -203,10 +203,7 @@ readonly class PaymentMethodInstaller implements InstallerInterface
             return false;
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $data['id']));
-
-        $result = $this->paymentMethodRepository->search($criteria, $context);
+        $result = $this->paymentMethodRepository->search(new Criteria([$data['id']]), $context);
 
         return 0 !== $result->getTotal();
     }

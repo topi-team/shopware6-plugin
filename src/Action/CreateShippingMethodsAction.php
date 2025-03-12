@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use TopiPaymentIntegration\ApiClient\Client;
 use TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory;
 use TopiPaymentIntegration\ApiClient\ShippingMethod\ShippingMethod;
@@ -35,6 +36,7 @@ readonly class CreateShippingMethodsAction
             ->addAssociation('shippingMethods');
 
         $salesChannels = $this->salesChannelRepository->search($criteria, $context);
+        /** @var SalesChannelEntity $salesChannel */
         foreach ($salesChannels as $salesChannel) {
             if (!$this->config->getBool(ConfigValue::CATALOG_SYNC_ACTIVE_IN_SALES_CHANNEL, $salesChannel->getId())) {
                 continue;
@@ -52,7 +54,7 @@ readonly class CreateShippingMethodsAction
             $shippingMethod->sellerShippingMethodReference = $shopwareShippingMethod->getId();
 
             $this->apiClient->shippingMethod(
-                $this->environmentFactory->makeEnvironment()
+                $this->environmentFactory->makeEnvironment(),
             )->create($shippingMethod);
         }
     }

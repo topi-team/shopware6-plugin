@@ -23,29 +23,17 @@ readonly class MediaInstaller
     private const PAYMENT_METHOD_MEDIA_FILE = 'src/Resources/config/payment-badge.svg';
     private const SAVED_MEDIA_FILENAME = 'topi_payment_integration_payment-badge';
 
-    private EntityRepository $mediaRepository;
-
-    private EntityRepository $mediaFolderRepository;
-
-    private EntityRepository $paymentMethodRepository;
-
-    private FileSaver $fileSaver;
-
     /**
      * @param EntityRepository<MediaCollection>         $mediaRepository
      * @param EntityRepository<MediaFolderCollection>   $mediaFolderRepository
      * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
      */
     public function __construct(
-        EntityRepository $mediaRepository,
-        EntityRepository $mediaFolderRepository,
-        EntityRepository $paymentMethodRepository,
-        FileSaver $fileSaver,
+        private EntityRepository $mediaRepository,
+        private EntityRepository $mediaFolderRepository,
+        private EntityRepository $paymentMethodRepository,
+        private FileSaver $fileSaver,
     ) {
-        $this->mediaRepository = $mediaRepository;
-        $this->mediaFolderRepository = $mediaFolderRepository;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->fileSaver = $fileSaver;
     }
 
     public function installPaymentMethodMedia(string $paymentMethodId, Context $context, bool $replace = false): void

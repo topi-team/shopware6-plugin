@@ -104,7 +104,7 @@ readonly class SyncCatalogAction
     {
         $queries = array_map(
             static fn (string $categoryId) => new ContainsFilter('categoryTree', $categoryId),
-            $this->pluginConfigService->get(ConfigValue::CATEGORIES, $salesChannelId) ?? []
+            $this->pluginConfigService->get(ConfigValue::CATEGORIES, $salesChannelId) ?? [],
         );
 
         $criteria = new Criteria();
@@ -116,7 +116,7 @@ readonly class SyncCatalogAction
         $batches = $this->batchEmitter->emit(
             TopiPaymentIntegrationPlugin::CATALOG_SYNC_BATCH_SIZE,
             $context,
-            $criteria
+            $criteria,
         );
 
         // only count all products if we need the count for output
@@ -124,6 +124,7 @@ readonly class SyncCatalogAction
             $syncContext->start($count);
         }
 
+        /* @phpstan-ignore-next-line shopware.noEntityRepositoryInLoop as we batch inserts for the reason of saving memory */
         foreach ($batches as $batch) {
             [$entityId] = $this->catalogBatchRepository->create([[
                 ...$batch,
@@ -137,7 +138,7 @@ readonly class SyncCatalogAction
             }
 
             try {
-                ($this->catalogSyncBatchHandler)(new CatalogSyncBatchMessage($entityId));
+                ($this->catalogSyncBatchHandler)(new CatalogSyncBatchMessage($entityId), $context);
             } catch (\Exception $e) {
                 $syncContext->fail($e);
 

@@ -50,7 +50,6 @@ class WebhookController extends AbstractController
     )]
     public function executeWebhook(Request $request, Context $context): Response
     {
-        /** @var string|null $event */
         $event = $request->query->getString('event');
         if ('' === $event) {
             return $this->malformedRequestError();

@@ -13,6 +13,6 @@ final readonly class ConfigValue
     public const CLIENT_SECRET = 'clientSecret';
     public const WEBHOOK_SIGNING_SECRETS = 'webhookSigningSecrets';
     public const ENABLE_WEBHOOK_SIGNATURE_CHECKS = 'enableWebhookSignatureChecks';
-
     public const WIDGET_ID = 'widgetId';
+    public const ENABLE_WIDGETS = 'enableWidgets';
 }

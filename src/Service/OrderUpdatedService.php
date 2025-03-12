@@ -32,6 +32,9 @@ readonly class OrderUpdatedService
     ) {
     }
 
+    /**
+     * @param string[] $trackingCodes
+     */
     public function orderUpdated(string $orderId, array $trackingCodes, Context $context): void
     {
         /** @var OrderEntity|null $order */
@@ -66,6 +69,11 @@ readonly class OrderUpdatedService
         }
     }
 
+    /**
+     * @param string[] $trackingCodes
+     *
+     * @return string[]
+     */
     private function generateTrackingUrls(array $trackingCodes): array
     {
         $urls = [];

@@ -29,7 +29,7 @@ class CatalogSyncScheduledTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $this->syncCatalogAction->execute($context, new CatalogSyncContext());
     }

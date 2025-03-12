@@ -14,7 +14,7 @@ class OrderEvent implements EventInterface
     public Order $order;
 
     /**
-     * @var 'order.created'|'order.partially_fulfilled'|'order.completed'|'order.canceled'|'order.rejected'
+     * @var 'order.*'|'order.created'|'order.partially_fulfilled'|'order.completed'|'order.canceled'|'order.rejected'
      */
     public string $event = 'order.*';
 
