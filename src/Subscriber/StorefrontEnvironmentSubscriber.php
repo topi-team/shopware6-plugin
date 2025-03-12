@@ -11,7 +11,6 @@ use TopiPaymentIntegration\Content\Extension\StorefrontExtension;
 
 readonly class StorefrontEnvironmentSubscriber implements EventSubscriberInterface
 {
-
     public static function getSubscribedEvents(): array
     {
         return [
