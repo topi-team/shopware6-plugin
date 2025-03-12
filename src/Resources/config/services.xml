@@ -175,5 +175,15 @@
             <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory" />
             <tag name="kernel.event_subscriber" />
         </service>
+
+        <service
+                id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition"
+                class="TopiPaymentIntegration\Content\Product\SalesChannel\RawSalesChannelProductDefinition"
+        >
+            <tag name="shopware.sales_channel.entity.definition" />
+        </service>
+
+        <service id="TopiPaymentIntegration\Content\Product\SalesChannel\RawSalesChannelProductDefinition" alias="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition">
+        </service>
     </services>
 </container>

@@ -21,6 +21,7 @@ use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchCollection;
 use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchEntity;
 use TopiPaymentIntegration\Content\CatalogSyncBatch\CatalogSyncBatchStatusEnum;
 use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessEntity;
+use TopiPaymentIntegration\Content\Product\SalesChannel\RawSalesChannelProductDefinition;
 use TopiPaymentIntegration\Service\EmptyProductAvailableFilter;
 use TopiPaymentIntegration\Service\ShopwareProductToTopiProductConverter;
 
@@ -28,7 +29,7 @@ use TopiPaymentIntegration\Service\ShopwareProductToTopiProductConverter;
 readonly class CatalogSyncBatchHandler
 {
     /**
-     * @param EntityRepository<CatalogSyncBatchCollection>          $catalogSyncBatchRepository
+     * @param EntityRepository<CatalogSyncBatchCollection>             $catalogSyncBatchRepository
      * @param SalesChannelRepository<SalesChannelProductCollection> $salesChannelRepository
      */
     public function __construct(
@@ -41,9 +42,9 @@ readonly class CatalogSyncBatchHandler
     ) {
     }
 
-    public function __invoke(CatalogSyncBatchMessage $message): void
+    public function __invoke(CatalogSyncBatchMessage $message, ?Context $context = null): void
     {
-        $context = Context::createDefaultContext();
+        $context = $context ?? Context::createCLIContext();
         $criteria = (new Criteria([$message->catalogSyncBatchId]))
                         ->addAssociation('catalogSyncProcess')
                         ->addAssociation('catalogSyncProcess.salesChannel')
@@ -101,8 +102,9 @@ readonly class CatalogSyncBatchHandler
             ->addAssociation('options')
             ->addAssociation('seoUrls')
             ->addAssociation('cover')
-            ->addAssociation('cover.media')
-            ->addFilter(new EmptyProductAvailableFilter());
+            ->addAssociation('cover.media');
+
+        $criteria->addState(RawSalesChannelProductDefinition::SKIP_DEFAULT_AVAILABLE_FILTER);
 
         $products = $this->salesChannelRepository->search($criteria, $salesChannelContext)->getEntities();
 
