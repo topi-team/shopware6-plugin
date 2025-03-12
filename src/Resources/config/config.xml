@@ -57,6 +57,14 @@
         </input-field>
 
         <input-field type="text">
+            <name>widgetId</name>
+            <label>Widget-ID</label>
+            <label lang="de-DE">Widget-ID</label>
+            <helpText>You can get your widget-ID from topi</helpText>
+            <helpText lang="de-DE">Ihre Widget-ID bekommen Sie von topi</helpText>
+        </input-field>
+
+        <input-field type="text">
             <name>webhookSigningSecrets</name>
             <label lang="de-DE">Webhook-Signatur-Keys</label>
             <label>Webhook signing secrets</label>

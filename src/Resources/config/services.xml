@@ -170,5 +170,10 @@
             <argument type="service" id="TopiPaymentIntegration\Service\OrderUpdatedService" />
             <tag name="kernel.event_subscriber" />
         </service>
+
+        <service id="TopiPaymentIntegration\Subscriber\StorefrontEnvironmentSubscriber">
+            <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory" />
+            <tag name="kernel.event_subscriber" />
+        </service>
     </services>
 </container>

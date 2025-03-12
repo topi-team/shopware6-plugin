@@ -4,16 +4,21 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\ApiClient;
 
-class Environment
+readonly class Environment
 {
     private string $hash;
 
     /**
-     * @param array{baseUrl: string, identityTokenUrl: string} $config
+     * @param array{
+     *     baseUrl: string,
+     *     identityTokenUrl: string,
+     *     widgetJsUrl: string,
+     * } $config
      */
     public function __construct(
         public string $clientId,
         public string $clientSecret,
+        public string $widgetId,
         public array $config,
     ) {
         $this->hash = md5(serialize([

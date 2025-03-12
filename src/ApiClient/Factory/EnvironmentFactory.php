@@ -44,6 +44,7 @@ class EnvironmentFactory
         return new Environment(
             $this->config->getString(ConfigValue::CLIENT_ID, $salesChannelId),
             $this->config->getString(ConfigValue::CLIENT_SECRET, $salesChannelId),
+            $this->config->getString(ConfigValue::WIDGET_ID, $salesChannelId),
             $environment
                 ? $this->flagLoader->get()['environments'][$environment]
                 : $this->flagLoader->get()['environments']['sandbox']
