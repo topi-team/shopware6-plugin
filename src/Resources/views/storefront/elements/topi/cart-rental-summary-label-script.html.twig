@@ -1,37 +1,8 @@
-{% block topi_cart_rental_summry_label_script %}
+{% block topi_cart_rental_summry_label_script %}Object.values({{ products|map(p => p.getExtension(extensionName))|json_encode|raw }})
+
     <script>
         window.addEventListener("load", (event) => {
-            topi.cartItems = [
-                {% for product in products %}
-                    {% set PRODUCT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
-                    {% set isProduct = product.type == PRODUCT_LINE_ITEM_TYPE %}
-                    {% if isProduct %}
-
-                        {% set topiPrice = product.price.totalprice %}
-                        {% set taxRate = product.price.calculatedTaxes|first %}
-                        {% set topiQuantity = product.minPurchase %}
-                        {% set topiPriceGross = topiPrice|number_format * 1000 %}
-                        {% set topiPriceNet = topiPrice|number_format %}
-                        {% set topiTax = taxRate.taxRate * 100 %}
-
-                        {% set topiCurrencyIso = context.currency.isoCode %}
-                        {% set topiProductId = product.id %}
-                        {
-                            price: {
-                                currency: "{{ topiCurrencyIso }}",
-                                gross: {{ topiPriceGross }},
-                                net: {{ topiPriceNet }},
-                                taxRate: {{ topiTax }},
-                            },
-                            quantity: {{ topiQuantity }},
-                            sellerProductReference: {
-                                reference: "{{ topiProductId }}",
-                                source: "shopware-ids",
-                            },
-                        },
-                    {% endif %}
-                {% endfor %}
-            ];
+          topi.cartItems = Object.values({{ products|map(p => p.getExtension(extensionName))|json_encode|raw }})
         });
     </script>
 {% endblock %}
