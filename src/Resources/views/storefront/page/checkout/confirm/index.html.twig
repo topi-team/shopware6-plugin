@@ -4,11 +4,9 @@
     {% if selectedPaymentMethodId is not defined %}
         {% set selectedPaymentMethodId = context.paymentMethod.id %}
     {% endif %}
-
     {% set topiPaymentMethodId = "52c311058c8247609642ec773e30dd7b"  %}
 
     {% if topiPaymentMethodId is same as(selectedPaymentMethodId) %}
-
         <div class="d-grid">
             <button id="confirmFormSubmit"
                     class="btn btn-no-styling btn-lg"
