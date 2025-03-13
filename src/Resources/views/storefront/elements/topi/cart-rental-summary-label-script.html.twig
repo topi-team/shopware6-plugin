@@ -1,4 +1,5 @@
-{% block topi_cart_rental_summry_label_script %}Object.values({{ products|map(p => p.getExtension(extensionName))|json_encode|raw }})
+{% block topi_cart_rental_summry_label_script %}
+    {% set extensionName = constant('TopiPaymentIntegration\\Content\\Extension\\ProductExtension::EXTENSION_NAME') %}
 
     <script>
         window.addEventListener("load", (event) => {
