@@ -30,14 +30,17 @@ readonly class StorefrontEnvironmentSubscriber implements EventSubscriberInterfa
 
     public function onPageLoaded(GenericPageLoadedEvent $event): void
     {
+
         if ($this->config->getBool(ConfigValue::ENABLE_WIDGETS, $event->getSalesChannelContext()->getSalesChannelId())
             && $this->paymentMethodAvailabilityService->paymentMethodIsAvailable($event->getSalesChannelContext(), $event->getContext())
         ) {
-            $environment = $this->environmentFactory->makeEnvironment($event->getSalesChannelContext()->getSalesChannelId());
-            $event->getPage()->addExtension(StorefrontExtension::EXTENSION_NAME, new StorefrontExtension(
-                $environment->config['widgetJsUrl'],
-                $environment->widgetId,
-            ));
+
         }
+
+	    $environment = $this->environmentFactory->makeEnvironment($event->getSalesChannelContext()->getSalesChannelId());
+	    $event->getPage()->addExtension(StorefrontExtension::EXTENSION_NAME, new StorefrontExtension(
+		    $environment->config['widgetJsUrl'],
+		    $environment->widgetId,
+	    ));
     }
 }
