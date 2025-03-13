@@ -3,7 +3,9 @@
 
     <script>
         window.addEventListener("load", (event) => {
-          topi.cartItems = Object.values({{ products|map(p => p.getExtension(extensionName))|json_encode|raw }})
+
         });
+
+        topi.cartItems = Object.values({{ products|map(p => p.getExtension(extensionName))|json_encode|raw }})
     </script>
 {% endblock %}

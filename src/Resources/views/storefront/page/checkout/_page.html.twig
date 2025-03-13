@@ -1,0 +1,15 @@
+{% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
+
+{% block page_checkout_container %}
+    {% block page_checkout_cart_header_topi_script %}
+        {% set lineItems = page.cart.lineItems %}
+
+        <div class="topi-element">
+            {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/cart-rental-summary-label-script.html.twig' with {
+                products: lineItems
+            } %}
+        </div>
+    {% endblock %}
+
+    {{ parent() }}
+{% endblock %}

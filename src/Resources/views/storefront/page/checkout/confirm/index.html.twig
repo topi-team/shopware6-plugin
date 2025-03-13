@@ -1,0 +1,28 @@
+{% sw_extends '@Storefront/storefront/page/checkout/confirm/index.html.twig' %}
+
+{% block page_checkout_confirm_form_submit %}
+    {% if selectedPaymentMethodId is not defined %}
+        {% set selectedPaymentMethodId = context.paymentMethod.id %}
+    {% endif %}
+
+    {% set topiPaymentMethodId = "52c311058c8247609642ec773e30dd7b"  %}
+
+    {% if topiPaymentMethodId is same as(selectedPaymentMethodId) %}
+
+        <div class="d-grid">
+            <button id="confirmFormSubmit"
+                    class="btn btn-no-styling btn-lg"
+                    form="confirmOrderForm"
+                    {% if page.cart.errors.blockResubmit %}
+                        disabled
+                    {% endif %}
+                    type="submit">
+                {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/checkout-button-widget.html.twig' with {
+                    mode: "cart"
+                } %}
+            </button>
+        </div>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}

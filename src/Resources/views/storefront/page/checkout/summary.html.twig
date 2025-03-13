@@ -1,0 +1,12 @@
+{% sw_extends '@Storefront/storefront/page/checkout/summary.html.twig' %}
+
+{% block page_checkout_summary_inner %}
+    {{ parent() }}
+
+    <div class="topi__summary-block">
+        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/cart-rental-summary-label-widget.html.twig' with {
+            topiProductId: product.id,
+            mode: "cart"
+        } %}
+    </div>
+{% endblock %}
