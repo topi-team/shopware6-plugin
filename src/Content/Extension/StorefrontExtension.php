@@ -13,6 +13,7 @@ class StorefrontExtension extends Struct
     public function __construct(
         public readonly string $widgetJsUrl,
         public readonly string $widgetId,
+        public readonly string $paymentMethodId,
     ) {
     }
 }

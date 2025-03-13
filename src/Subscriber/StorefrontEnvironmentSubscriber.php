@@ -30,17 +30,15 @@ readonly class StorefrontEnvironmentSubscriber implements EventSubscriberInterfa
 
     public function onPageLoaded(GenericPageLoadedEvent $event): void
     {
+        $topiPaymentMethod = $this->paymentMethodAvailabilityService->getTopiPaymentMethodIfAvailable($event->getSalesChannelContext(), $event->getContext());
 
-        if ($this->config->getBool(ConfigValue::ENABLE_WIDGETS, $event->getSalesChannelContext()->getSalesChannelId())
-            && $this->paymentMethodAvailabilityService->paymentMethodIsAvailable($event->getSalesChannelContext(), $event->getContext())
-        ) {
-
+        if (!is_null($topiPaymentMethod) && $this->config->getBool(ConfigValue::ENABLE_WIDGETS, $event->getSalesChannelContext()->getSalesChannelId())) {
+            $environment = $this->environmentFactory->makeEnvironment($event->getSalesChannelContext()->getSalesChannelId());
+            $event->getPage()->addExtension(StorefrontExtension::EXTENSION_NAME, new StorefrontExtension(
+                $environment->config['widgetJsUrl'],
+                $environment->widgetId,
+                $topiPaymentMethod->getId(),
+            ));
         }
-
-	    $environment = $this->environmentFactory->makeEnvironment($event->getSalesChannelContext()->getSalesChannelId());
-	    $event->getPage()->addExtension(StorefrontExtension::EXTENSION_NAME, new StorefrontExtension(
-		    $environment->config['widgetJsUrl'],
-		    $environment->widgetId,
-	    ));
     }
 }

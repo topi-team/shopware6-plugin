@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TopiPaymentIntegration\Service;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -29,9 +30,9 @@ readonly class PaymentMethodAvailabilityService
     ) {
     }
 
-    public function paymentMethodIsAvailable(SalesChannelContext $salesChannelContext, Context $context): bool
+    public function getTopiPaymentMethodIfAvailable(SalesChannelContext $salesChannelContext, Context $context): ?PaymentMethodEntity
     {
-        return $this->getAvailablePluginPaymentMethods($salesChannelContext, $context)->count() > 0;
+        return $this->getAvailablePluginPaymentMethods($salesChannelContext, $context)->first();
     }
 
     private function getAvailablePluginPaymentMethods(SalesChannelContext $salesChannelContext, Context $context): PaymentMethodCollection
