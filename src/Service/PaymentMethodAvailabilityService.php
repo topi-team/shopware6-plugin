@@ -35,7 +35,12 @@ readonly class PaymentMethodAvailabilityService
         return $this->getAvailablePluginPaymentMethods($salesChannelContext, $context)->first();
     }
 
-    private function getAvailablePluginPaymentMethods(SalesChannelContext $salesChannelContext, Context $context): PaymentMethodCollection
+    public function getTopiPaymentMethod(SalesChannelContext $salesChannelContext, Context $context): ?PaymentMethodEntity
+    {
+        return $this->getPluginPaymentMethods($salesChannelContext, $context)->first();
+    }
+
+    private function getPluginPaymentMethods(SalesChannelContext $salesChannelContext, Context $context): PaymentMethodCollection
     {
         $pluginId = $this->pluginIdProvider->getPluginIdByBaseClass(TopiPaymentIntegrationPlugin::class, $context);
         $criteria = (new Criteria())
@@ -48,8 +53,13 @@ readonly class PaymentMethodAvailabilityService
 
         $result = $this->salesChannelPaymentMethodRepository->search($criteria, $salesChannelContext);
 
+        return $result->getEntities();
+    }
+
+    private function getAvailablePluginPaymentMethods(SalesChannelContext $salesChannelContext, Context $context): PaymentMethodCollection
+    {
         /** @var PaymentMethodCollection $paymentMethods */
-        $paymentMethods = $result->getEntities();
+        $paymentMethods = $this->getPluginPaymentMethods($salesChannelContext, $context);
         $paymentMethods->sortPaymentMethodsByPreference($salesChannelContext);
 
         return $this->ruleIdMatcher->filterCollection($paymentMethods, $salesChannelContext->getRuleIds());

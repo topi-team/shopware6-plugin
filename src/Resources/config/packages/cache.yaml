@@ -6,3 +6,7 @@ framework:
         default_lifetime: 172800
         adapter: cache.app
         tags: cache.tags
+      cache.topi_availabilities:
+        default_lifetime: 172800
+        adapter: cache.app
+        tags: cache.tags

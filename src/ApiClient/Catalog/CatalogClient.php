@@ -17,16 +17,13 @@ use TopiPaymentIntegration\ApiClient\Common\ProductSummary;
 use TopiPaymentIntegration\ApiClient\Exception\TopiApiException;
 use TopiPaymentIntegration\ApiClient\PreProcessOptionsTrait;
 
-class CatalogClient
+readonly class CatalogClient
 {
     use PreProcessOptionsTrait;
 
-    /** @var array<string, array<string, mixed>> */
-    private array $responseCache = [];
-
     public function __construct(
-        private readonly HttpClientInterface $client,
-        private readonly LoggerInterface $logger,
+        private HttpClientInterface $client,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -46,32 +43,24 @@ class CatalogClient
      * @param array<mixed> $options
      *
      * @return ProductSummary[]
-     *
-     * @throws \JsonException
      */
     public function checkSupported(ProductReferenceCollection $productReferences, array $options = []): array
     {
+        if (0 === $productReferences->count()) {
+            return [];
+        }
+
         $jsonData = [
             'seller_product_references' => $productReferences->getProductReferences(),
         ];
 
-        $requestOptions = array_merge([
-            'json' => $jsonData,
-        ], $options);
-
-        if (!isset($this->responseCache[__METHOD__])) {
-            $this->responseCache[__METHOD__] = [];
-        }
-
-        $cacheKey = md5(serialize($requestOptions));
-        $dontUseCache = isset($options['cache']) && false === $options['cache'];
-        if (array_key_exists($cacheKey, $this->responseCache[__METHOD__]) && !$dontUseCache) {
-            return $this->responseCache[__METHOD__][$cacheKey];
-        }
-
         try {
             $response = $this->client->request('POST', 'catalog/check-supported',
-                $this->preProcessOptions($requestOptions));
+                $this->preProcessOptions(array_merge([
+                    'json' => $jsonData,
+                ], $options))
+            );
+
             $responseData = $response->toArray();
         } catch (TransportExceptionInterface|ClientExceptionInterface|DecodingExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
             $this->logger->error($e);
@@ -85,32 +74,6 @@ class CatalogClient
 
             $result[] = $item;
         }
-
-        $this->responseCache[__METHOD__][$cacheKey] = $result;
-
-        return $result;
-    }
-
-    /** @param array<mixed> $options */
-    public function calculatePricing(PricingRequest $pricingRequest, array $options = []): CalculatePricingResponse
-    {
-        $jsonData = [
-            'pricing_request' => $pricingRequest,
-        ];
-
-        try {
-            $response = $this->client->request('POST', 'catalog/pricing', $this->preProcessOptions(array_merge([
-                'json' => $jsonData,
-            ], $options)));
-
-            $responseData = $response->toArray();
-        } catch (TransportExceptionInterface|ClientExceptionInterface|DecodingExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
-            $this->logger->error($e);
-            throw new TopiApiException($e->getMessage(), $e instanceof HttpExceptionInterface ? $e->getResponse()->getStatusCode() : $e->getCode(), $e);
-        }
-
-        $result = new CalculatePricingResponse();
-        $result->applyData($responseData);
 
         return $result;
     }

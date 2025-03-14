@@ -197,5 +197,24 @@
         <service id="TopiPaymentIntegration\Subscriber\ProductInfoSubscriber">
             <tag name="kernel.event_subscriber" />
         </service>
+
+        <service id="TopiPaymentIntegration\Service\CartAvailabilityService">
+            <argument type="service" id="TopiPaymentIntegration\ApiClient\Client" />
+            <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory" />
+            <argument type="service" id="cache.topi_availabilities" />
+        </service>
+
+
+
+        <service id="TopiPaymentIntegration\Checkout\SalesChannel\FilteredPaymentMethodRoute"
+                 decorates="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"
+                 decoration-priority="-1500"
+                 public="true">
+            <argument type="service" id=".inner"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+            <argument type="service" id="TopiPaymentIntegration\Service\PaymentMethodAvailabilityService"/>
+            <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory"/>
+            <argument type="service" id="TopiPaymentIntegration\Service\CartAvailabilityService"/>
+        </service>
     </services>
 </container>

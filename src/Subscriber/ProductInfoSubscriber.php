@@ -7,6 +7,7 @@ namespace TopiPaymentIntegration\Subscriber;
 use Shopware\Core\Checkout\Cart\Event\CartEvent;
 use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntitySearchResultLoadedEvent;
@@ -50,17 +51,21 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
 
             $lineItem->addExtension(
                 ProductExtension::EXTENSION_NAME,
-                $this->lineItemToProductExtension($lineItem, $event->getSalesChannelContext()->getSalesChannel())
+                $this->lineItemToProductExtension($lineItem, $event->getSalesChannelContext()->getSalesChannel()),
             );
         }
     }
 
+    /**
+     * @param SalesChannelEntitySearchResultLoadedEvent<SalesChannelProductCollection> $event
+     */
     public function addProductSearchResultExtension(SalesChannelEntitySearchResultLoadedEvent $event): void
     {
+        /** @var SalesChannelProductEntity $product */
         foreach ($event->getResult() as $product) {
             $product->addExtension(
                 ProductExtension::EXTENSION_NAME,
-                $this->swProductToProductExtension($product, $event->getSalesChannelContext()->getSalesChannel())
+                $this->swProductToProductExtension($product, $event->getSalesChannelContext()->getSalesChannel()),
             );
         }
     }
@@ -106,7 +111,7 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
         return new ProductExtension(
             $price,
             $shopwareIdReference,
-            $product->getMinPurchase() ?? 1
+            $product->getMinPurchase() ?? 1,
         );
     }
 }

@@ -27,6 +27,8 @@ class EnvironmentFactory
      *
      * @see flags.json
      * @see Resources/config/config.xml
+     *
+     * @throws InvalidEnvironmentException
      */
     public function makeEnvironment(?string $salesChannelId = null): Environment
     {
@@ -40,6 +42,9 @@ class EnvironmentFactory
         return $this->environmentCache[$cacheKey];
     }
 
+    /**
+     * @throws InvalidEnvironmentException
+     */
     private function validateEnvironment(Environment $environment, ?string $salesChannelId = null): void
     {
         $catalogSyncActive = $this->config->getBool(ConfigValue::CATALOG_SYNC_ACTIVE_IN_SALES_CHANNEL, $salesChannelId);
