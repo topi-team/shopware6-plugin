@@ -154,7 +154,7 @@
         </service>
 
         <service id="TopiPaymentIntegration\Service\EventProcessing\CommonProcessor">
-            <argument type="tagged" tag="topi_payment_integration.service.event_processing.processor" />
+            <argument type="tagged_iterator" tag="topi_payment_integration.service.event_processing.processor" />
         </service>
 
         <service id="TopiPaymentIntegration\Service\EventProcessing\ProcessorInterface" alias="TopiPaymentIntegration\Service\EventProcessing\CommonProcessor">
