@@ -204,8 +204,6 @@
             <argument type="service" id="cache.topi_availabilities" />
         </service>
 
-
-
         <service id="TopiPaymentIntegration\Checkout\SalesChannel\FilteredPaymentMethodRoute"
                  decorates="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"
                  decoration-priority="-1500"
