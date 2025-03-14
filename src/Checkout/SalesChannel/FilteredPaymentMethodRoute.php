@@ -56,6 +56,10 @@ class FilteredPaymentMethodRoute extends AbstractPaymentMethodRoute
             return $response;
         }
 
+        if (!$this->hasPaymentMethod($response->getPaymentMethods(), $paymentMethod)) {
+            return $response;
+        }
+
         try {
             $this->environmentFactory->makeEnvironment($context->getSalesChannelId());
         } catch (InvalidEnvironmentException $e) {
@@ -81,6 +85,19 @@ class FilteredPaymentMethodRoute extends AbstractPaymentMethodRoute
         }
 
         return $response;
+    }
+
+    private function hasPaymentMethod(
+        PaymentMethodCollection $paymentMethods,
+        PaymentMethodEntity $paymentMethodEntity,
+    ): bool {
+        foreach ($paymentMethods as $paymentMethod) {
+            if ($paymentMethod->getId() === $paymentMethodEntity->getId()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function removePaymentMethod(
