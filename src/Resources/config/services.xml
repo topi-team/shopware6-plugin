@@ -214,5 +214,12 @@
             <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory"/>
             <argument type="service" id="TopiPaymentIntegration\Service\CartAvailabilityService"/>
         </service>
+
+        <service id="TopiPaymentIntegration\Framework\Cookie\TopiCookieProvider"
+                 decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
+            <argument type="service" id=".inner" />
+            <argument type="service" id="request_stack" />
+            <argument type="service" id="TopiPaymentIntegration\Config\PluginConfigService" />
+        </service>
     </services>
 </container>

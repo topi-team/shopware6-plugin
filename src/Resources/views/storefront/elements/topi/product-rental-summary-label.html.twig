@@ -3,13 +3,13 @@
 
     {% block topi_product_rental_summary_label_script %}
         <script>
-            window.addEventListener("load", (event) => {
+            window.addEventListener("topi.widgets.loaded", function () {
                 topi.pdpItem = {{ product.getExtension(extensionName)|json_encode|raw }}
             });
         </script>
     {% endblock %}
 
     {% block topi_product_rental_summary_label_widget %}
-        <x-topi-product-rental-summary-label />
+        <x-topi-product-rental-summary-label></x-topi-product-rental-summary-label>
     {% endblock %}
 {% endblock %}

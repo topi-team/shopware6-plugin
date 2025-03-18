@@ -2,10 +2,8 @@
     {% set extensionName = constant('TopiPaymentIntegration\\Content\\Extension\\ProductExtension::EXTENSION_NAME') %}
 
     <script>
-        window.addEventListener("load", (event) => {
-
+        window.addEventListener("topi.widgets.loaded", function () {
+          topi.cartItems = Object.values({{ products|map(p => p.getExtension(extensionName))|json_encode|raw }})
         });
-
-        topi.cartItems = Object.values({{ products|map(p => p.getExtension(extensionName))|json_encode|raw }})
     </script>
 {% endblock %}
