@@ -44,7 +44,7 @@ readonly class TopiCookieProvider implements CookieProviderInterface
 
             $cookie['entries'][] = [
                 'snippet_name' => 'topi.cookie.name',
-                'snippet_description' => 'topi.cookie.description ',
+                'snippet_description' => 'topi.cookie.description',
                 'cookie' => 'topi-widgets',
                 'value' => '1',
                 'expiration' => '30',
