@@ -1,38 +1,13 @@
 {% sw_extends '@Storefront/storefront/component/line-item/element/total-price.html.twig' %}
 
-{% block component_line_item_total_price_value %}
-    <div class="line-item-total-price-value">
-        {# Shipping costs discounts always have a price of 0, which might be confusing, therefore we do not show those #}
-        {% if lineItem.payload.discountScope != 'delivery' %}
-            {% set lineItemTotalPrice = lineItem.price.totalPrice ?? 0 %}
-            {# @deprecated tag:v6.7.0 - pass the `currency` instead of the dipslayType #}
-            {% if lineItemTotalPrice < 0 %}
-                &minus;
-            {% endif %}
+{# shopware-block: 4a66a7a1dd4faf300ec21b9a3bbb02ef591144c9fd86ab89bfa804b6fea173dc@v6.6.10.2 #}
+{% block component_line_item_total_price %}
+    {{ parent() }}
 
-            {% if displayMode === 'order' %}
-                {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
-                {{ lineItemTotalPrice|abs|currency(order.currency.isoCode) }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
-            {% else %}
-                {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
-                {{ lineItemTotalPrice|abs|currency(currency) }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %}
-            {% endif %}
-        {% endif %}
-
-        {% set referencePrice = lineItem.price.referencePrice %}
-        {% if referencePrice is not null and displayMode == 'offcanvas' %}
-            <br>
-            <small class="line-item-reference-price">
-                {# @deprecated tag:v6.7.0 - Showing asterisk next to every price is deprecated. Tax and shipping info is already displayed in the shopping cart summary. #}
-                ({{ referencePrice.price|currency(currency) }}{% if not feature('ACCESSIBILITY_TWEAKS') %}{{ 'general.star'|trans|sw_sanitize }}{% endif %} / {{ referencePrice.referenceUnit }}&nbsp;{{ referencePrice.unitName }})
-            </small>
-        {% endif %}
-
-        <div class="d-block mt-2">
-            {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/cart-rental-summary-label-widget.html.twig' with {
-                topiProductId: lineItem.id,
-                mode: "product"
-            } %}
-        </div>
+    <div class="d-block mt-2">
+        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/cart-rental-summary-label-widget.html.twig' with {
+            topiProductId: lineItem.id,
+            mode: "product"
+        } %}
     </div>
 {% endblock %}

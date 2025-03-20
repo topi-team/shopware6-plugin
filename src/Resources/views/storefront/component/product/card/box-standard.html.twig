@@ -1,10 +1,11 @@
 {% sw_extends '@Storefront/storefront/component/product/card/box-standard.html.twig' %}
 
+{# shopware-block: c614f9aaf7b62764356daaafd06e593d08a062c9dafcfe6788fd131055a21569@v6.6.10.2 #}
 {% block component_product_box_price %}
     {{ parent() }}
 
     {% block component_product_box_price_topi_price_element %}
-       <div class="topi___price-element">
+       <div class="topi___price-element d-flex justify-content-center">
            {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/cart-rental-summary-label-widget.html.twig' with {
                topiProductId: product.id,
                mode: "product"
