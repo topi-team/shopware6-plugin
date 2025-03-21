@@ -1,10 +1,11 @@
 {% sw_extends '@Storefront/storefront/component/checkout/offcanvas-cart.html.twig' %}
 
+{# shopware-block: da9444fb76458359408e2d6371deaffeb9de5ee7191515deb071019dcd6b31e4@v6.6.10.2 #}
 {% block component_offcanvas_cart_items %}
     {% set lineItems = page.cart.lineItems %}
 
     {% block product_listing_topi_cart_summary_script %}
-        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/cart-rental-summary-label-script.html.twig' with {
+        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/offcanvas-cart-rental-summary-label-script.html.twig' with {
             products: lineItems
         } %}
     {% endblock %}
