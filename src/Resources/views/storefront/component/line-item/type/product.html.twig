@@ -1,0 +1,15 @@
+{% sw_extends '@Storefront/storefront/component/line-item/type/product.html.twig' %}
+
+{# shopware-block: 559a6ea82b2ebe0e36dddf7ba28f50ccd55f623342e484258fb88e6bdcd58622@v6.6.10.1 #}
+{% block component_line_item_type_product_row_inner %}
+    {{ parent() }}
+
+   <div class="row g-0 order-5 justify-content-end topi__oc-cart-elements">
+       <div class="col mb-2 mt-2 has__widget-element">
+           {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/cart-rental-summary-label-widget.html.twig' with {
+               topiProductId: lineItem.id,
+               mode: "product"
+           } %}
+       </div>
+   </div>
+{% endblock %}

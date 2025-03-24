@@ -3,3 +3,20 @@
     padding-top: 16px;
     border-top: 1px solid;
 }
+
+.has__widget-element { max-width: 128px; }
+
+@include media-breakpoint-up(md) {
+    .checkout-container {
+        .topi__oc-cart-elements {
+            height: 10px;
+            position: relative;
+
+            .has__widget-element {
+                margin-right: 65px;
+                position: absolute;
+                top: -72px;
+            }
+        }
+    }
+}
