@@ -1,11 +1,12 @@
 {% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
 
+{# shopware-block: ae9fcd1aa0f1a28214b474a5822b9f457ca649d7efd348e7930c5017aea2cdf9@v6.6.10.1 #}
 {% block page_checkout_container %}
     {% block page_checkout_cart_header_topi_script %}
         {% set lineItems = page.cart.lineItems %}
 
         <div class="topi-element">
-            {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/cart-rental-summary-label-script.html.twig' with {
+            {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-script.html.twig' with {
                 products: lineItems
             } %}
         </div>
