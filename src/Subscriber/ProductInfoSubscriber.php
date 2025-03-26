@@ -76,10 +76,17 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
         assert($currency instanceof CurrencyEntity);
 
         $price = new MoneyAmountWithOptionalTax();
-        $price->gross = (int) round($lineItem->getPrice()?->getTotalPrice() * 100);
-        $price->net = (int) round((($lineItem->getPrice()?->getTotalPrice() ?? 0.0)
-                - ($lineItem->getPrice()?->getCalculatedTaxes()->getAmount() ?? 0.0)) * 100);
-        $price->taxRate = (int) ($lineItem->getPrice()?->getCalculatedTaxes()->first()?->getTaxRate() ?? 19.0);
+        $unitPrice = $lineItem->getPrice()?->getUnitPrice();
+        $calculatedTaxes = $lineItem->getPrice()?->getCalculatedTaxes();
+
+        $net = $unitPrice - ($calculatedTaxes->getAmount() / $lineItem->getQuantity());
+        $gross = $calculatedTaxes->count() === 0
+            ? $unitPrice * (1 + ($calculatedTaxes->first()?->getTaxRate() ?? 19.0) / 100)
+            : $unitPrice;
+
+        $price->gross = (int) round($gross * 100);
+        $price->net = (int) round($net * 100);
+        $price->taxRate = (int) ($calculatedTaxes->first()?->getTaxRate() ?? 19.0);
         $price->currency = $currency->getIsoCode();
 
         $shopwareIdReference = new ProductReference();
@@ -99,10 +106,21 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
         assert($currency instanceof CurrencyEntity);
 
         $price = new MoneyAmountWithOptionalTax();
-        $price->net = (int) (($product->getCurrencyPrice($currency->getId())?->getNet() ?? 0.0) * 100);
-        $price->gross = (int) (($product->getCurrencyPrice($currency->getId())?->getGross() ?? 0.0) * 100);
+        $calculatedPrice = $product->getCalculatedCheapestPrice();
+
+        $taxRate = (int) ($product->getTax()?->getTaxRate() ?? 19.0);
+
+        $totalPrice = $calculatedPrice->getTotalPrice();
+
+        $net = $totalPrice - $calculatedPrice->getCalculatedTaxes()->getAmount();
+        $gross = $calculatedPrice->getCalculatedTaxes()->count() === 0
+            ? $totalPrice * (1 + $taxRate / 100)
+            : $totalPrice;
+
+        $price->net = (int) ($net * 100);
+        $price->gross = (int) ($gross * 100);
         $price->currency = $currency->getIsoCode();
-        $price->taxRate = (int) ($product->getTax()?->getTaxRate() ?? 19.0);
+        $price->taxRate = $taxRate;
 
         $shopwareIdReference = new ProductReference();
         $shopwareIdReference->source = 'shopware-ids';
