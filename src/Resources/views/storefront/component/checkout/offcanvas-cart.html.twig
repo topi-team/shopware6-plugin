@@ -5,7 +5,7 @@
     {% set lineItems = page.cart.lineItems %}
 
     {% block product_listing_topi_cart_summary_script %}
-        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/elements/topi/offcanvas-cart-rental-summary-label-script.html.twig' with {
+        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/offcanvas-cart-rental-summary-label-script.html.twig' with {
             products: lineItems
         } %}
     {% endblock %}
