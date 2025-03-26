@@ -80,7 +80,7 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
         $calculatedTaxes = $lineItem->getPrice()?->getCalculatedTaxes();
 
         $net = $unitPrice - ($calculatedTaxes->getAmount() / $lineItem->getQuantity());
-        $gross = $calculatedTaxes->count() === 0
+        $gross = 0 === $calculatedTaxes->count()
             ? $unitPrice * (1 + ($calculatedTaxes->first()?->getTaxRate() ?? 19.0) / 100)
             : $unitPrice;
 
@@ -113,7 +113,7 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
         $totalPrice = $calculatedPrice->getTotalPrice();
 
         $net = $totalPrice - $calculatedPrice->getCalculatedTaxes()->getAmount();
-        $gross = $calculatedPrice->getCalculatedTaxes()->count() === 0
+        $gross = 0 === $calculatedPrice->getCalculatedTaxes()->count()
             ? $totalPrice * (1 + $taxRate / 100)
             : $totalPrice;
 
