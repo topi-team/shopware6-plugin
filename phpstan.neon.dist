@@ -3,8 +3,6 @@ parameters:
     paths:
         - src
         - tests
-    scanDirectories:
-        - ../../../vendor
 
 includes:
     - vendor/shopwarelabs/phpstan-shopware/rules.neon

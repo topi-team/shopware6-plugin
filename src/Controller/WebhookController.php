@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TopiPaymentIntegration\Controller;
 
 use OpenApi\Attributes as OA;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,9 +21,10 @@ use TopiPaymentIntegration\Service\WebhookVerificationService;
 class WebhookController extends AbstractController
 {
     public function __construct(
-        private Registry $eventRegistry,
-        private ProcessorInterface $processor,
-        private WebhookVerificationService $webhookVerificationService,
+        private readonly Registry $eventRegistry,
+        private readonly ProcessorInterface $processor,
+        private readonly WebhookVerificationService $webhookVerificationService,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -87,8 +89,22 @@ class WebhookController extends AbstractController
             $eventParentType => $data,
         ]);
 
-        if ($this->processor->canProcess($event)) {
-            $this->processor->process($eventObject, $context);
+        try {
+            if ($this->processor->canProcess($event)) {
+                $this->processor->process($eventObject, $context);
+            }
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage(), [
+                'event' => $event,
+                'data' => $data,
+                'eventObject' => $eventObject,
+                'exception' => $e,
+            ]);
+
+            return new JsonResponse(
+                ['status' => 'error', 'message' => $e->getMessage()],
+                status: 200
+            );
         }
 
         return new Response(status: 201);

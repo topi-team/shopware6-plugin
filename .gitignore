@@ -2,3 +2,4 @@
 vendor
 flags.json
 composer.lock
+phpstan.neon
