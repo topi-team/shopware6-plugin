@@ -12,8 +12,8 @@
                 let firstScript = document.getElementsByTagName('script')[0]
 
                 let el = document.createElement('script')
-                el.async = true
                 el.defer = true
+                el.async = true
                 el.src = '{{ page.getExtension(extensionName).widgetJsUrl }}'
                 el.onload = function () {
                   window.topi = new TopiElements({
