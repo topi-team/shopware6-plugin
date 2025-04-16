@@ -2,6 +2,13 @@
     {% set extensionName = constant('TopiPaymentIntegration\\Content\\Extension\\ProductExtension::EXTENSION_NAME') %}
 
     <script id="topi-offcanvas-cart-items">
-        topi.cartItems = Object.values({{ products|map(p => p.getExtension(extensionName))|json_encode|raw }})
+        var cartItems = Object.values({{ products|map(p => p.getExtension(extensionName))|json_encode|raw }});
+        if (typeof topi === 'undefined') {
+            window.addEventListener("topi.widgets.loaded", function () {
+                topi.cartItems = cartItems
+            });
+        } else {
+            topi.cartItems = cartItems;
+        }
     </script>
 {% endblock %}

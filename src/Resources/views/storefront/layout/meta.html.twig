@@ -9,12 +9,11 @@
 
         {% if page.hasExtension(extensionName) %}
             <script type="text/javascript">
-              function loadTopiScripts() {
                 let firstScript = document.getElementsByTagName('script')[0]
 
                 let el = document.createElement('script')
-                el.async = true
                 el.defer = true
+                el.async = true
                 el.src = '{{ page.getExtension(extensionName).widgetJsUrl }}'
                 el.onload = function () {
                   window.topi = new TopiElements({
@@ -24,8 +23,7 @@
                   window.dispatchEvent(new Event('topi.widgets.loaded'));
                 }
 
-                firstScript.parentNode.insertBefore(el, firstScript)
-              }
+                firstScript.parentNode.insertBefore(el, firstScript);
             </script>
         {% endif %}
     {% endblock %}

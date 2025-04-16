@@ -3,9 +3,14 @@
 
     {% block topi_product_rental_summary_label_script %}
         <script>
-            window.addEventListener("topi.widgets.loaded", function () {
-                topi.pdpItem = {{ product.getExtension(extensionName)|json_encode|raw }}
-            });
+            var pdpItem = {{ product.getExtension(extensionName)|json_encode|raw }};
+            if (typeof topi === 'undefined') {
+                window.addEventListener("topi.widgets.loaded", function () {
+                    topi.pdpItem = pdpItem;
+                });
+            } else {
+                topi.pdpItem = pdpItem;
+            }
         </script>
     {% endblock %}
 
