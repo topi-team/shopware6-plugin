@@ -18,6 +18,8 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 readonly class CustomFieldInstaller implements InstallerInterface
 {
     public const CUSTOM_FIELD_SET_ID = '01958460a77371a7924ef42aa3182bf3';
+    public const CUSTOM_FIELD_ID = '01958460a77371a7924ef42aa40f92fc';
+    public const RELATION_ID = '0195847602bf72c6a84a2c5466143a85';
 
     /**
      * @param EntityRepository<CustomFieldSetCollection> $customFieldSetRepository
@@ -67,6 +69,7 @@ readonly class CustomFieldInstaller implements InstallerInterface
                 ],
                 'customFields' => [
                     [
+                        'id' => self::CUSTOM_FIELD_ID,
                         'name' => 'topi_order_id',
                         'type' => CustomFieldTypes::TEXT,
                         'config' => [
@@ -80,7 +83,7 @@ readonly class CustomFieldInstaller implements InstallerInterface
                     ],
                 ],
                 'relations' => [[
-                    'id' => '0195847602bf72c6a84a2c5466143a85',
+                    'id' => self::RELATION_ID,
                     'entityName' => 'order',
                 ]],
             ],
