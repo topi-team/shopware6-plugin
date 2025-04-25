@@ -3,16 +3,16 @@
     "description": "Topi Integration for Shopware 6",
     "type": "shopware-platform-plugin",
     "license": "proprietary",
-    "version": "0.0.3",
+    "version": "1.0.0",
     "authors": [
         {
-            "name": "nuonic Digital GmbH & Co. KG",
-            "homepage": "https://nuonic.de"
+            "name": "topi GmbH",
+            "homepage": "https://topi.eu"
         }
     ],
     "extra": {
         "shopware-plugin-class": "TopiPaymentIntegration\\TopiPaymentIntegrationPlugin",
-        "author": "nuonic Digital GmbH & Co. KG",
+        "author": "topi GmbH",
         "description": {
             "de-DE": "Mieten mit topi - jetzt auch in Shopware 6 ganz einfach Elektronik vermieten. Unterstützung von gemischten Warenkörben und sichere Zahlung ohne zusätzliche Kosten.",
             "en-GB": "Rent with topi - now you can easily rent out electronics in Shopware 6. Support for mixed shopping baskets and secure payment without additional costs."
