@@ -1,3 +1,16 @@
 {% block topi_checkout_button_widget %}
-    <x-topi-checkout-button checkout-mode="{{ mode }}" />
+    <x-topi-checkout-button
+        checkout-mode="{{ mode }}"
+        form="{{ form }}"
+        id="topiCheckoutButton"
+    >
+    </x-topi-checkout-button>
+    <script>
+        document.getElementById('topiCheckoutButton')
+          .addEventListener('click', function(e) {
+              e.stopPropagation();
+              document.getElementById(this.getAttribute('form')).submit();
+            }
+          )
+    </script>
 {% endblock %}

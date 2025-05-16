@@ -10,17 +10,14 @@
 
     {% if page.hasExtension(extensionName) and page.getExtension(extensionName).paymentMethodId is same as(selectedPaymentMethodId) %}
         <div class="d-grid">
-            <button id="confirmFormSubmit"
-                    class="btn btn-no-styling btn-lg"
-                    form="confirmOrderForm"
-                    {% if page.cart.errors.blockResubmit %}
-                        disabled
-                    {% endif %}
-                    type="submit">
+            {% if not page.cart.errors.blockResubmit %}
                 {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/checkout-button-widget.html.twig' with {
-                    mode: "cart"
+                    mode: "cart",
+                    form: "confirmOrderForm"
                 } %}
-            </button>
+            {% else %}
+                {{ parent() }}
+            {% endif %}
         </div>
     {% else %}
         {{ parent() }}
