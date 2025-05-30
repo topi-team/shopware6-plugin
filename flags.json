@@ -1,0 +1,22 @@
+{
+  "environments": {
+    "sandbox": {
+      "baseUrl": "https://seller-api-sandbox.topi-sandbox.eu/v1/",
+      "identityTokenUrl": "https://identity.topi-sandbox.eu/oauth2/token",
+      "widgetJsUrl": "https://elements.topi-sandbox.eu/topi_elements.umd.js"
+    },
+    "staging": {
+      "baseUrl": "https://seller-api.topi-staging.eu/v1/",
+      "identityTokenUrl": "https://identity.topi-staging.eu/oauth2/token",
+      "widgetJsUrl": "https://elements.topi-staging.eu/topi_elements.umd.js"
+    },
+    "production": {
+      "baseUrl": "https://seller-api.topi.eu/v1/",
+      "identityTokenUrl": "https://identity.topi.eu/oauth2/token",
+      "widgetJsUrl": "https://elements.topi.eu/topi_elements.umd.js"
+    }
+  },
+  "tokenScopes": [
+    "client"
+  ]
+}
