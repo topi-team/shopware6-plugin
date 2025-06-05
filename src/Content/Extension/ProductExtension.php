@@ -13,9 +13,9 @@ class ProductExtension extends Struct
     public const EXTENSION_NAME = 'topiWidgetProduct';
 
     public function __construct(
-        public readonly MoneyAmountWithOptionalTax $price,
-        public readonly ProductReference $sellerProductReference,
-        public readonly int $quantity = 1,
+        public MoneyAmountWithOptionalTax $price,
+        public ProductReference $sellerProductReference,
+        public int $quantity = 1,
     ) {
     }
 }

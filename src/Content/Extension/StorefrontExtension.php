@@ -11,9 +11,9 @@ class StorefrontExtension extends Struct
     public const EXTENSION_NAME = 'topiPaymentIntegrationStorefrontExtension';
 
     public function __construct(
-        public readonly string $widgetJsUrl,
-        public readonly string $widgetId,
-        public readonly string $paymentMethodId,
+        public string $widgetJsUrl,
+        public string $widgetId,
+        public string $paymentMethodId,
     ) {
     }
 }
