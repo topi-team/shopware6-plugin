@@ -73,6 +73,8 @@ readonly class SyncCatalogAction
         }
 
         $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('active', true));
+        $criteria->addFilter(new EqualsFilter('type.name', 'Storefront'));
         $salesChannels = $this->salesChannelRepository->searchIds($criteria, $context)->getIds();
 
         foreach ($salesChannels as $salesChannelId) {
