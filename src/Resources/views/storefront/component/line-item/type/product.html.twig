@@ -1,5 +1,8 @@
 {% sw_extends '@Storefront/storefront/component/line-item/type/product.html.twig' %}
 
+{# Guard to prevent double injection across versions #}
+{# Use Shopware feature flag to branch between 6.6+ and 6.5 #}
+
 {#
   6.7+: Inject after row inner content via component_line_item_type_product_row_inner.
   6.6 and earlier: This block doesn’t exist, so we inject into col_remove or col_total_price
@@ -10,21 +13,23 @@
 {% block component_line_item_type_product_row_inner %}
     {{ parent() }}
 
-    <div class="row g-0 order-5 justify-content-end topi__oc-cart-elements">
-        <div class="col mb-1 mt-1 d-flex justify-content-end has__widget-element">
-            {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {
-                topiProductId: lineItem.id,
-                mode: 'product'
-            } %}
+    {% if feature('v6.6.0.0') %}
+        <div class="row g-0 order-5 justify-content-end topi__oc-cart-elements">
+            <div class="col mb-1 mt-1 d-flex justify-content-end has__widget-element">
+                {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {
+                    topiProductId: lineItem.id,
+                    mode: 'product'
+                } %}
+            </div>
         </div>
-    </div>
+    {% endif %}
 {% endblock %}
 
 {# 6.6 fallback: inject when showSubtotal is not defined and remove button is shown #}
 {% block component_line_item_type_product_col_remove %}
     {{ parent() }}
 
-    {% if showSubtotal is not defined and showRemoveButton %}
+    {% if not feature('v6.6.0.0') and showRemoveButton %}
         <div class="row g-0 order-5 justify-content-end topi__oc-cart-elements">
             <div class="col mb-1 mt-1 d-flex justify-content-end has__widget-element">
                 {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {
@@ -40,7 +45,7 @@
 {% block component_line_item_type_product_col_total_price %}
     {{ parent() }}
 
-    {% if showSubtotal is not defined and (showRemoveButton is defined and not showRemoveButton) %}
+    {% if not feature('v6.6.0.0') and (showRemoveButton is defined and not showRemoveButton) %}
         <div class="row g-0 order-5 justify-content-end topi__oc-cart-elements">
             <div class="col mb-1 mt-1 d-flex justify-content-end has__widget-element">
                 {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {
