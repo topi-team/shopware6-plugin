@@ -34,8 +34,8 @@ class Client
     private array $orderClients = [];
 
     public function __construct(
-        readonly private HttpClientFactory $clientFactory,
-        readonly private LoggerInterface $logger,
+        private readonly HttpClientFactory $clientFactory,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
