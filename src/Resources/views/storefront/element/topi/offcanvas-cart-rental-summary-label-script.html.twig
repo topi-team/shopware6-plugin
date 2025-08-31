@@ -1,14 +1,9 @@
 {% block topi_cart_rental_summry_label_script %}
     {% set extensionName = constant('TopiPaymentIntegration\\Content\\Extension\\ProductExtension::EXTENSION_NAME') %}
 
-    <script id="topi-offcanvas-cart-items">
-        var cartItems = Object.values({{ products|map(p => p.getExtension(extensionName))|json_encode|raw }});
-        if (typeof topi === 'undefined') {
-            window.addEventListener("topi.widgets.loaded", function () {
-                topi.cartItems = cartItems
-            });
-        } else {
-            topi.cartItems = cartItems;
-        }
-    </script>
+    {# Provide cart items as JSON via a data attribute. No inline JS, safe for 6.5+. #}
+    <div id="topi-offcanvas-cart-items-data"
+         data-topi-cart-items="{{ products|map(p => p.getExtension(extensionName))|json_encode|e('html_attr') }}"
+         hidden>
+    </div>
 {% endblock %}

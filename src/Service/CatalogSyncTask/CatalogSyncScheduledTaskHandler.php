@@ -6,6 +6,7 @@ namespace TopiPaymentIntegration\Service\CatalogSyncTask;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
+use TopiPaymentIntegration\Util\ContextHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
@@ -29,7 +30,7 @@ class CatalogSyncScheduledTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        $context = Context::createCLIContext();
+        $context = ContextHelper::createCliContext();
 
         $this->syncCatalogAction->execute($context, new CatalogSyncContext());
     }

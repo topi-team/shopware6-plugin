@@ -36,7 +36,7 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
         |CheckoutConfirmPageLoadedEvent
         |CartLoadedEvent $event,
     ): void {
-        if ($event instanceof CartEvent) {
+        if ((interface_exists(CartEvent::class) && $event instanceof CartEvent) || $event instanceof CartLoadedEvent) {
             $cart = $event->getCart();
         }
 

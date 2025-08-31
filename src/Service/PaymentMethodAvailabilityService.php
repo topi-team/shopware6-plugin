@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
-use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use TopiPaymentIntegration\PaymentHandler\TopiAsyncPaymentHandler;
@@ -25,7 +24,6 @@ readonly class PaymentMethodAvailabilityService
      */
     public function __construct(
         private SalesChannelRepository $salesChannelPaymentMethodRepository,
-        private RuleIdMatcher $ruleIdMatcher,
         private PluginIdProvider $pluginIdProvider,
     ) {
     }
@@ -62,6 +60,20 @@ readonly class PaymentMethodAvailabilityService
         $paymentMethods = $this->getPluginPaymentMethods($salesChannelContext, $context);
         $paymentMethods->sortPaymentMethodsByPreference($salesChannelContext);
 
-        return $this->ruleIdMatcher->filterCollection($paymentMethods, $salesChannelContext->getRuleIds());
+        $activeRuleIds = $salesChannelContext->getRuleIds();
+
+        // Manually filter by availability rule: if a payment method has an availabilityRuleId
+        // and it is not active in the current SalesChannelContext, drop it.
+        return $paymentMethods->filter(
+            function (PaymentMethodEntity $method) use ($activeRuleIds): bool {
+                $availabilityRuleId = $method->getAvailabilityRuleId();
+
+                if ($availabilityRuleId === null) {
+                    return true;
+                }
+
+                return \in_array($availabilityRuleId, $activeRuleIds, true);
+            }
+        );
     }
 }

@@ -45,8 +45,8 @@
         "php": ">= 8.2",
         "benjaminfavre/oauth2-http-client": "^3.0.1",
         "svix/svix": "^1.56.0",
-        "shopware/core": "~6.6.0",
-        "shopware/storefront": "~6.6.0"
+        "shopware/core": ">6.5.8.0 <6.8.0.0",
+        "shopware/storefront": ">6.5.8.0 <6.8.0.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^11.5.6",

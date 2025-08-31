@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TopiPaymentIntegration\Command;
 
 use Shopware\Core\Framework\Context;
+use TopiPaymentIntegration\Util\ContextHelper;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,7 +27,7 @@ class StartCatalogImportCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $this->syncCatalogAction->execute(Context::createCLIContext(), new CatalogSyncContext());
+        $this->syncCatalogAction->execute(ContextHelper::createCliContext(), new CatalogSyncContext());
         $io->success('Catalog Sync runs in background');
 
         return 0;

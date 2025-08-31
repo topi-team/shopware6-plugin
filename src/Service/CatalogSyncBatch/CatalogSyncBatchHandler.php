@@ -7,6 +7,7 @@ namespace TopiPaymentIntegration\Service\CatalogSyncBatch;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
+use TopiPaymentIntegration\Util\ContextHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -43,7 +44,7 @@ readonly class CatalogSyncBatchHandler
 
     public function __invoke(CatalogSyncBatchMessage $message, ?Context $context = null): void
     {
-        $context = $context ?? Context::createCLIContext();
+        $context = $context ?? ContextHelper::createCliContext();
         $criteria = (new Criteria([$message->catalogSyncBatchId]))
                         ->addAssociation('catalogSyncProcess')
                         ->addAssociation('catalogSyncProcess.salesChannel')

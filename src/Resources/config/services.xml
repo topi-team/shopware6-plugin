@@ -92,10 +92,19 @@
             <argument type="service" id="TopiPaymentIntegration\Service\CatalogSyncBatch\CatalogSyncBatchHandler" />
         </service>
 
-        <service id="TopiPaymentIntegration\PaymentHandler\TopiAsyncPaymentHandler">
+        <service id="TopiPaymentIntegration\Service\TopiPaymentProcessor">
             <argument type="service" id="order_transaction.repository" />
             <argument type="service" id="TopiPaymentIntegration\ApiClient\Client" />
             <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory" />
+        </service>
+
+        <service id="TopiPaymentIntegration\PaymentHandler\TopiPaymentHandlerFactory">
+            <argument type="service" id="TopiPaymentIntegration\Service\TopiPaymentProcessor" />
+        </service>
+
+        <!-- Stable handlerIdentifier service id provided by factory -->
+        <service id="TopiPaymentIntegration\PaymentHandler\TopiAsyncPaymentHandler">
+            <factory service="TopiPaymentIntegration\PaymentHandler\TopiPaymentHandlerFactory" method="create" />
             <tag name="shopware.payment.method" />
         </service>
 
@@ -174,7 +183,6 @@
 
         <service id="TopiPaymentIntegration\Service\PaymentMethodAvailabilityService">
             <argument type="service" id="sales_channel.payment_method.repository" />
-            <argument type="service" id="Shopware\Core\Framework\Rule\RuleIdMatcher" />
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\PluginIdProvider" />
         </service>
 

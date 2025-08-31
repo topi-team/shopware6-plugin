@@ -1,0 +1,11 @@
+{% set topiPrice = product.price|first %}
+{% set taxRate = product.tax.taxRate %}
+{% set topiQuantity = product.minPurchase %}
+
+{% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/product-rental-summary-label.html.twig' with {
+    topiPrice: topiPrice,
+    taxRate: taxRate,
+    topiQuantity: topiQuantity,
+    topiProductId: product.id
+} %}
+

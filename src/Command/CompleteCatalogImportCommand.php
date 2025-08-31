@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TopiPaymentIntegration\Command;
 
 use Shopware\Core\Framework\Context;
+use TopiPaymentIntegration\Util\ContextHelper;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -38,7 +39,7 @@ class CompleteCatalogImportCommand extends Command
             },
         );
 
-        $this->syncCatalogAction->execute(Context::createCLIContext(), $syncContext);
+        $this->syncCatalogAction->execute(ContextHelper::createCliContext(), $syncContext);
 
         return 0;
     }

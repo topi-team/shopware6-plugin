@@ -1,7 +1,6 @@
-{% sw_extends '@Storefront/storefront/component/buy-widget/buy-widget.html.twig' %}
+{% sw_extends '@Storefront/storefront/page/product-detail/buy-widget.html.twig' %}
 
-{# shopware-block: 02466fdc321315350b437dd18e6902708531b04b5b0c6eda18f28245d5fab47e@v6.6.10.1 #}
-{% block buy_widget_tax %}
+{% block page_product_detail_tax %}
     <div class="product-detail-tax-container">
         {% if context.taxState == 'gross' %}
             {% set taxText = 'general.grossTaxInformation'|trans|sw_sanitize %}
@@ -10,13 +9,13 @@
         {% endif %}
 
         <p class="product-detail-tax">
-            {% block buy_widget_tax_link %}
+            {% block page_product_detail_tax_link %}
                 {{ parent() }}
             {% endblock %}
         </p>
 
         {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/buy-widget-summary.html.twig' with {
-            product: product
+            product: page.product
         } %}
     </div>
 {% endblock %}

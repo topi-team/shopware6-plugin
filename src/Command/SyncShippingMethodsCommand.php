@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TopiPaymentIntegration\Command;
 
 use Shopware\Core\Framework\Context;
+use TopiPaymentIntegration\Util\ContextHelper;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,7 +26,7 @@ class SyncShippingMethodsCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $this->createShippingMethodsAction->execute(Context::createCLIContext());
+        $this->createShippingMethodsAction->execute(ContextHelper::createCliContext());
         $io->success('Synced shipping methods');
 
         return 0;
