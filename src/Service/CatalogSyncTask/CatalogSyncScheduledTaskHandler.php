@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace TopiPaymentIntegration\Service\CatalogSyncTask;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Context;
-use TopiPaymentIntegration\Util\ContextHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use TopiPaymentIntegration\Action\SyncCatalogAction;
 use TopiPaymentIntegration\CatalogSyncContext;
+use TopiPaymentIntegration\Util\ContextHelper;
 
 #[AsMessageHandler(handles: CatalogSyncScheduledTask::class)]
 class CatalogSyncScheduledTaskHandler extends ScheduledTaskHandler

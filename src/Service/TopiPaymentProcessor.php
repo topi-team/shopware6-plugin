@@ -48,16 +48,16 @@ readonly class TopiPaymentProcessor
         foreach ($order->getLineItems() as $shopwareLineItem) {
             $type = $shopwareLineItem->getType();
 
-            if ($type === LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            if (LineItem::PRODUCT_LINE_ITEM_TYPE === $type) {
                 $offer->lines[] = $this->buildOfferLineFromOrderItem($shopwareLineItem, $order);
                 continue;
             }
 
             // Support SWP Product Options structure
-            if ($type === 'product-with-options') {
+            if ('product-with-options' === $type) {
                 // add each option as its own product line
                 foreach ($shopwareLineItem->getChildren() ?? [] as $child) {
-                    if ($child->getType() !== 'product-option') {
+                    if ('product-option' !== $child->getType()) {
                         continue;
                     }
 
@@ -172,7 +172,7 @@ readonly class TopiPaymentProcessor
         $price->currency = $order->getCurrency()?->getIsoCode() ?? 'EUR';
 
         $totalGross = $orderLineItem->getTotalPrice();
-        if ($totalGross === null) {
+        if (null === $totalGross) {
             $totalGross = $orderLineItem->getPrice()?->getTotalPrice() ?? 0.0;
         }
         $totalTaxes = $orderLineItem->getPrice()?->getCalculatedTaxes()->getAmount() ?? 0.0;

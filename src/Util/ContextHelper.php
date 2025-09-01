@@ -11,11 +11,10 @@ final class ContextHelper
     public static function createCliContext(): Context
     {
         if (method_exists(Context::class, 'createCLIContext')) {
-            /** @phpstan-ignore-next-line */
+            /* @phpstan-ignore-next-line */
             return Context::createCLIContext();
         }
 
         return Context::createDefaultContext();
     }
 }
-

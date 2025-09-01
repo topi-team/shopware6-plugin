@@ -16,7 +16,7 @@ readonly class TopiPaymentHandlerFactory
     /**
      * Returns a version-appropriate payment handler instance.
      * - >= 6.6.5.0: TopiAsyncPaymentHandler66 (AbstractPaymentHandler based)
-     * - <  6.6.5.0: TopiAsyncPaymentHandlerLegacy (AsynchronousPaymentHandlerInterface based)
+     * - <  6.6.5.0: TopiAsyncPaymentHandlerLegacy (AsynchronousPaymentHandlerInterface based).
      */
     public function create(): object
     {
@@ -27,4 +27,3 @@ readonly class TopiPaymentHandlerFactory
         return new TopiAsyncPaymentHandlerLegacy($this->processor);
     }
 }
-

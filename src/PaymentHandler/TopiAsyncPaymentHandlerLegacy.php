@@ -38,4 +38,3 @@ readonly class TopiAsyncPaymentHandlerLegacy implements AsynchronousPaymentHandl
         // no need to do anything when the customer returns
     }
 }
-

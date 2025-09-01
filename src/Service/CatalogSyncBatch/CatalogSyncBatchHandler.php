@@ -7,10 +7,9 @@ namespace TopiPaymentIntegration\Service\CatalogSyncBatch;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use TopiPaymentIntegration\Util\ContextHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -26,6 +25,7 @@ use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessEntity;
 use TopiPaymentIntegration\Content\Product\SalesChannel\RawSalesChannelProductDefinition;
 use TopiPaymentIntegration\Service\ShopwareProductToTopiProductConverter;
 use TopiPaymentIntegration\Service\SwpOptionToTopiProductConverter;
+use TopiPaymentIntegration\Util\ContextHelper;
 
 #[AsMessageHandler(handles: CatalogSyncBatchMessage::class)]
 readonly class CatalogSyncBatchHandler

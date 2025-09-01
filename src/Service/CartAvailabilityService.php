@@ -90,19 +90,19 @@ readonly class CartAvailabilityService
         foreach ($lineItems as $item) {
             $type = $item->getType();
 
-            if ($type === LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            if (LineItem::PRODUCT_LINE_ITEM_TYPE === $type) {
                 $ref = (string) $item->getReferencedId();
-                if ($ref !== '') {
+                if ('' !== $ref) {
                     $pair = ['source' => 'shopware-ids', 'reference' => $ref];
                     $pairs[$this->getCacheKeyFromPair($pair)] = $pair;
                 }
                 continue;
             }
 
-            if ($type === 'product-with-options') {
+            if ('product-with-options' === $type) {
                 // add main product
                 $ref = (string) $item->getReferencedId();
-                if ($ref !== '') {
+                if ('' !== $ref) {
                     $pair = ['source' => 'shopware-ids', 'reference' => $ref];
                     $pairs[$this->getCacheKeyFromPair($pair)] = $pair;
                 }
@@ -113,7 +113,7 @@ readonly class CartAvailabilityService
                         continue;
                     }
                     $optRef = (string) ($child->getPayload()['optionValue'] ?? $child->getReferencedId() ?? '');
-                    if ($optRef !== '') {
+                    if ('' !== $optRef) {
                         $pair = ['source' => 'swp-option-id', 'reference' => $optRef];
                         $pairs[$this->getCacheKeyFromPair($pair)] = $pair;
                     }
@@ -137,6 +137,6 @@ readonly class CartAvailabilityService
             $reference = $pairOrSummary['reference'];
         }
 
-        return self::CACHE_PREFIX . $source . ':' . $reference;
+        return self::CACHE_PREFIX.$source.':'.$reference;
     }
 }

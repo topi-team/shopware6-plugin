@@ -47,7 +47,7 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
         foreach ($cart->getLineItems() as $lineItem) {
             $type = $lineItem->getType();
 
-            if ($type === LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            if (LineItem::PRODUCT_LINE_ITEM_TYPE === $type) {
                 $lineItem->addExtension(
                     ProductExtension::EXTENSION_NAME,
                     $this->lineItemToProductExtension($lineItem, $event->getSalesChannelContext()->getSalesChannel()),
@@ -56,7 +56,7 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
             }
 
             // Support SWP Product Options wrapper: attach extension to wrapper using child product data
-            if ($type === 'product-with-options') {
+            if ('product-with-options' === $type) {
                 // Use the wrapper line item's calculated price which includes selected options
                 $lineItem->addExtension(
                     ProductExtension::EXTENSION_NAME,

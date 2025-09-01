@@ -68,7 +68,7 @@ readonly class PaymentMethodAvailabilityService
             function (PaymentMethodEntity $method) use ($activeRuleIds): bool {
                 $availabilityRuleId = $method->getAvailabilityRuleId();
 
-                if ($availabilityRuleId === null) {
+                if (null === $availabilityRuleId) {
                     return true;
                 }
 

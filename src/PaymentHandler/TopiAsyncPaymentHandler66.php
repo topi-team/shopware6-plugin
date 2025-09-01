@@ -42,4 +42,3 @@ class TopiAsyncPaymentHandler66 extends AbstractPaymentHandler
         // no need to do anything when the customer returns
     }
 }
-

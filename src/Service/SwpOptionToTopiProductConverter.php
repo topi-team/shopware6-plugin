@@ -9,7 +9,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use TopiPaymentIntegration\ApiClient\Catalog\Image;
 use TopiPaymentIntegration\ApiClient\Catalog\MoneyAmountWithOptionalTax;
 use TopiPaymentIntegration\ApiClient\Catalog\Product;
-use TopiPaymentIntegration\ApiClient\Catalog\ProductIdentifier;
 use TopiPaymentIntegration\ApiClient\Common\ProductReference;
 
 class SwpOptionToTopiProductConverter
@@ -23,7 +22,7 @@ class SwpOptionToTopiProductConverter
         $product->subtitle = (string) ($translated['shortDescription'] ?? '');
         $long = (string) ($translated['longDescription'] ?? '');
         $product->description = mb_substr($long, 0, 1500);
-        $product->descriptionLines = $long !== '' ? array_map(static fn ($l) => mb_substr($l, 0, 1500), explode("\n", $long)) : [];
+        $product->descriptionLines = '' !== $long ? array_map(static fn ($l) => mb_substr($l, 0, 1500), explode("\n", $long)) : [];
 
         $currency = $salesChannel->getCurrency();
         assert($currency instanceof CurrencyEntity);
@@ -52,7 +51,7 @@ class SwpOptionToTopiProductConverter
         $product->sellerProductReferences[] = $ref;
 
         $ordernumber = $this->getString($option, 'getOrdernumber');
-        if ($ordernumber !== '') {
+        if ('' !== $ordernumber) {
             $pn = new ProductReference();
             $pn->source = 'swp-option-ordernumber';
             $pn->reference = $ordernumber;
@@ -76,7 +75,7 @@ class SwpOptionToTopiProductConverter
                     // Price items may carry gross/net; but we don't have currency map, so just take first
                     $gross = method_exists($first, 'getGross') ? (float) $first->getGross() : null;
                     $net = method_exists($first, 'getNet') ? (float) $first->getNet() : null;
-                    if ($gross !== null || $net !== null) {
+                    if (null !== $gross || null !== $net) {
                         return ['gross' => $gross ?? 0.0, 'net' => $net ?? 0.0];
                     }
                 }
@@ -102,6 +101,7 @@ class SwpOptionToTopiProductConverter
                 return (string) $media->getUrl();
             }
         }
+
         return null;
     }
 
@@ -115,4 +115,3 @@ class SwpOptionToTopiProductConverter
         return method_exists($obj, $method) ? (float) $obj->$method() : null;
     }
 }
-

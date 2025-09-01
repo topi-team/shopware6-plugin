@@ -31,7 +31,7 @@ class RawSalesChannelProductDefinition extends SalesChannelProductDefinition
         // In Shopware < 6.6.5.0, getNestingLevel() and ROOT_NESTING_LEVEL do not exist.
         // Only apply the root-level optimization when the API is available.
         if (method_exists($criteria, 'getNestingLevel')
-            && defined(Criteria::class . '::ROOT_NESTING_LEVEL')
+            && defined(Criteria::class.'::ROOT_NESTING_LEVEL')
             && Criteria::ROOT_NESTING_LEVEL !== $criteria->getNestingLevel()
         ) {
             return;
