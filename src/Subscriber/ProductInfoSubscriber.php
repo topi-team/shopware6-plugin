@@ -45,14 +45,24 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
         }
 
         foreach ($cart->getLineItems() as $lineItem) {
-            if (LineItem::PRODUCT_LINE_ITEM_TYPE !== $lineItem->getType()) {
+            $type = $lineItem->getType();
+
+            if ($type === LineItem::PRODUCT_LINE_ITEM_TYPE) {
+                $lineItem->addExtension(
+                    ProductExtension::EXTENSION_NAME,
+                    $this->lineItemToProductExtension($lineItem, $event->getSalesChannelContext()->getSalesChannel()),
+                );
                 continue;
             }
 
-            $lineItem->addExtension(
-                ProductExtension::EXTENSION_NAME,
-                $this->lineItemToProductExtension($lineItem, $event->getSalesChannelContext()->getSalesChannel()),
-            );
+            // Support SWP Product Options wrapper: attach extension to wrapper using child product data
+            if ($type === 'product-with-options') {
+                // Use the wrapper line item's calculated price which includes selected options
+                $lineItem->addExtension(
+                    ProductExtension::EXTENSION_NAME,
+                    $this->lineItemToProductExtension($lineItem, $event->getSalesChannelContext()->getSalesChannel()),
+                );
+            }
         }
     }
 

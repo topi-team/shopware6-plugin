@@ -13,11 +13,11 @@
 {% block component_line_item_type_product_row_inner %}
     {{ parent() }}
 
-    {% if feature('v6.6.0.0') %}
+    {% if feature('v6.6.0.0') and (nestingLevel is not defined or nestingLevel == 0) %}
         <div class="row g-0 order-5 justify-content-end topi__oc-cart-elements">
             <div class="col mb-1 mt-1 d-flex justify-content-end has__widget-element">
                 {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {
-                    topiProductId: lineItem.id,
+                    topiProductId: lineItem.referencedId,
                     mode: 'product'
                 } %}
             </div>
@@ -29,11 +29,11 @@
 {% block component_line_item_type_product_col_remove %}
     {{ parent() }}
 
-    {% if not feature('v6.6.0.0') and showRemoveButton %}
+    {% if not feature('v6.6.0.0') and showRemoveButton and (nestingLevel is not defined or nestingLevel == 0) %}
         <div class="row g-0 order-5 justify-content-end topi__oc-cart-elements">
             <div class="col mb-1 mt-1 d-flex justify-content-end has__widget-element">
                 {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {
-                    topiProductId: lineItem.id,
+                    topiProductId: lineItem.referencedId,
                     mode: 'product'
                 } %}
             </div>
@@ -45,11 +45,11 @@
 {% block component_line_item_type_product_col_total_price %}
     {{ parent() }}
 
-    {% if not feature('v6.6.0.0') and (showRemoveButton is defined and not showRemoveButton) %}
+    {% if not feature('v6.6.0.0') and (showRemoveButton is defined and not showRemoveButton) and (nestingLevel is not defined or nestingLevel == 0) %}
         <div class="row g-0 order-5 justify-content-end topi__oc-cart-elements">
             <div class="col mb-1 mt-1 d-flex justify-content-end has__widget-element">
                 {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {
-                    topiProductId: lineItem.id,
+                    topiProductId: lineItem.referencedId,
                     mode: 'product'
                 } %}
             </div>

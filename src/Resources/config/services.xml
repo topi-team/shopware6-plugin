@@ -79,8 +79,14 @@
             <argument type="service" id="TopiPaymentIntegration\Service\ShopwareProductToTopiProductConverter" />
             <argument type="service" id="TopiPaymentIntegration\ApiClient\Client" />
             <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory" />
+            <!-- Optional SWP Product Options repositories (only present if SwpProductOptionsSix is installed) -->
+            <argument type="service" id="swp_product_options_product_to_options.repository" on-invalid="ignore" />
+            <argument type="service" id="swp_product_options_options.repository" on-invalid="ignore" />
+            <argument type="service" id="TopiPaymentIntegration\Service\SwpOptionToTopiProductConverter" on-invalid="ignore" />
             <tag name="messenger.message_handler" />
         </service>
+
+        <service id="TopiPaymentIntegration\Service\SwpOptionToTopiProductConverter" />
 
         <service id="TopiPaymentIntegration\Action\SyncCatalogAction">
             <argument type="service" id="TopiPaymentIntegration\Service\CatalogSyncBatchEmitter" />

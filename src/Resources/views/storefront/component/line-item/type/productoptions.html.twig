@@ -1,0 +1,31 @@
+{% sw_extends '@SwpProductOptionsSix/storefront/component/line-item/type/productoptions.html.twig' %}
+
+{% block component_line_item_type_product_col_remove %}
+    {{ parent() }}
+
+    {% if showRemoveButton and (nestingLevel is not defined or nestingLevel == 0) %}
+        <div class="row g-0 order-5 justify-content-end topi__oc-cart-elements">
+            <div class="col mb-1 mt-1 d-flex justify-content-end has__widget-element">
+                {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {
+                    topiProductId: lineItem.referencedId,
+                    mode: 'product'
+                } %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block component_line_item_type_product_col_total_price %}
+    {{ parent() }}
+
+    {% if showRemoveButton is defined and not showRemoveButton and (nestingLevel is not defined or nestingLevel == 0) %}
+        <div class="row g-0 order-5 justify-content-end topi__oc-cart-elements">
+            <div class="col mb-1 mt-1 d-flex justify-content-end has__widget-element">
+                {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {
+                    topiProductId: lineItem.referencedId,
+                    mode: 'product'
+                } %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

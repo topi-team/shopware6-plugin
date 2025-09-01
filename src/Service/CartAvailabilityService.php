@@ -27,52 +27,116 @@ readonly class CartAvailabilityService
 
     public function isCartAvailableForPurchaseThroughTopi(LineItemCollection $lineItems, string $salesChannelId): bool
     {
-        $cacheKeys = $lineItems->map($this->getCacheKey(...));
+        $references = $this->extractProductReferences($lineItems);
+        $uniqueKeys = array_keys($references); // keys are cache keys
+
         /** @var iterable<string, CacheItemInterface> $cacheResults */
-        $cacheResults = $this->cache->getItems($cacheKeys);
+        $cacheResults = $this->cache->getItems($uniqueKeys);
 
         $knownAvailabilities = [];
-
         $availabilitiesToRequest = new ProductReferenceCollection();
+
         foreach ($cacheResults as $key => $cacheResult) {
-            $referencedId = substr($key, strlen(self::CACHE_PREFIX));
             if ($cacheResult->isHit()) {
-                $knownAvailabilities[$referencedId] = $cacheResult->get();
+                /** @var ProductSummary $summary */
+                $summary = $cacheResult->get();
+                $knownAvailabilities[$key] = $summary;
                 continue;
             }
 
-            $reference = new ProductReference();
-            $reference->reference = $referencedId;
-            $reference->source = 'shopware-ids';
-
-            $availabilitiesToRequest->add($reference);
+            $pair = $references[$key];
+            $ref = new ProductReference();
+            $ref->source = $pair['source'];
+            $ref->reference = $pair['reference'];
+            $availabilitiesToRequest->add($ref);
         }
 
-        $availabilities = $this->client->catalog(
-            $this->environmentFactory->makeEnvironment($salesChannelId)
-        )->checkSupported($availabilitiesToRequest);
+        if (count($availabilitiesToRequest) > 0) {
+            $availabilities = $this->client->catalog(
+                $this->environmentFactory->makeEnvironment($salesChannelId)
+            )->checkSupported($availabilitiesToRequest);
 
-        foreach ($availabilities as $availability) {
-            $knownAvailabilities[$availability->sellerProductReference->reference] = $availability;
+            foreach ($availabilities as $availability) {
+                $cacheKey = $this->getCacheKeyFromPair([
+                    'source' => $availability->sellerProductReference->source,
+                    'reference' => $availability->sellerProductReference->reference,
+                ]);
+                $knownAvailabilities[$cacheKey] = $availability;
 
-            $cacheItem = $this->cache->getItem($this->getCacheKey($availability));
-            $cacheItem->expiresAfter(new \DateInterval('PT1H'));
-            $cacheItem->set($availability);
-
-            $this->cache->save($cacheItem);
+                $cacheItem = $this->cache->getItem($cacheKey);
+                $cacheItem->expiresAfter(new \DateInterval('PT1H'));
+                $cacheItem->set($availability);
+                $this->cache->save($cacheItem);
+            }
         }
 
-        $supportedProducts = array_filter($knownAvailabilities, static fn (ProductSummary $productSummary) => $productSummary->isSupported);
+        // All considered references must be supported
+        foreach (array_keys($references) as $key) {
+            if (!isset($knownAvailabilities[$key]) || !$knownAvailabilities[$key]->isSupported) {
+                return false;
+            }
+        }
 
-        return count($supportedProducts) === count($lineItems);
+        return true;
     }
 
-    private function getCacheKey(LineItem|ProductSummary $lineItemOrProductSummary): string
+    /**
+     * @return array<string, array{source:string, reference:string}> keyed by cache key
+     */
+    private function extractProductReferences(LineItemCollection $lineItems): array
     {
-        $id = $lineItemOrProductSummary instanceof LineItem
-            ? $lineItemOrProductSummary->getReferencedId()
-            : $lineItemOrProductSummary->sellerProductReference->reference;
+        $pairs = [];
 
-        return self::CACHE_PREFIX.$id;
+        foreach ($lineItems as $item) {
+            $type = $item->getType();
+
+            if ($type === LineItem::PRODUCT_LINE_ITEM_TYPE) {
+                $ref = (string) $item->getReferencedId();
+                if ($ref !== '') {
+                    $pair = ['source' => 'shopware-ids', 'reference' => $ref];
+                    $pairs[$this->getCacheKeyFromPair($pair)] = $pair;
+                }
+                continue;
+            }
+
+            if ($type === 'product-with-options') {
+                // add main product
+                $ref = (string) $item->getReferencedId();
+                if ($ref !== '') {
+                    $pair = ['source' => 'shopware-ids', 'reference' => $ref];
+                    $pairs[$this->getCacheKeyFromPair($pair)] = $pair;
+                }
+
+                // add each option child by its option id if available
+                foreach ($item->getChildren() ?? [] as $child) {
+                    if (!\in_array($child->getType(), ['product-option', 'product-option-product'], true)) {
+                        continue;
+                    }
+                    $optRef = (string) ($child->getPayload()['optionValue'] ?? $child->getReferencedId() ?? '');
+                    if ($optRef !== '') {
+                        $pair = ['source' => 'swp-option-id', 'reference' => $optRef];
+                        $pairs[$this->getCacheKeyFromPair($pair)] = $pair;
+                    }
+                }
+            }
+        }
+
+        return $pairs;
+    }
+
+    /**
+     * @param array{source:string, reference:string}|ProductSummary $pairOrSummary
+     */
+    private function getCacheKeyFromPair(array|ProductSummary $pairOrSummary): string
+    {
+        if ($pairOrSummary instanceof ProductSummary) {
+            $source = $pairOrSummary->sellerProductReference->source;
+            $reference = $pairOrSummary->sellerProductReference->reference;
+        } else {
+            $source = $pairOrSummary['source'];
+            $reference = $pairOrSummary['reference'];
+        }
+
+        return self::CACHE_PREFIX . $source . ':' . $reference;
     }
 }

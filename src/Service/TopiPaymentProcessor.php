@@ -46,27 +46,28 @@ readonly class TopiPaymentProcessor
 
         $offer = new CreateOfferData();
         foreach ($order->getLineItems() as $shopwareLineItem) {
-            if (LineItem::PRODUCT_LINE_ITEM_TYPE !== $shopwareLineItem->getType()) {
-                throw PaymentException::invalidOrder($order->getId());
+            $type = $shopwareLineItem->getType();
+
+            if ($type === LineItem::PRODUCT_LINE_ITEM_TYPE) {
+                $offer->lines[] = $this->buildOfferLineFromOrderItem($shopwareLineItem, $order);
+                continue;
             }
 
-            $lineItem = new OfferLinePayload();
-            $lineItem->title = $shopwareLineItem->getLabel();
-            $lineItem->quantity = $shopwareLineItem->getQuantity();
-            $price = new MoneyAmount();
-            $price->currency = $order->getCurrency()?->getIsoCode();
+            // Support SWP Product Options structure
+            if ($type === 'product-with-options') {
+                // add each option as its own product line
+                foreach ($shopwareLineItem->getChildren() ?? [] as $child) {
+                    if ($child->getType() !== 'product-option') {
+                        continue;
+                    }
 
-            $price->gross = (int) round($shopwareLineItem->getTotalPrice() * 100);
-            $price->net = (int) round((($shopwareLineItem->getPrice()?->getTotalPrice() ?? 0.0)
-                - ($shopwareLineItem->getPrice()?->getCalculatedTaxes()->getAmount() ?? 0.0)) * 100);
-            $lineItem->price = $price;
+                    $offer->lines[] = $this->buildOfferLineFromOrderItem($child, $order, true);
+                }
 
-            $productReference = new ProductReference();
-            $productReference->source = 'shopware-ids';
-            $productReference->reference = $shopwareLineItem->getReferencedId();
-            $lineItem->sellerProductReference = $productReference;
+                continue;
+            }
 
-            $offer->lines[] = $lineItem;
+            // Ignore other line item types silently for payment composition
         }
 
         $customerInfo = new CustomerInfo();
@@ -144,6 +145,7 @@ readonly class TopiPaymentProcessor
         $criteria->addAssociation('order.deliveries.shippingMethod');
         $criteria->addAssociation('order.billingAddress.country');
         $criteria->addAssociation('order.lineItems');
+        $criteria->addAssociation('order.lineItems.children');
         $criteria->addAssociation('order.transactions.stateMachineState');
         $criteria->addAssociation('order.transactions.paymentMethod.appPaymentMethod.app');
         $criteria->addAssociation('stateMachineState');
@@ -159,5 +161,36 @@ readonly class TopiPaymentProcessor
 
         return $orderTransaction;
     }
-}
 
+    private function buildOfferLineFromOrderItem($orderLineItem, $order, bool $isOption = false): OfferLinePayload
+    {
+        $lineItem = new OfferLinePayload();
+        $lineItem->title = (string) $orderLineItem->getLabel();
+        $lineItem->quantity = (int) $orderLineItem->getQuantity();
+
+        $price = new MoneyAmount();
+        $price->currency = $order->getCurrency()?->getIsoCode() ?? 'EUR';
+
+        $totalGross = $orderLineItem->getTotalPrice();
+        if ($totalGross === null) {
+            $totalGross = $orderLineItem->getPrice()?->getTotalPrice() ?? 0.0;
+        }
+        $totalTaxes = $orderLineItem->getPrice()?->getCalculatedTaxes()->getAmount() ?? 0.0;
+
+        $price->gross = (int) round(((float) $totalGross) * 100);
+        $price->net = (int) round((((float) ($orderLineItem->getPrice()?->getTotalPrice() ?? 0.0)) - (float) $totalTaxes) * 100);
+        $lineItem->price = $price;
+
+        $productReference = new ProductReference();
+        if ($isOption) {
+            $productReference->source = 'swp-option-id';
+            $productReference->reference = (string) ($orderLineItem->getPayload()['optionValue'] ?? $orderLineItem->getReferencedId());
+        } else {
+            $productReference->source = 'shopware-ids';
+            $productReference->reference = (string) $orderLineItem->getReferencedId();
+        }
+        $lineItem->sellerProductReference = $productReference;
+
+        return $lineItem;
+    }
+}
