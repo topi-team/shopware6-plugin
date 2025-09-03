@@ -4,16 +4,16 @@
 {# Use Shopware feature flag to branch between 6.6+ and 6.5 #}
 
 {#
-  6.7+: Inject after row inner content via component_line_item_type_product_row_inner.
-  6.6 and earlier: This block doesn’t exist, so we inject into col_remove or col_total_price
+  >6.6.9: Inject after row inner content via component_line_item_type_product_row_inner.
+  <6.6.9: This block doesn’t exist, so we inject into col_remove or col_total_price
   depending on showRemoveButton. We detect “old” by showSubtotal not being defined.
 #}
 
-{# 6.7+ injection point #}
+{# >6.6.9 injection point #}
 {% block component_line_item_type_product_row_inner %}
     {{ parent() }}
 
-    {% if feature('v6.6.0.0') and (nestingLevel is not defined or nestingLevel == 0) %}
+    {% if block('component_line_item_type_product_row_inner', '@Storefront/storefront/component/line-item/type/product.html.twig') and (nestingLevel is not defined or nestingLevel == 0) %}
         <div class="row g-0 order-5 justify-content-end topi__oc-cart-elements">
             <div class="col mb-1 mt-1 d-flex justify-content-end has__widget-element">
                 {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {
@@ -25,11 +25,11 @@
     {% endif %}
 {% endblock %}
 
-{# 6.6 fallback: inject when showSubtotal is not defined and remove button is shown #}
+{# <6.6.9 fallback: inject when showSubtotal is not defined and remove button is shown #}
 {% block component_line_item_type_product_col_remove %}
     {{ parent() }}
 
-    {% if not feature('v6.6.0.0') and showRemoveButton and (nestingLevel is not defined or nestingLevel == 0) %}
+    {% if not block('component_line_item_type_product_row_inner', '@Storefront/storefront/component/line-item/type/product.html.twig') is defined and showRemoveButton and (nestingLevel is not defined or nestingLevel == 0) %}
         <div class="row g-0 order-5 justify-content-end topi__oc-cart-elements">
             <div class="col mb-1 mt-1 d-flex justify-content-end has__widget-element">
                 {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {
@@ -41,11 +41,11 @@
     {% endif %}
 {% endblock %}
 
-{# 6.6 fallback: inject when showSubtotal is not defined and remove button is hidden #}
+{# <6.6.9 fallback: inject when showSubtotal is not defined and remove button is hidden #}
 {% block component_line_item_type_product_col_total_price %}
     {{ parent() }}
 
-    {% if not feature('v6.6.0.0') and (showRemoveButton is defined and not showRemoveButton) and (nestingLevel is not defined or nestingLevel == 0) %}
+    {% if not block('component_line_item_type_product_row_inner', '@Storefront/storefront/component/line-item/type/product.html.twig') is defined and (showRemoveButton is defined and not showRemoveButton) and (nestingLevel is not defined or nestingLevel == 0) %}
         <div class="row g-0 order-5 justify-content-end topi__oc-cart-elements">
             <div class="col mb-1 mt-1 d-flex justify-content-end has__widget-element">
                 {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {

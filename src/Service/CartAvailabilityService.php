@@ -137,6 +137,6 @@ readonly class CartAvailabilityService
             $reference = $pairOrSummary['reference'];
         }
 
-        return self::CACHE_PREFIX.$source.':'.$reference;
+        return self::CACHE_PREFIX.$source.'+'.$reference;
     }
 }
