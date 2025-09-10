@@ -1,0 +1,10 @@
+# 2.0.0
+- [chore(release): tag v2.0.0](https://github.com/topi-team/shopware6-plugin/commit/f6d7f87)
+- [fix(twig): template injections points for 6.6.9.0 break](https://github.com/topi-team/shopware6-plugin/commit/ed06a0f)
+- [style: fix code style](https://github.com/topi-team/shopware6-plugin/commit/27b01b5)
+- [feat(swp-options): compatibility with the SwpProductOptionsSix plugin](https://github.com/topi-team/shopware6-plugin/commit/a941179)
+- [feat(compat): shopware 6.5 - 6.7 compatibility](https://github.com/topi-team/shopware6-plugin/commit/a98ae9f)
+- [feat(compat): shopware 6.5 - 6.7 compatibility](https://github.com/topi-team/shopware6-plugin/commit/91dc934)
+- [style: fix TopiPaymentIntegration\ApiClient\Client](https://github.com/topi-team/shopware6-plugin/commit/14ba613)
+- [chore: replace plugin icon to adhere to new requirements](https://github.com/topi-team/shopware6-plugin/commit/533c495)
+- [ci(github): deploy new versions to demo shop](https://github.com/topi-team/shopware6-plugin/commit/cf9e7d3)
