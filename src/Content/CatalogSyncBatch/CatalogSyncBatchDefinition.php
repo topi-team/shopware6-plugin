@@ -16,9 +16,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessDefinition;
 
 /**
+ * @@phpstan-import-type CatalogSyncBatchItemIdentifier from CatalogSyncBatchEntity
  * @phpstan-type CatalogSyncBatchData array{
  *     id?: string,
- *     productIds?: array<string>,
+ *     itemIdentifiers?: CatalogSyncBatchItemIdentifier[],
  *     catalogSyncProcessId?: string,
  *     status?: value-of<CatalogSyncBatchStatusEnum>,
  * }
@@ -46,7 +47,7 @@ class CatalogSyncBatchDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-            (new JsonField('product_ids', 'productIds'))->addFlags(new Required()),
+            (new JsonField('item_identifiers', 'itemIdentifiers'))->addFlags(new Required()),
             (new StringField('status', 'status'))->addFlags(new Required()),
 
             new FkField('catalog_sync_process_id', 'catalogSyncProcessId', CatalogSyncProcessDefinition::class),

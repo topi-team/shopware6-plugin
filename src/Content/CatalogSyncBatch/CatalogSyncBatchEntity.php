@@ -8,14 +8,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessEntity;
 
+/**
+ * @phpstan-type CatalogSyncBatchItemIdentifierType 'product'|'swp-product-option'
+ * @phpstan-type CatalogSyncBatchItemIdentifier array{type: CatalogSyncBatchItemIdentifierType, id: string}
+ */
 class CatalogSyncBatchEntity extends Entity
 {
     use EntityIdTrait;
 
+    public const ITEM_TYPE_PRODUCT = 'product';
+    public const ITEM_TYPE_SWP_PRODUCT_OPTION = 'swp-product-option';
+
     protected string $catalogSyncProcessId;
     protected ?CatalogSyncProcessEntity $catalogSyncProcess;
-    /** @var string[] */
-    protected array $productIds = [];
+    /** @var CatalogSyncBatchItemIdentifier[] */
+    protected array $itemIdentifiers = [];
     /** @var value-of<CatalogSyncBatchStatusEnum> */
     protected string $status;
 
@@ -44,21 +51,21 @@ class CatalogSyncBatchEntity extends Entity
     }
 
     /**
-     * @return string[]
+     * @return CatalogSyncBatchItemIdentifier[]
      */
-    public function getProductIds(): array
+    public function getItemIdentifiers(): array
     {
-        return $this->productIds;
+        return $this->itemIdentifiers;
     }
 
     /**
-     * @param string[] $productIds
+     * @param CatalogSyncBatchItemIdentifier[] $itemIdentifiers
      *
      * @return $this
      */
-    public function setProductIds(array $productIds): CatalogSyncBatchEntity
+    public function setItemIdentifiers(array $itemIdentifiers): CatalogSyncBatchEntity
     {
-        $this->productIds = $productIds;
+        $this->itemIdentifiers = $itemIdentifiers;
 
         return $this;
     }

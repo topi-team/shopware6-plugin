@@ -116,7 +116,7 @@ readonly class SyncCatalogAction
 
         $currentProcess = $this->createSyncProcess($salesChannelId, $context);
         $batches = $this->batchEmitter->emit(
-            TopiPaymentIntegrationPlugin::CATALOG_SYNC_BATCH_SIZE,
+             $syncContext->overrideBatchSize ?? TopiPaymentIntegrationPlugin::CATALOG_SYNC_BATCH_SIZE,
             $context,
             $criteria,
         );
@@ -148,7 +148,7 @@ readonly class SyncCatalogAction
 
                 throw $e;
             } finally {
-                $syncContext->progress(count($batch['productIds']));
+                $syncContext->progress(count($batch['itemIdentifiers']));
             }
         }
 

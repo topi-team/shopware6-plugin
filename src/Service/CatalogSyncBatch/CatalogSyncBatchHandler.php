@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\Service\CatalogSyncBatch;
 
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use TopiPaymentIntegration\ApiClient\Catalog\ProductBatch;
@@ -41,7 +43,6 @@ readonly class CatalogSyncBatchHandler
         private ShopwareProductToTopiProductConverter $productConverter,
         private Client $apiClient,
         private EnvironmentFactory $environmentFactory,
-        private ?EntityRepository $swpProductToOptionsRepository = null,
         private ?EntityRepository $swpOptionsRepository = null,
         private ?SwpOptionToTopiProductConverter $optionConverter = null,
     ) {
@@ -90,13 +91,72 @@ readonly class CatalogSyncBatchHandler
             [SalesChannelContextService::LANGUAGE_ID => $salesChannel->getLanguageId()]
         );
 
-        /**
-         * add an empty ProductAvailableFilter so the SalesChannelRepository does not remove inactive / invisible products.
-         *
-         * @see \Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface::processCriteria
-         * @see \Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition::processCriteria
-         */
-        $criteria = (new Criteria($batch->getProductIds()))
+        $identifiersByType = $this->groupIdentifiersByType($batch->getItemIdentifiers());
+
+        $topiProductBatch = new ProductBatch();
+
+        if (isset($identifiersByType[CatalogSyncBatchEntity::ITEM_TYPE_PRODUCT])) {
+            /** @var SalesChannelProductEntity $product */
+            foreach ($this->queryProductEntities(
+                $identifiersByType[CatalogSyncBatchEntity::ITEM_TYPE_PRODUCT],
+                $salesChannelContext
+            ) as $product) {
+                $topiProductBatch->add($this->productConverter->convert($product, $salesChannel));
+            }
+        }
+
+        // Optionally append SWP options as standalone products
+        if ($this->swpOptionsRepository && $this->optionConverter && isset($identifiersByType[CatalogSyncBatchEntity::ITEM_TYPE_SWP_PRODUCT_OPTION])) {
+            $options = $this->queryProductOptions($identifiersByType[CatalogSyncBatchEntity::ITEM_TYPE_SWP_PRODUCT_OPTION]);
+
+            foreach ($options as $opt) {
+                $topiProductBatch->add($this->optionConverter->convert($opt, $salesChannel));
+            }
+        }
+
+        $this->apiClient->catalog(
+            $this->environmentFactory->makeEnvironment($salesChannel->getId()),
+        )->importCatalog($topiProductBatch);
+    }
+
+    /**
+     * @param array $optionIds
+     * @return EntityCollection
+     */
+    private function queryProductOptions(array $optionIds): EntityCollection
+    {
+        // Fetch mappings: options assigned to products in this batch
+        $criteria = (new Criteria($optionIds))
+            ->addAssociation('translations')
+            ->addAssociation('media')
+            ->addAssociation('tax');
+
+        return $this->swpOptionsRepository->search($criteria, ContextHelper::createCliContext())->getEntities();
+    }
+
+    private function groupIdentifiersByType(array $identifiers): array
+    {
+        $grouped = [];
+        foreach ($identifiers as $identifier) {
+            $grouped[$identifier['type']][] = $identifier['id'];
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * Queries product entities based on provided product IDs and associated sales channel context.
+     *
+     * @param string[] $productIds List of product IDs to query.
+     * @param SalesChannelContext $salesChannelContext The sales channel context for executing the query.
+     *
+     * @return EntityCollection<ProductEntity>
+     */
+    private function queryProductEntities(
+        array $productIds,
+        SalesChannelContext $salesChannelContext
+    ): EntityCollection {
+        $criteria = (new Criteria($productIds))
             ->addAssociation('translations')
             ->addAssociation('manufacturer')
             ->addAssociation('categories')
@@ -111,50 +171,6 @@ readonly class CatalogSyncBatchHandler
 
         $criteria->addState(RawSalesChannelProductDefinition::SKIP_DEFAULT_AVAILABLE_FILTER);
 
-        $products = $this->salesChannelRepository->search($criteria, $salesChannelContext)->getEntities();
-
-        $topiProductBatch = new ProductBatch();
-        /** @var SalesChannelProductEntity $product */
-        foreach ($products as $product) {
-            $topiProductBatch->add($this->productConverter->convert($product, $salesChannel));
-        }
-
-        // Optionally append SWP options as standalone products
-        if ($this->swpProductToOptionsRepository && $this->optionConverter) {
-            $this->appendSwpOptionsToBatch($topiProductBatch, $batch->getProductIds(), $salesChannel);
-        }
-
-        $this->apiClient->catalog(
-            $this->environmentFactory->makeEnvironment($salesChannel->getId()),
-        )->importCatalog($topiProductBatch);
-    }
-
-    private function appendSwpOptionsToBatch(ProductBatch $batch, array $productIds, SalesChannelEntity $salesChannel): void
-    {
-        // Fetch mappings: options assigned to products in this batch
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('productId', $productIds));
-        // Follow mapping: product_to_options.option (group-option mapping) -> productoptionsoption (actual option)
-        $criteria->addAssociation('option.productoptionsoption');
-        $criteria->addAssociation('option.productoptionsoption.translations');
-        $criteria->addAssociation('option.productoptionsoption.media');
-        $criteria->addAssociation('option.productoptionsoption.tax');
-
-        $result = $this->swpProductToOptionsRepository->search($criteria, ContextHelper::createCliContext());
-
-        $options = [];
-        foreach ($result->getEntities() as $mapping) {
-            // mapping->getOption() returns the group-option mapping; then ->getProductoptionsoption() yields the Option entity
-            $groupAssigned = method_exists($mapping, 'getOption') ? $mapping->getOption() : null;
-            $option = $groupAssigned && method_exists($groupAssigned, 'getProductoptionsoption') ? $groupAssigned->getProductoptionsoption() : null;
-            if (!$option || !method_exists($option, 'getId')) {
-                continue;
-            }
-            $options[$option->getId()] = $option;
-        }
-
-        foreach ($options as $opt) {
-            $batch->add($this->optionConverter->convert($opt, $salesChannel));
-        }
+        return $this->salesChannelRepository->search($criteria, $salesChannelContext)->getEntities();
     }
 }

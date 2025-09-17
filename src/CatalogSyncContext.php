@@ -14,6 +14,7 @@ class CatalogSyncContext
      */
     public function __construct(
         public bool $useQueue = true,
+        public ?int $overrideBatchSize = null,
         private readonly ?\Closure $onStart = null,
         private readonly ?\Closure $onProgress = null,
         private readonly ?\Closure $onSuccess = null,

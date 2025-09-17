@@ -7,6 +7,7 @@ namespace TopiPaymentIntegration\Command;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use TopiPaymentIntegration\Action\SyncCatalogAction;
@@ -22,11 +23,31 @@ class CompleteCatalogImportCommand extends Command
         parent::__construct();
     }
 
+    protected function configure(): void
+    {
+        $this
+            ->addOption('memory-limit', null, InputOption::VALUE_REQUIRED, 'Override memory-limit')
+            ->addOption('batch-size', null, InputOption::VALUE_REQUIRED, 'Override batch-size')
+        ;
+    }
+
     public function execute(InputInterface $input, OutputInterface $output): int
     {
+        if ($memoryLimit = $input->getOption('memory-limit')) {
+            ini_set('memory_limit', $memoryLimit);
+        }
+
+        if ($batchSize = $input->getOption('batch-size')) {
+            $batchSize = (int) $batchSize;
+            if ($batchSize < 1) {
+                throw new \InvalidArgumentException('Batch size must be greater than 0');
+            }
+        }
+
         $io = new SymfonyStyle($input, $output);
         $syncContext = new CatalogSyncContext(
             false,
+            $batchSize,
             $io->progressStart(...),
             $io->progressAdvance(...),
             static function (string $message) use ($io) {
