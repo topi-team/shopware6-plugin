@@ -97,7 +97,6 @@ class WebhookController extends AbstractController
             $this->logger->error($e->getMessage(), [
                 'event' => $event,
                 'data' => $data,
-                'eventObject' => $eventObject,
                 'exception' => $e,
             ]);
 
