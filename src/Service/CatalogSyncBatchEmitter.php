@@ -68,6 +68,7 @@ class CatalogSyncBatchEmitter
 
     /**
      * @param string[] $productIds
+     *
      * @return \Generator<CatalogSyncBatchItemIdentifier>
      */
     private function buildBatchItemsFromProductIds(array $productIds): \Generator

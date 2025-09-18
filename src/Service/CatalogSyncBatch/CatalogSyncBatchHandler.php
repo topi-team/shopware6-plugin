@@ -119,10 +119,6 @@ readonly class CatalogSyncBatchHandler
         )->importCatalog($topiProductBatch);
     }
 
-    /**
-     * @param array $optionIds
-     * @return EntityCollection
-     */
     private function queryProductOptions(array $optionIds): EntityCollection
     {
         // Fetch mappings: options assigned to products in this batch
@@ -147,14 +143,14 @@ readonly class CatalogSyncBatchHandler
     /**
      * Queries product entities based on provided product IDs and associated sales channel context.
      *
-     * @param string[] $productIds List of product IDs to query.
-     * @param SalesChannelContext $salesChannelContext The sales channel context for executing the query.
+     * @param string[]            $productIds          list of product IDs to query
+     * @param SalesChannelContext $salesChannelContext the sales channel context for executing the query
      *
      * @return EntityCollection<ProductEntity>
      */
     private function queryProductEntities(
         array $productIds,
-        SalesChannelContext $salesChannelContext
+        SalesChannelContext $salesChannelContext,
     ): EntityCollection {
         $criteria = (new Criteria($productIds))
             ->addAssociation('translations')

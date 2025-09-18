@@ -17,6 +17,7 @@ use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessDefiniti
 
 /**
  * @@phpstan-import-type CatalogSyncBatchItemIdentifier from CatalogSyncBatchEntity
+ *
  * @phpstan-type CatalogSyncBatchData array{
  *     id?: string,
  *     itemIdentifiers?: CatalogSyncBatchItemIdentifier[],

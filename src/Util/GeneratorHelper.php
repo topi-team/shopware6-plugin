@@ -10,15 +10,16 @@ class GeneratorHelper
      * Splits the items from a Generator into chunks of the specified size.
      *
      * @template TGeneratorItem
-     * @param \Generator<TGeneratorItem> $generator The input generator providing items to be processed in chunks.
-     * @param int $n The size of each chunk.
      *
-     * @return \Generator<array<TGeneratorItem>> A generator yielding arrays, each containing up to $n items from the input generator.
+     * @param \Generator<TGeneratorItem> $generator the input generator providing items to be processed in chunks
+     * @param int                        $n         the size of each chunk
+     *
+     * @return \Generator<array<TGeneratorItem>> a generator yielding arrays, each containing up to $n items from the input generator
      */
     public static function chunkGenerator(\Generator $generator, int $n): \Generator
     {
         $currentChunk = [];
-        foreach($generator as $currentItem) {
+        foreach ($generator as $currentItem) {
             $currentChunk[] = $currentItem;
 
             if (count($currentChunk) >= $n) {
