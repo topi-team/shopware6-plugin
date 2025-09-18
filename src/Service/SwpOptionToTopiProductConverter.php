@@ -50,14 +50,6 @@ class SwpOptionToTopiProductConverter
         $ref->reference = (string) $this->getString($option, 'getId');
         $product->sellerProductReferences[] = $ref;
 
-        $ordernumber = $this->getString($option, 'getOrdernumber');
-        if ('' !== $ordernumber) {
-            $pn = new ProductReference();
-            $pn->source = 'swp-option-ordernumber';
-            $pn->reference = $ordernumber;
-            $product->sellerProductReferences[] = $pn;
-        }
-
         $product->isActive = true;
 
         return $product;

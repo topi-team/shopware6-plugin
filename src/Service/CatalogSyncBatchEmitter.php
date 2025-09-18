@@ -7,7 +7,9 @@ namespace TopiPaymentIntegration\Service;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\BucketResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -21,14 +23,19 @@ use TopiPaymentIntegration\Util\GeneratorHelper;
  * @phpstan-import-type CatalogSyncBatchItemIdentifier from CatalogSyncBatchEntity
  * @phpstan-import-type CatalogSyncBatchData from CatalogSyncBatchDefinition
  */
-readonly class CatalogSyncBatchEmitter
+class CatalogSyncBatchEmitter
 {
+    private array $seenItemIdentifiers = [
+        CatalogSyncBatchEntity::ITEM_TYPE_PRODUCT => [],
+        CatalogSyncBatchEntity::ITEM_TYPE_SWP_PRODUCT_OPTION => [],
+    ];
+
     /**
      * @param EntityRepository<ProductCollection> $productRepository
      */
     public function __construct(
-        private EntityRepository $productRepository,
-        private ?EntityRepository $swpProductToOptionsRepository = null,
+        private readonly EntityRepository $productRepository,
+        private readonly ?EntityRepository $swpProductToOptionsRepository = null,
     ) {
     }
 
@@ -66,6 +73,11 @@ readonly class CatalogSyncBatchEmitter
     private function buildBatchItemsFromProductIds(array $productIds): \Generator
     {
         foreach ($productIds as $productId) {
+            if (in_array($productId, $this->seenItemIdentifiers[CatalogSyncBatchEntity::ITEM_TYPE_PRODUCT], true)) {
+                continue;
+            }
+
+            $this->seenItemIdentifiers[CatalogSyncBatchEntity::ITEM_TYPE_PRODUCT][] = $productId;
             yield [
                 'type' => CatalogSyncBatchEntity::ITEM_TYPE_PRODUCT,
                 'id' => $productId,
@@ -73,7 +85,14 @@ readonly class CatalogSyncBatchEmitter
         }
 
         if ($this->swpProductToOptionsRepository) {
-            yield from $this->appendSwpOptionsToBatch($productIds);
+            foreach ($this->appendSwpOptionsToBatch($productIds) as $item) {
+                if (in_array($item['id'], $this->seenItemIdentifiers[$item['type']], true)) {
+                    continue;
+                }
+
+                $this->seenItemIdentifiers[$item['type']][] = $item['id'];
+                yield $item;
+            }
         }
     }
 
@@ -82,22 +101,26 @@ readonly class CatalogSyncBatchEmitter
         // Fetch mappings: options assigned to products in this batch
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('productId', $productIds));
-        // Follow mapping: product_to_options.option (group-option mapping) -> productoptionsoption (actual option)
-        $criteria->addAssociation('option.productoptionsoption');
+        $criteria->addAggregation(new TermsAggregation(
+            'option-ids',
+            'option.swpProductOptionsOptionsId',
+        ));
 
-        $result = $this->swpProductToOptionsRepository->search($criteria, ContextHelper::createCliContext());
+        $result = $this->swpProductToOptionsRepository->aggregate($criteria, ContextHelper::createCliContext());
+        $terms = $result->get('option-ids');
+        if (!$terms instanceof BucketResult) {
+            return;
+        }
 
-        foreach ($result->getEntities() as $mapping) {
-            // mapping->getOption() returns the group-option mapping; then ->getProductoptionsoption() yields the Option entity
-            $groupAssigned = method_exists($mapping, 'getOption') ? $mapping->getOption() : null;
-            $option = $groupAssigned && method_exists($groupAssigned, 'getProductoptionsoption') ? $groupAssigned->getProductoptionsoption() : null;
-            if (!$option || !method_exists($option, 'getId')) {
+        foreach ($terms->getBuckets() as $bucket) {
+            $optionId = $bucket->getKey();
+            if (!$optionId) {
                 continue;
             }
 
             yield [
                 'type' => CatalogSyncBatchEntity::ITEM_TYPE_SWP_PRODUCT_OPTION,
-                'id' => $option->getId(),
+                'id' => $optionId,
             ];
         }
     }
