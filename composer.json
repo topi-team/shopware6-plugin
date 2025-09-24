@@ -3,7 +3,7 @@
     "description": "Topi Integration for Shopware 6",
     "type": "shopware-platform-plugin",
     "license": "proprietary",
-    "version": "2.0.6",
+    "version": "2.0.7",
     "authors": [
         {
             "name": "topi GmbH",
