@@ -5,7 +5,8 @@
     {{ parent() }}
 
     {% block component_product_box_price_topi_price_element %}
-       <div class="topi___price-element mt-2 mb-2 d-flex {{ config('TopiPaymentIntegrationPlugin.config.productBoxWidgetLocation') ?? 'justify-content-center' }}">
+        {% set widgetLocation = config('TopiPaymentIntegrationPlugin.config.productBoxWidgetLocation') %}
+       <div class="topi___price-element mt-2 mb-2 d-flex {{ widgetLocation|default('justify-content-center') }}">
            {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {
                topiProductId: product.id,
                mode: "product"
