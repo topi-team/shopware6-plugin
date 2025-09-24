@@ -103,5 +103,29 @@
             <helpText>You can get your widget-ID from topi</helpText>
             <helpText lang="de-DE">Ihre Widget-ID bekommen Sie von topi</helpText>
         </input-field>
+
+        <input-field type="single-select">
+            <name>productBoxWidgetLocation</name>
+            <label>Placement of the topi Widget in the product box</label>
+            <label lang="de-DE">Platzierung des Widgets in der Produktbox</label>
+            <options>
+                <option>
+                    <id>justify-content-center</id>
+                    <name>center</name>
+                    <name lang="de-DE">mittig</name>
+                </option>
+                <option>
+                    <id>justify-content-end</id>
+                    <name>right</name>
+                    <name lang="de-DE">rechts</name>
+                </option>
+                <option>
+                    <id>justify-content-start</id>
+                    <name>left</name>
+                    <name lang="de-DE">links</name>
+                </option>
+            </options>
+            <defaultValue>justify-content-center</defaultValue>
+        </input-field>
     </card>
 </config>

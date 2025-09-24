@@ -15,4 +15,6 @@ final readonly class ConfigValue
     public const ENABLE_WEBHOOK_SIGNATURE_CHECKS = 'enableWebhookSignatureChecks';
     public const WIDGET_ID = 'widgetId';
     public const ENABLE_WIDGETS = 'enableWidgets';
+
+    public const PRODUCT_BOX_WIDGET_LOCATION = 'productBoxWidgetLocation';
 }
