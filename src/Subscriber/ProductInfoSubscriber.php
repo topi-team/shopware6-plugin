@@ -11,7 +11,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntitySearchResultLoadedEvent;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -50,7 +50,7 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
             if (LineItem::PRODUCT_LINE_ITEM_TYPE === $type) {
                 $lineItem->addExtension(
                     ProductExtension::EXTENSION_NAME,
-                    $this->lineItemToProductExtension($lineItem, $event->getSalesChannelContext()->getSalesChannel()),
+                    $this->lineItemToProductExtension($lineItem, $event->getSalesChannelContext()),
                 );
                 continue;
             }
@@ -60,7 +60,7 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
                 // Use the wrapper line item's calculated price which includes selected options
                 $lineItem->addExtension(
                     ProductExtension::EXTENSION_NAME,
-                    $this->lineItemToProductExtension($lineItem, $event->getSalesChannelContext()->getSalesChannel()),
+                    $this->lineItemToProductExtension($lineItem, $event->getSalesChannelContext()),
                 );
             }
         }
@@ -75,13 +75,14 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
         foreach ($event->getResult() as $product) {
             $product->addExtension(
                 ProductExtension::EXTENSION_NAME,
-                $this->swProductToProductExtension($product, $event->getSalesChannelContext()->getSalesChannel()),
+                $this->swProductToProductExtension($product, $event->getSalesChannelContext()),
             );
         }
     }
 
-    private function lineItemToProductExtension(LineItem $lineItem, SalesChannelEntity $salesChannel): ProductExtension
+    private function lineItemToProductExtension(LineItem $lineItem, SalesChannelContext $salesChannelContext): ProductExtension
     {
+        $salesChannel = $salesChannelContext->getSalesChannel();
         $currency = $salesChannel->getCurrency();
         assert($currency instanceof CurrencyEntity);
 
@@ -89,10 +90,19 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
         $unitPrice = $lineItem->getPrice()?->getUnitPrice();
         $calculatedTaxes = $lineItem->getPrice()?->getCalculatedTaxes();
 
-        $net = $unitPrice - ($calculatedTaxes->getAmount() / $lineItem->getQuantity());
-        $gross = 0 === $calculatedTaxes->count()
-            ? $unitPrice * (1 + ($calculatedTaxes->first()?->getTaxRate() ?? 19.0) / 100)
-            : $unitPrice;
+        // Check if customer group displays gross prices
+        $displayGross = $salesChannelContext->getCurrentCustomerGroup()->getDisplayGross();
+
+        if ($displayGross) {
+            // Customer sees gross prices - unitPrice is gross
+            $gross = $unitPrice;
+            $net = $unitPrice - ($calculatedTaxes->getAmount() / $lineItem->getQuantity());
+        } else {
+            // Customer sees net prices - unitPrice is net
+            $net = $unitPrice;
+            $taxRate = $calculatedTaxes->first()?->getTaxRate() ?? 19.0;
+            $gross = $unitPrice * (1 + $taxRate / 100);
+        }
 
         $price->gross = (int) round($gross * 100);
         $price->net = (int) round($net * 100);
@@ -110,8 +120,9 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
         );
     }
 
-    private function swProductToProductExtension(SalesChannelProductEntity $product, SalesChannelEntity $salesChannel): ProductExtension
+    private function swProductToProductExtension(SalesChannelProductEntity $product, SalesChannelContext $salesChannelContext): ProductExtension
     {
+        $salesChannel = $salesChannelContext->getSalesChannel();
         $currency = $salesChannel->getCurrency();
         assert($currency instanceof CurrencyEntity);
 
@@ -119,13 +130,20 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
         $calculatedPrice = $product->getCalculatedCheapestPrice();
 
         $taxRate = (int) ($product->getTax()?->getTaxRate() ?? 19.0);
-
         $totalPrice = $calculatedPrice->getTotalPrice();
 
-        $net = $totalPrice - $calculatedPrice->getCalculatedTaxes()->getAmount();
-        $gross = 0 === $calculatedPrice->getCalculatedTaxes()->count()
-            ? $totalPrice * (1 + $taxRate / 100)
-            : $totalPrice;
+        // Check if customer group displays gross prices
+        $displayGross = $salesChannelContext->getCurrentCustomerGroup()->getDisplayGross();
+
+        if ($displayGross) {
+            // Customer sees gross prices - totalPrice is gross
+            $gross = $totalPrice;
+            $net = $totalPrice - $calculatedPrice->getCalculatedTaxes()->getAmount();
+        } else {
+            // Customer sees net prices - totalPrice is net
+            $net = $totalPrice;
+            $gross = $totalPrice * (1 + $taxRate / 100);
+        }
 
         $price->net = (int) ($net * 100);
         $price->gross = (int) ($gross * 100);
