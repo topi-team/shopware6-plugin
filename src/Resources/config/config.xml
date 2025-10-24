@@ -127,5 +127,17 @@
             </options>
             <defaultValue>justify-content-center</defaultValue>
         </input-field>
+        <input-field type="checkbox">
+            <name>showLegalInfoProductBox</name>
+            <label>Show business legal info below widget on product box</label>
+            <label lang="de-DE">Geschäftskunden Info unterhalb des Widgets für Produktbox aktivieren</label>
+            <defaultValue>false</defaultValue>
+        </input-field>
+        <input-field type="checkbox">
+            <name>showLegalInfoBuyWidget</name>
+            <label>Show business legal info below widget on product detail page</label>
+            <label lang="de-DE">Geschäftskunden Info unterhalb des Widgets für Detailseite aktivieren</label>
+            <defaultValue>false</defaultValue>
+        </input-field>
     </card>
 </config>

@@ -6,11 +6,19 @@
 
     {% block component_product_box_price_topi_price_element %}
         {% set widgetLocation = config('TopiPaymentIntegrationPlugin.config.productBoxWidgetLocation') %}
-       <div class="topi___price-element mt-2 mb-2 d-flex {{ widgetLocation|default('justify-content-center') }}">
-           {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {
-               topiProductId: product.id,
-               mode: "product"
-           } %}
+        {% set legalInfoState = config('TopiPaymentIntegrationPlugin.config.showLegalInfo') %}
+       <div class="topi___price-element mt-2 mb-2 d-flex {{ widgetLocation|default('justify-content-center') }}{% if legalInfoState %} flex-column {% endif %}">
+           <div class="topi_price-badge">
+               {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {
+                   topiProductId: product.id,
+                   mode: "product"
+               } %}
+           </div>
+           {% if legalInfoState %}
+               <div class="topi__price-legal-info">
+                   {{ 'topi.productBox.priceLegalInfo'|trans }}
+               </div>
+           {% endif %}
        </div>
     {% endblock %}
 {% endblock %}

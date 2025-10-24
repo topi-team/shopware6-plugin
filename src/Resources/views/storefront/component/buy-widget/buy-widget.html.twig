@@ -2,6 +2,8 @@
 
 {# shopware-block: 02466fdc321315350b437dd18e6902708531b04b5b0c6eda18f28245d5fab47e@v6.6.10.1 #}
 {% block buy_widget_tax %}
+    {% set legalInfoState = config('TopiPaymentIntegrationPlugin.config.showLegalInfoBuyWidget') %}
+
     <div class="product-detail-tax-container">
         {% if context.taxState == 'gross' %}
             {% set taxText = 'general.grossTaxInformation'|trans|sw_sanitize %}
@@ -15,8 +17,17 @@
             {% endblock %}
         </p>
 
-        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/buy-widget-summary.html.twig' with {
-            product: product
-        } %}
+        <div class="topi__detail-widget">
+            <div class="topi__price-element">
+                {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/buy-widget-summary.html.twig' with {
+                    product: page.product
+                } %}
+            </div>
+            {% if legalInfoState %}
+                <div class="topi__legal-info">
+                    {{ 'topi.productBox.priceLegalInfo'|trans }}
+                </div>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}
