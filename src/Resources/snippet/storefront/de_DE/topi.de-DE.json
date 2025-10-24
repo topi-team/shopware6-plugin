@@ -1,11 +1,7 @@
 {
   "topi": {
-    "cookie": {
-      "name": "topi Widgets",
-      "description": "nette Beschreibung"
-    },
     "productBox": {
-      "priceLegalInfo": "Business-Miete für Geschfätskunden"
+      "priceLegalInfo": "Business-Miete für Geschäftskunden"
     }
   }
 }

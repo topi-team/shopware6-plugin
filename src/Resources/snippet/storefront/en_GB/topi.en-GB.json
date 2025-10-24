@@ -1,8 +1,7 @@
 {
-  "topi": {
-    "cookie": {
-      "name": "topi Widgets",
-      "description": "kind Description"
+    "topi": {
+        "productBox": {
+            "priceLegalInfo": "Business-rental for B2B customers"
+        }
     }
-  }
 }

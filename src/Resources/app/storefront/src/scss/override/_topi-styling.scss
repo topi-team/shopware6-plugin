@@ -4,3 +4,19 @@
         font-weight: 600;
     }
 }
+
+.topi__price-legal-info, .topi__legal-info {
+  display: none;
+}
+
+div.topi___price-element {
+  .topi_price-badge:has(x-topi-cart-rental-summary-label > div) ~ .topi__price-legal-info {
+    display: block;
+  }
+}
+
+div.topi__detail-widget {
+  .topi__price-element:has(x-topi-product-rental-summary-label > div) ~ .topi__legal-info {
+    display: block;
+  }
+}
