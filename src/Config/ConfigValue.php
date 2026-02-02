@@ -16,9 +16,9 @@ final readonly class ConfigValue
     public const WIDGET_ID = 'widgetId';
     public const ENABLE_WIDGETS = 'enableWidgets';
 
-	public const SHOW_LEGAL_INFO_PRODUCT_BOX = 'showLegalInfoProductBox';
+    public const SHOW_LEGAL_INFO_PRODUCT_BOX = 'showLegalInfoProductBox';
 
-	public const SHOW_LEGAL_INFO_BUY_WIDGET = 'showLegalInfoBuyWidget';
+    public const SHOW_LEGAL_INFO_BUY_WIDGET = 'showLegalInfoBuyWidget';
 
     public const PRODUCT_BOX_WIDGET_LOCATION = 'productBoxWidgetLocation';
 }
