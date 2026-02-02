@@ -11,7 +11,7 @@
         {% endif %}
 
         {% set legalInfoState = config('TopiPaymentIntegrationPlugin.config.showLegalInfoProductBox') %}
-        <div class="topi___price-element mt-2 mb-2 d-flex {{ widgetLocation|default('justify-content-center') }}{% if legalInfoState %} flex-column {% endif %}">
+        <div class="topi___price-element mt-2 mb-2 d-flex {{ widgetLocation|default('justify-content-center') }}{% if legalInfoState %} flex-column{% endif %}">
            <div class="topi_price-badge">
                {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-widget.html.twig' with {
                    topiProductId: product.id,
