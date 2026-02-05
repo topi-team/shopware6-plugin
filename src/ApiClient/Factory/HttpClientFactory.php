@@ -43,6 +43,7 @@ class HttpClientFactory
             'headers' => [
                 'User-Agent' => self::USER_AGENT,
             ],
+            'timeout' => 2,
         ]);
 
         $grantType = new ScopedClientCredentialsGrantType(
@@ -58,6 +59,7 @@ class HttpClientFactory
             'headers' => [
                 'User-Agent' => self::USER_AGENT,
             ],
+            'timeout' => 2,
         ]), $grantType);
 
         $httpClient->setCache(new SymfonyTokensCacheAdapter($this->cache, $environment->hash()));
