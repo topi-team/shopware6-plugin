@@ -43,7 +43,9 @@ class ShopwareProductToTopiProductConverter
             $topiProduct->sellerCategories[] = $apiCategory;
         }
 
-        $topiProduct->isActive = $shopwareProduct->getActive() ?? false;
+        $customFields = $shopwareProduct->getCustomFields() ?? [];
+        $topiInactive = (bool) ($customFields['topi_is_inactive'] ?? false);
+        $topiProduct->isActive = ($shopwareProduct->getActive() ?? false) && !$topiInactive;
 
         $currency = $salesChannel->getCurrency();
         assert($currency instanceof CurrencyEntity);
