@@ -28,7 +28,7 @@ readonly class CatalogClient
         private LoggerInterface $logger,
     ) {
         $this->client = $client->withOptions([
-            'timeout' => 30
+            'timeout' => null
         ]);
     }
 
