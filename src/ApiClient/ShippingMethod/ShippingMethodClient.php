@@ -19,10 +19,14 @@ use TopiPaymentIntegration\ApiClient\Exception\TopiApiException;
 
 readonly class ShippingMethodClient
 {
+    private HttpClientInterface $client;
     public function __construct(
-        private HttpClientInterface $client,
+        HttpClientInterface $client,
         private LoggerInterface $logger,
     ) {
+        $this->client = $client->withOptions([
+            'timeout' => 30
+        ]);
     }
 
     /** @param array<mixed> $options additional cURL options */
