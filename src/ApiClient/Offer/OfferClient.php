@@ -31,6 +31,7 @@ readonly class OfferClient
         try {
             $response = $this->client->request('POST', 'offers', $this->preProcessOptions(array_merge([
                 'json' => $offer,
+                'timeout' => 10,
             ], $options)));
 
             $createdOffer = new CreatedOffer();
