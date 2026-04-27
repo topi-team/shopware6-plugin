@@ -199,6 +199,7 @@
             <argument type="service" id="TopiPaymentIntegration\Service\OrderUpdatedService" />
             <argument type="service" id="order_delivery.repository" />
             <argument type="service" id="monolog.logger.topi_integration_plugin" />
+            <argument type="service" id="TopiPaymentIntegration\Config\PluginConfigService" />
             <tag name="kernel.event_subscriber" />
         </service>
 

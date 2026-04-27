@@ -83,6 +83,20 @@
     </card>
 
     <card>
+        <title>Shipment tracking</title>
+        <title lang="de-DE">Versandverfolgung</title>
+
+        <input-field type="checkbox">
+            <name>enableTrackingCodeSync</name>
+            <label>Sync tracking codes to topi</label>
+            <label lang="de-DE">Sendungsnummern an topi übertragen</label>
+            <helpText>When enabled, tracking codes added to order deliveries are sent to topi automatically.</helpText>
+            <helpText lang="de-DE">Wenn aktiviert, werden Sendungsnummern aus Bestellungen automatisch an topi übermittelt.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+    </card>
+
+    <card>
         <title>topi Elements</title>
         <title lang="de-DE">topi Elements</title>
 

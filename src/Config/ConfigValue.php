@@ -21,4 +21,6 @@ final readonly class ConfigValue
     public const SHOW_LEGAL_INFO_BUY_WIDGET = 'showLegalInfoBuyWidget';
 
     public const PRODUCT_BOX_WIDGET_LOCATION = 'productBoxWidgetLocation';
+
+    public const ENABLE_TRACKING_CODE_SYNC = 'enableTrackingCodeSync';
 }

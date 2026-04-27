@@ -15,6 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use TopiPaymentIntegration\Config\ConfigValue;
+use TopiPaymentIntegration\Config\PluginConfigService;
 use TopiPaymentIntegration\Service\OrderUpdatedService;
 
 readonly class ShipmentSubscriber implements EventSubscriberInterface
@@ -31,11 +33,16 @@ readonly class ShipmentSubscriber implements EventSubscriberInterface
         private OrderUpdatedService $orderUpdatedService,
         private EntityRepository $orderDeliveryRepository,
         private LoggerInterface $logger,
+        private PluginConfigService $config,
     ) {
     }
 
     public function triggerChangeSet(PreWriteValidationEvent $event): void
     {
+        if (!$this->config->getBool(ConfigValue::ENABLE_TRACKING_CODE_SYNC)) {
+            return;
+        }
+
         if (Defaults::LIVE_VERSION !== $event->getContext()->getVersionId()) {
             return;
         }
@@ -55,6 +62,10 @@ readonly class ShipmentSubscriber implements EventSubscriberInterface
 
     public function captureTrackingNumber(EntityWrittenEvent $entityWrittenEvent): void
     {
+        if (!$this->config->getBool(ConfigValue::ENABLE_TRACKING_CODE_SYNC)) {
+            return;
+        }
+
         try {
             $payload = $entityWrittenEvent->getPayloads();
 
