@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\Subscriber;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderEvents;
@@ -29,6 +30,7 @@ readonly class ShipmentSubscriber implements EventSubscriberInterface
     public function __construct(
         private OrderUpdatedService $orderUpdatedService,
         private EntityRepository $orderDeliveryRepository,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -53,26 +55,32 @@ readonly class ShipmentSubscriber implements EventSubscriberInterface
 
     public function captureTrackingNumber(EntityWrittenEvent $entityWrittenEvent): void
     {
-        $payload = $entityWrittenEvent->getPayloads();
+        try {
+            $payload = $entityWrittenEvent->getPayloads();
 
-        foreach ($payload as $orderDeliveryData) {
-            if (!isset($orderDeliveryData['trackingCodes'])) {
-                continue;
+            foreach ($payload as $orderDeliveryData) {
+                if (!isset($orderDeliveryData['trackingCodes'])) {
+                    continue;
+                }
+
+                $orderId = $orderDeliveryData['orderId'] ?? null;
+                if (is_null($orderId)) {
+                    /** @var OrderDeliveryEntity $orderDelivery */
+                    $orderDelivery = $this->orderDeliveryRepository->search(new Criteria([$payload['id']]),
+                        $entityWrittenEvent->getContext())
+                        ->getEntities()
+                        ->first();
+
+                    $orderId = $orderDelivery->getOrderId();
+                }
+
+                $trackingCodes = $orderDeliveryData['trackingCodes'];
+
+                $this->orderUpdatedService->orderUpdated($orderId, $trackingCodes, $entityWrittenEvent->getContext());
             }
-
-            $orderId = $orderDeliveryData['orderId'] ?? null;
-            if (is_null($orderId)) {
-                /** @var OrderDeliveryEntity $orderDelivery */
-                $orderDelivery = $this->orderDeliveryRepository->search(new Criteria([$payload['id']]), $entityWrittenEvent->getContext())
-                    ->getEntities()
-                    ->first();
-
-                $orderId = $orderDelivery->getOrderId();
-            }
-
-            $trackingCodes = $orderDeliveryData['trackingCodes'];
-
-            $this->orderUpdatedService->orderUpdated($orderId, $trackingCodes, $entityWrittenEvent->getContext());
+        } catch (\Throwable $e) {
+            $this->logger->error('Failed to send tracking codes to topi: ' . $e->getMessage());
+            return;
         }
     }
 }
