@@ -130,18 +130,6 @@
             <tag name="console.command" />
         </service>
 
-        <service id="TopiPaymentIntegration\Command\ReplayBatchCommand">
-            <argument type="service" id="topi_catalog_sync_batch.repository" />
-            <argument type="service" id="sales_channel.product.repository" />
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" />
-            <argument type="service" id="TopiPaymentIntegration\Service\ShopwareProductToTopiProductConverter" />
-            <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\EnvironmentFactory" />
-            <argument type="service" id="TopiPaymentIntegration\ApiClient\Factory\HttpClientFactory" />
-            <argument type="service" id="swp_product_options_options.repository" on-invalid="ignore" />
-            <argument type="service" id="TopiPaymentIntegration\Service\SwpOptionToTopiProductConverter" on-invalid="ignore" />
-            <tag name="console.command" />
-        </service>
-
         <service id="TopiPaymentIntegration\Service\WebhookVerificationService">
             <argument type="service" id="TopiPaymentIntegration\Config\PluginConfigService" />
         </service>
