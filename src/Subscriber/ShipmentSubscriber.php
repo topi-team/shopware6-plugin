@@ -90,7 +90,8 @@ readonly class ShipmentSubscriber implements EventSubscriberInterface
                 $this->orderUpdatedService->orderUpdated($orderId, $trackingCodes, $entityWrittenEvent->getContext());
             }
         } catch (\Throwable $e) {
-            $this->logger->error('Failed to send tracking codes to topi: ' . $e->getMessage());
+            $this->logger->error('Failed to send tracking codes to topi: '.$e->getMessage());
+
             return;
         }
     }

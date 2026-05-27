@@ -20,12 +20,13 @@ use TopiPaymentIntegration\ApiClient\Exception\TopiApiException;
 readonly class ShippingMethodClient
 {
     private HttpClientInterface $client;
+
     public function __construct(
         HttpClientInterface $client,
         private LoggerInterface $logger,
     ) {
         $this->client = $client->withOptions([
-            'timeout' => 30
+            'timeout' => 30,
         ]);
     }
 

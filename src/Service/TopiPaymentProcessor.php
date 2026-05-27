@@ -118,7 +118,7 @@ readonly class TopiPaymentProcessor
     private function buildMoneyAmount(
         ?CalculatedPrice $calculatedPrice,
         OrderEntity $order,
-        ?float $totalFallback = null
+        ?float $totalFallback = null,
     ): MoneyAmount {
         $total = $calculatedPrice?->getTotalPrice() ?? $totalFallback ?? 0.0;
         $taxAmount = $calculatedPrice?->getCalculatedTaxes()->getAmount() ?? 0.0;
