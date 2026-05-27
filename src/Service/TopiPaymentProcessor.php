@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace TopiPaymentIntegration\Service;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -92,11 +95,7 @@ readonly class TopiPaymentProcessor
         $offer->shippingAddress = $shippingAddress;
 
         $shippingInfo = new ShippingInfo();
-        $shippingPrice = new MoneyAmount();
-        $shippingPrice->currency = $order->getCurrency()?->getIsoCode();
-        $shippingPrice->net = (int) (($order->getShippingCosts()->getTotalPrice() - $order->getShippingCosts()->getCalculatedTaxes()->getAmount()) * 100);
-        $shippingPrice->gross = (int) ($order->getShippingCosts()->getTotalPrice() * 100);
-        $shippingInfo->price = $shippingPrice;
+        $shippingInfo->price = $this->buildMoneyAmount($order->getShippingCosts(), $order);
         $shippingInfo->sellerShippingReference = $order->getDeliveries()?->first()?->getShippingMethod()?->getId() ?? 'UNKNOWN';
         $offer->shipping = $shippingInfo;
 
@@ -114,6 +113,37 @@ readonly class TopiPaymentProcessor
         }
 
         return new RedirectResponse($createOffer->checkoutRedirectUrl);
+    }
+
+    private function buildMoneyAmount(
+        ?CalculatedPrice $calculatedPrice,
+        OrderEntity $order,
+        ?float $totalFallback = null
+    ): MoneyAmount {
+        $total = $calculatedPrice?->getTotalPrice() ?? $totalFallback ?? 0.0;
+        $taxAmount = $calculatedPrice?->getCalculatedTaxes()->getAmount() ?? 0.0;
+
+        // Maßgeblich ist der Tax-Status der Order, nicht der Preis selbst
+        $taxStatus = $order->getPrice()?->getTaxStatus()
+            ?? $order->getTaxStatus()
+            ?? CartPrice::TAX_STATE_GROSS;
+
+        if (CartPrice::TAX_STATE_NET === $taxStatus) {
+            // Preise sind netto -> Steuer kommt obendrauf
+            $net = $total;
+            $gross = $total + $taxAmount;
+        } else {
+            // GROSS und FREE (taxAmount = 0) -> Steuer ist enthalten
+            $gross = $total;
+            $net = $total - $taxAmount;
+        }
+
+        $money = new MoneyAmount();
+        $money->currency = $order->getCurrency()?->getIsoCode() ?? 'EUR';
+        $money->gross = (int) round($gross * 100);
+        $money->net = (int) round($net * 100);
+
+        return $money;
     }
 
     private function getOrderTransaction(string $orderTransactionId, Context $context): OrderTransactionEntity
@@ -145,24 +175,17 @@ readonly class TopiPaymentProcessor
         return $orderTransaction;
     }
 
-    private function buildOfferLineFromOrderItem($orderLineItem, $order): OfferLinePayload
+    private function buildOfferLineFromOrderItem($orderLineItem, OrderEntity $order): OfferLinePayload
     {
         $lineItem = new OfferLinePayload();
         $lineItem->title = (string) $orderLineItem->getLabel();
         $lineItem->quantity = (int) $orderLineItem->getQuantity();
 
-        $price = new MoneyAmount();
-        $price->currency = $order->getCurrency()?->getIsoCode() ?? 'EUR';
-
-        $totalGross = $orderLineItem->getTotalPrice();
-        if (null === $totalGross) {
-            $totalGross = $orderLineItem->getPrice()?->getTotalPrice() ?? 0.0;
-        }
-        $totalTaxes = $orderLineItem->getPrice()?->getCalculatedTaxes()->getAmount() ?? 0.0;
-
-        $price->gross = (int) round(((float) $totalGross) * 100);
-        $price->net = (int) round((((float) ($orderLineItem->getPrice()?->getTotalPrice() ?? 0.0)) - (float) $totalTaxes) * 100);
-        $lineItem->price = $price;
+        $lineItem->price = $this->buildMoneyAmount(
+            $orderLineItem->getPrice(),
+            $order,
+            $orderLineItem->getTotalPrice()
+        );
 
         $productReference = new ProductReference();
         $productReference->source = 'shopware-ids';
