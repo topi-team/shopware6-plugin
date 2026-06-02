@@ -8,6 +8,13 @@
         } %}
     {% endblock %}
 
+    {{ parent() }}
+{% endblock %}
+
+{# The data container must live INSIDE .cms-element-product-listing so it is part
+   of the innerHTML that AJAX pagination/filtering replaces. The product rows
+   block sits inside that element, so we render the container alongside it. #}
+{% block element_product_listing_row %}
     {% block product_listing_topi_cart_summary_data %}
         {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-data.html.twig' with {
             products: searchResult,
