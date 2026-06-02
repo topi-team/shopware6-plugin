@@ -1,0 +1,11 @@
+{% block topi_cart_rental_summary_label_data %}
+    {% set extensionName = constant('TopiPaymentIntegration\\Content\\Extension\\ProductExtension::EXTENSION_NAME') %}
+
+    {# Inert JSON payload of the current page's product metadata. Read by the
+       storefront plugin to (re)populate topi.cartItems. Unlike an inline
+       <script>, this survives AJAX listing pagination/filtering, where
+       ElementReplaceHelper swaps innerHTML and inline scripts never execute. #}
+    <div class="topi-cart-items-data"
+         data-topi-cart-items="{{ products|map(p => p.getExtension(extensionName))|json_encode|e('html_attr') }}"
+         hidden></div>
+{% endblock %}

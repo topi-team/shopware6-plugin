@@ -8,5 +8,11 @@
         } %}
     {% endblock %}
 
+    {% block product_slider_element_topi_cart_summary_data %}
+        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-data.html.twig' with {
+            products:  element.data.products.elements,
+        } %}
+    {% endblock %}
+
     {{ parent() }}
 {% endblock %}
