@@ -15,6 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use TopiPaymentIntegration\Event\Registry;
 use TopiPaymentIntegration\Exception\WebhookVerificationFailedException;
 use TopiPaymentIntegration\Service\EventProcessing\ProcessorInterface;
+use TopiPaymentIntegration\Service\WebhookEventTypeResolver;
 use TopiPaymentIntegration\Service\WebhookVerificationService;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
@@ -24,6 +25,7 @@ class WebhookController extends AbstractController
         private readonly Registry $eventRegistry,
         private readonly ProcessorInterface $processor,
         private readonly WebhookVerificationService $webhookVerificationService,
+        private readonly WebhookEventTypeResolver $eventTypeResolver,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -33,12 +35,6 @@ class WebhookController extends AbstractController
         operationId: 'executeWebhook',
         requestBody: new OA\RequestBody(content: new OA\JsonContent()),
         tags: ['Admin Api', 'SwagPayPalPosWebhook'],
-        parameters: [new OA\Parameter(
-            parameter: 'event',
-            name: 'event',
-            in: 'query',
-            schema: new OA\Schema(type: 'string')
-        )],
         responses: [
             new OA\Response(response: Response::HTTP_NO_CONTENT, description: 'Webhook execution was successful'),
             new OA\Response(response: Response::HTTP_BAD_REQUEST, description: 'Invalid input data'),
@@ -52,11 +48,6 @@ class WebhookController extends AbstractController
     )]
     public function executeWebhook(Request $request, Context $context): Response
     {
-        $event = $request->query->getString('event');
-        if ('' === $event) {
-            return $this->malformedRequestError();
-        }
-
         $content = $request->getContent();
 
         $svixHeaders = [
@@ -75,11 +66,11 @@ class WebhookController extends AbstractController
             return $this->malformedRequestError();
         }
 
-        $eventParentType = substr($event, 0, strpos($event, '.'));
-        $allowedEventParents = ['offer', 'order'];
-        if (!in_array($eventParentType, $allowedEventParents, true)) {
+        $event = $this->eventTypeResolver->resolve($data);
+        if (null === $event) {
             return $this->malformedRequestError();
         }
+        [$eventParentType] = explode('.', $event, 2);
 
         $eventObject = $this->eventRegistry->getEvent($event);
         if (is_null($eventObject)) {

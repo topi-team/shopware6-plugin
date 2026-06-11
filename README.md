@@ -110,11 +110,13 @@ A custom field **"topi inactive"** (`topi_is_inactive`) is available on products
 
 ### Webhook Events
 
-The plugin receives webhooks at:
+The plugin receives all webhooks at a single endpoint:
 
 ```
-https://{shop-url}/api/_action/topi-payment-integration/webhook?event={event}
+https://{shop-url}/api/_action/topi-payment-integration/webhook
 ```
+
+The event type is derived from the webhook payload (entity shape + `status` field), so only one Svix endpoint registration is needed for all events.
 
 Supported events:
 

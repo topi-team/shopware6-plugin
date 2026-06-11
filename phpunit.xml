@@ -2,7 +2,7 @@
 
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
-         bootstrap="../../../src/TestBootstrap.php"
+         bootstrap="tests/TestBootstrap.php"
          cacheResult="false">
     <php>
         <ini name="display_errors" value="1" />
