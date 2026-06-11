@@ -13,12 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: 📋 Install shopware-cli
-        uses: shopware/shopware-cli-action@v1
+        uses: shopware/shopware-cli-action@v3
         with:
           version: 'latest'
 
@@ -30,7 +30,7 @@ jobs:
           mv ${{ env.EXTENSION_NAME }}-${{ github.sha }}.zip ${{ env.EXTENSION_NAME }}.zip
 
       - name: ⬆ Upload Artefact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ env.EXTENSION_NAME }}
           path: ${{ env.EXTENSION_NAME }}.zip
@@ -40,7 +40,7 @@ jobs:
           echo "EXTENSION_VERSION=$(jq ".version" composer.json -r)" >> $GITHUB_ENV
 
       - name: 🚥 Check if tag exists
-        uses: mukunku/tag-exists-action@v1.6.0
+        uses: mukunku/tag-exists-action@v1.7.0
         id: checkTag
         with:
           tag: ${{ env.EXTENSION_VERSION }}
