@@ -5,13 +5,13 @@
     {{ parent() }}
 
     {% block component_product_box_price_topi_price_element %}
-        {% set widgetLocation = config('TopiPaymentIntegrationPlugin.config.productBoxWidgetLocation')|replace({'justify-content': 'align-items'}) %}
-        {% if not widgetLocation|u.startsWith('align-items') %}
-            {% set widgetLocation = 'align-items-' ~ widgetLocation %}
-        {% endif %}
+        {# Option ids are start/center/end; legacy stored values like "justify-content-center" are stripped to their suffix #}
+        {% set alignment = config('TopiPaymentIntegrationPlugin.config.productBoxWidgetLocation')|default('center')|replace({'justify-content-': '', 'align-items-': ''}) %}
 
         {% set legalInfoState = config('TopiPaymentIntegrationPlugin.config.showLegalInfoProductBox') %}
-        <div class="topi___price-element mt-2 mb-2 d-flex {{ widgetLocation|default('justify-content-center') }}{% if legalInfoState %} flex-column{% endif %}">
+        {# With flex-column (legal info) the horizontal axis is the cross axis, so align-items-* applies; in row direction it's justify-content-* #}
+        {% set widgetLocation = (legalInfoState ? 'align-items-' : 'justify-content-') ~ alignment %}
+        <div class="topi___price-element mt-2 mb-2 d-flex {{ widgetLocation }}{% if legalInfoState %} flex-column{% endif %}">
            <div class="topi_price-badge">
                {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/listing-rental-summary-label-widget.html.twig' with {
                    topiProductId: product.id,

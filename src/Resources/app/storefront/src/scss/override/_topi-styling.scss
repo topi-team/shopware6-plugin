@@ -10,8 +10,22 @@
 }
 
 div.topi___price-element {
-  .topi_price-badge:has(x-topi-cart-rental-summary-label > div) ~ .topi__price-legal-info {
+  .topi_price-badge:has(x-topi-listing-rental-summary-label > div) ~ .topi__price-legal-info {
     display: block;
+  }
+
+  // The label's inner flex container fills the box and wraps its rows
+  // left-aligned, so the configured alignment must be mirrored inside it.
+  &.justify-content-center, &.align-items-center {
+    x-topi-listing-rental-summary-label > div {
+      justify-content: center;
+    }
+  }
+
+  &.justify-content-end, &.align-items-end {
+    x-topi-listing-rental-summary-label > div {
+      justify-content: flex-end;
+    }
   }
 }
 
