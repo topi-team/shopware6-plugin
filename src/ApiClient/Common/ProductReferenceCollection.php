@@ -26,7 +26,7 @@ class ProductReferenceCollection implements \Countable
             return;
         }
 
-        $this->productReferences = array_filter($this->productReferences, static fn(ProductReference $product) => $product !== $productToRemove);
+        $this->productReferences = array_filter($this->productReferences, static fn (ProductReference $product) => $product !== $productToRemove);
     }
 
     /**

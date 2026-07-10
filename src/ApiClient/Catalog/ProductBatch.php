@@ -30,7 +30,7 @@ class ProductBatch implements \Countable
             return;
         }
 
-        $this->products = array_filter($this->products, static fn(Product $product) => $product !== $productToRemove);
+        $this->products = array_filter($this->products, static fn (Product $product) => $product !== $productToRemove);
     }
 
     /**
