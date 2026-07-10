@@ -20,7 +20,7 @@ class CatalogSyncBatchEntity extends Entity
     public const ITEM_TYPE_SWP_PRODUCT_OPTION = 'swp-product-option';
 
     protected string $catalogSyncProcessId;
-    protected ?CatalogSyncProcessEntity $catalogSyncProcess;
+    protected ?CatalogSyncProcessEntity $catalogSyncProcess = null;
     /** @var CatalogSyncBatchItemIdentifier[] */
     protected array $itemIdentifiers = [];
     /** @var value-of<CatalogSyncBatchStatusEnum> */

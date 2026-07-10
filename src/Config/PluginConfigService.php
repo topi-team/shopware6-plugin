@@ -9,15 +9,13 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class PluginConfigService
 {
-    private SystemConfigService $systemConfigService;
-    private string $configDomain;
+    private readonly SystemConfigService $systemConfigService;
 
     public function __construct(
         SystemConfigService $systemConfigService,
-        string $configDomain,
+        private readonly string $configDomain,
     ) {
         $this->systemConfigService = $systemConfigService;
-        $this->configDomain = $configDomain;
     }
 
     /**

@@ -46,7 +46,7 @@ class JsonFileFlagLoader implements FlagLoaderInterface
                 512,
                 JSON_THROW_ON_ERROR
             );
-        } catch (\JsonException|FileNotFoundException|ReadFileErrorException $e) {
+        } catch (\JsonException|FileNotFoundException|ReadFileErrorException) {
             $this->flags = [];
         }
     }

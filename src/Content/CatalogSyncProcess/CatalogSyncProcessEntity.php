@@ -14,7 +14,7 @@ class CatalogSyncProcessEntity extends Entity
     use EntityIdTrait;
 
     protected string $salesChannelId;
-    protected ?SalesChannelEntity $salesChannel;
+    protected ?SalesChannelEntity $salesChannel = null;
     protected CatalogSyncBatchCollection $catalogSyncBatches;
     protected \DateTimeInterface $startDate;
     protected \DateTimeInterface $endDate;

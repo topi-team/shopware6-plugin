@@ -50,7 +50,7 @@ readonly class CatalogSyncBatchHandler
 
     public function __invoke(CatalogSyncBatchMessage $message, ?Context $context = null): void
     {
-        $context = $context ?? ContextHelper::createCliContext();
+        $context ??= ContextHelper::createCliContext();
         $criteria = (new Criteria([$message->catalogSyncBatchId]))
                         ->addAssociation('catalogSyncProcess')
                         ->addAssociation('catalogSyncProcess.salesChannel')

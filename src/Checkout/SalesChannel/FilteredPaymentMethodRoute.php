@@ -62,7 +62,7 @@ class FilteredPaymentMethodRoute extends AbstractPaymentMethodRoute
 
         try {
             $this->environmentFactory->makeEnvironment($context->getSalesChannelId());
-        } catch (InvalidEnvironmentException $e) {
+        } catch (InvalidEnvironmentException) {
             $this->removePaymentMethod($response->getPaymentMethods(), $paymentMethod);
 
             return $response;

@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\Helper;
 
-class StringHelper
+class StringHelper implements \Stringable
 {
-    private string $originalString;
-
-    public function __construct(string $originalString)
+    public function __construct(private readonly string $originalString)
     {
-        $this->originalString = $originalString;
     }
 
     public function __toString(): string
@@ -21,7 +18,7 @@ class StringHelper
     public function toLowerSnake(): StringHelper
     {
         return new self(
-            strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $this->originalString))
+            strtolower((string) preg_replace('/(?<!^)[A-Z]/', '_$0', $this->originalString))
         );
     }
 }

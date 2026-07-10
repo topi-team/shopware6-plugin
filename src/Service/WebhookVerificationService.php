@@ -56,7 +56,7 @@ readonly class WebhookVerificationService
 
             try {
                 return $wh->verify($payload, $headers);
-            } catch (WebhookVerificationException $e) {
+            } catch (WebhookVerificationException) {
             }
         }
 
