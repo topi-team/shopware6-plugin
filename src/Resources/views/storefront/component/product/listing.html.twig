@@ -2,8 +2,8 @@
 
 {# shopware-block: cf63889088aabb2e554613dc9a7974ff7fb3ebb69e497e6a99a4ee855cf966d1@v6.6.10.1 #}
 {% block product_listing %}
-    {% block product_listing_topi_cart_summary_script %}
-        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-script.html.twig' with {
+    {% block product_listing_topi_listing_summary_script %}
+        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/listing-rental-summary-label-script.html.twig' with {
             products: searchResult,
         } %}
     {% endblock %}
@@ -15,8 +15,8 @@
    of the innerHTML that AJAX pagination/filtering replaces. The product rows
    block sits inside that element, so we render the container alongside it. #}
 {% block element_product_listing_row %}
-    {% block product_listing_topi_cart_summary_data %}
-        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/cart-rental-summary-label-data.html.twig' with {
+    {% block product_listing_topi_listing_summary_data %}
+        {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/listing-rental-summary-label-data.html.twig' with {
             products: searchResult,
         } %}
     {% endblock %}

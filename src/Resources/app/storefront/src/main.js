@@ -1,7 +1,9 @@
 // Import all necessary Storefront plugins
-import TopiPaymentIntegrationPlugin from './topi-payment-integration';
+import TopiListingPlugin from './topi-payment-integration/listing.plugin';
+import TopiCartPlugin from './topi-payment-integration/cart.plugin';
 
-// Register your plugin via the existing PluginManager
+// Register your plugins via the existing PluginManager
 const PluginManager = window.PluginManager;
 // Initialize on every page to catch dynamic offcanvas injections
-PluginManager.register('TopiPaymentIntegration', TopiPaymentIntegrationPlugin, 'body');
+PluginManager.register('TopiPaymentIntegrationListing', TopiListingPlugin, 'body');
+PluginManager.register('TopiPaymentIntegrationCart', TopiCartPlugin, 'body');

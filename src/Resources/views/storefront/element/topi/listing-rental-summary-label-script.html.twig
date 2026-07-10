@@ -1,0 +1,14 @@
+{% block topi_listing_rental_summary_label_script %}
+    {% set extensionName = constant('TopiPaymentIntegration\\Content\\Extension\\ProductExtension::EXTENSION_NAME') %}
+
+    <script>
+      var listingItems = Object.values({{ products|map(p => p.getExtension(extensionName))|json_encode|raw }});
+      if (typeof topi === 'undefined') {
+        window.addEventListener("topi.widgets.loaded", function () {
+          topi.listingItems = listingItems
+        });
+      } else {
+        topi.listingItems = listingItems;
+      }
+    </script>
+{% endblock %}
