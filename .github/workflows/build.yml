@@ -22,18 +22,39 @@ jobs:
         with:
           version: 'latest'
 
-      - name: 📦 Build & create zip
+      # shopware-cli builds the storefront JS against the version pinned via
+      # build.shopwareVersionConstraint. 6.6 tooling emits the nested
+      # dist/storefront/js/<name>/<name>.js (required by SW 6.6+), 6.5 tooling
+      # only the flat dist/storefront/js/<name>.js (required by SW 6.5), so we
+      # build one zip per target. --disable-git zips the checkout as-is, which
+      # is what makes the yq override effective (--git-commit would re-archive
+      # the committed tree and ignore it).
+      - name: 📦 Build & create zips (SW 6.6+ / SW 6.5)
         env:
           NODE_OPTIONS: --openssl-legacy-provider
         run: |
-          shopware-cli extension zip --git-commit ${{ github.sha }} . --release
-          mv ${{ env.EXTENSION_NAME }}-${{ github.sha }}.zip ${{ env.EXTENSION_NAME }}.zip
+          mkdir -p /tmp/zips
+
+          yq -i '.build.shopwareVersionConstraint = "~6.6.10"' .shopware-extension.yml
+          shopware-cli extension zip . --disable-git --release --filename ${EXTENSION_NAME}-sw66.zip
+          mv ${EXTENSION_NAME}-sw66.zip /tmp/zips/
+
+          yq -i '.build.shopwareVersionConstraint = ">6.5.8.0 <6.6.0.0"' .shopware-extension.yml
+          shopware-cli extension zip . --disable-git --release --filename ${EXTENSION_NAME}-sw65.zip
+          mv ${EXTENSION_NAME}-sw65.zip /tmp/zips/
+
+          git checkout .shopware-extension.yml
+
+      - name: 🔎 Check JS dist layouts
+        run: |
+          unzip -l /tmp/zips/${EXTENSION_NAME}-sw66.zip | grep -q 'dist/storefront/js/topi-payment-integration-plugin/topi-payment-integration-plugin.js'
+          unzip -l /tmp/zips/${EXTENSION_NAME}-sw65.zip | grep -qE 'dist/storefront/js/topi-payment-integration-plugin\.js'
 
       - name: ⬆ Upload Artefact
         uses: actions/upload-artifact@v5
         with:
           name: ${{ env.EXTENSION_NAME }}
-          path: ${{ env.EXTENSION_NAME }}.zip
+          path: /tmp/zips/*.zip
 
       - name: ⚙️ Get version
         run: |
@@ -47,17 +68,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 🔎 Validate Zip
-        run: shopware-cli extension validate $(pwd)/${EXTENSION_NAME}.zip
+      - name: 🔎 Validate Zips
+        run: |
+          shopware-cli extension validate /tmp/zips/${EXTENSION_NAME}-sw66.zip
+          shopware-cli extension validate /tmp/zips/${EXTENSION_NAME}-sw65.zip
 
       - name: 📋 Extract Changelog
         if: steps.checkTag.outputs.exists != 'true'
-        run: shopware-cli extension get-changelog $(pwd)/${EXTENSION_NAME}.zip > /tmp/changelog.txt
+        run: shopware-cli extension get-changelog /tmp/zips/${EXTENSION_NAME}-sw66.zip > /tmp/changelog.txt
 
+      # The version tag carries the SW 6.6+ build (composer installs from tags
+      # get the nested JS layout; 6.5 shops must use the -sw65 release zip).
       - name: 📦 Unzip
         run: |
-          unzip -o -q "${EXTENSION_NAME}.zip" -d ./toDeploy
-          mv "${EXTENSION_NAME}.zip" /tmp/
+          unzip -o -q "/tmp/zips/${EXTENSION_NAME}-sw66.zip" -d ./toDeploy
           find ./ -maxdepth 1 ! -name "toDeploy" ! -name ".git" ! -name "." ! -name ".." -exec rm -rf {} \;
           mv ./toDeploy/${EXTENSION_NAME}/* ./
           rm -rf ./toDeploy
@@ -77,7 +101,7 @@ jobs:
         if: steps.checkTag.outputs.exists != 'true'
         uses: ncipollo/release-action@v1
         with:
-          artifacts: /tmp/${{ env.EXTENSION_NAME }}.zip
+          artifacts: /tmp/zips/*.zip
           tag: ${{ env.EXTENSION_VERSION }}
           name: ${{ env.EXTENSION_VERSION }}
           bodyFile: /tmp/changelog.txt

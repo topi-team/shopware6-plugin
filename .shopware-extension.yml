@@ -1,4 +1,8 @@
 build:
+  # Without this, shopware-cli builds against the LOWEST version matching the
+  # composer constraint (6.5.8.1), whose tooling emits only the flat 6.5 JS
+  # layout — Shopware 6.6+ needs dist/storefront/js/<name>/<name>.js.
+  shopwareVersionConstraint: '~6.6.10'
   zip:
     composer:
       enabled: true
