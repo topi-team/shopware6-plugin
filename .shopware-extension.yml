@@ -16,3 +16,8 @@ build:
       excludes: {}
 changelog:
   enabled: true
+validation:
+  # The PHP linter otherwise derives its version from a random Shopware
+  # version matching the composer constraint (>6.5.8.0 <6.8.0.0 can resolve
+  # to 6.5.x => PHP 8.1), which chokes on our readonly classes (PHP 8.2).
+  php_version: '8.2'
