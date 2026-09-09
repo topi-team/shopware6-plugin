@@ -1,0 +1,11 @@
+{% block topi_rental_overview_widget %}
+    {#
+      Groups the rental prices of the current cart by tenure (6/12/24/36 months).
+      Reads its data from topi.cartItems, which is populated on every checkout
+      page by cart-rental-summary-label-script.html.twig (see page/checkout/_page.html.twig).
+      See: https://developer.topi.eu/docs/topi-elements/elements/rental-overview/
+    #}
+    <div class="topi__rental-overview">
+        <x-topi-rental-overview></x-topi-rental-overview>
+    </div>
+{% endblock %}

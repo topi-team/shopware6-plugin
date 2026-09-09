@@ -1,1 +1,31 @@
 .checkout-aside  { z-index: 1000; }
+
+// Rental overview element below the selected topi payment method.
+// Indented to line up with the payment method label (Bootstrap .form-check padding).
+.payment-method .topi__rental-overview {
+    padding-left: $form-check-padding-start;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    container-type: inline-size;
+
+    x-topi-rental-overview {
+        display: block;
+        max-width: 100%;
+    }
+
+    // The element lays its intro text and the tenure/price box out side by side
+    // and only stacks them based on the viewport width. Inside the half-width
+    // payment column that leaves too little room for the tenure toggles, so
+    // stack both halves when the container itself is narrow. The element's own
+    // styles use !important, so the override has to as well.
+    @container (max-width: 480px) {
+        x-topi-rental-overview > div {
+            flex-direction: column !important;
+
+            > div {
+                width: 100% !important;
+                max-width: none !important;
+            }
+        }
+    }
+}

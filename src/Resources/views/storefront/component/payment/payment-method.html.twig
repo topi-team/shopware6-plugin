@@ -1,0 +1,27 @@
+{% sw_extends '@Storefront/storefront/component/payment/payment-method.html.twig' %}
+
+{#
+  Renders the topi rental overview element below the "Rent with topi" payment
+  method on the checkout confirm page, as long as that method is currently
+  selected. The block is limited to the checkout (page.cart must exist) so the
+  element does not show up on the account payment settings page.
+#}
+{% block component_payment_method_control %}
+    {{ parent() }}
+
+    {% if selectedPaymentMethodId is not defined %}
+        {% set selectedPaymentMethodId = context.paymentMethod.id %}
+    {% endif %}
+
+    {% set topiExtensionName = constant('TopiPaymentIntegration\\Content\\Extension\\StorefrontExtension::EXTENSION_NAME') %}
+
+    {% if page.cart is defined
+        and page.cart.lineItems|length > 0
+        and page.hasExtension(topiExtensionName)
+        and page.getExtension(topiExtensionName).paymentMethodId is same as(payment.id)
+        and payment.id is same as(selectedPaymentMethodId) %}
+        {% block component_payment_method_topi_rental_overview %}
+            {% sw_include '@TopiPaymentIntegrationPlugin/storefront/element/topi/rental-overview-widget.html.twig' %}
+        {% endblock %}
+    {% endif %}
+{% endblock %}
