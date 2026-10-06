@@ -145,8 +145,8 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
             $gross = $totalPrice * (1 + $taxRate / 100);
         }
 
-        $price->net = (int) ($net * 100);
-        $price->gross = (int) ($gross * 100);
+        $price->net = (int) round($net * 100);
+        $price->gross = (int) round($gross * 100);
         $price->currency = $currency->getIsoCode();
         $price->taxRate = $taxRate;
 
