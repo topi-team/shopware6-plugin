@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace TopiPaymentIntegration\Subscriber;
 
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -29,6 +30,9 @@ readonly class ShipmentSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param EntityRepository<OrderDeliveryCollection> $orderDeliveryRepository
+     */
     public function __construct(
         private OrderUpdatedService $orderUpdatedService,
         private EntityRepository $orderDeliveryRepository,
@@ -67,22 +71,17 @@ readonly class ShipmentSubscriber implements EventSubscriberInterface
         }
 
         try {
-            $payload = $entityWrittenEvent->getPayloads();
+            $payloads = $entityWrittenEvent->getPayloads();
+            $orderIdsByDeliveryId = $this->loadMissingOrderIds($payloads, $entityWrittenEvent->getContext());
 
-            foreach ($payload as $orderDeliveryData) {
+            foreach ($payloads as $orderDeliveryData) {
                 if (!isset($orderDeliveryData['trackingCodes'])) {
                     continue;
                 }
 
-                $orderId = $orderDeliveryData['orderId'] ?? null;
+                $orderId = $orderDeliveryData['orderId'] ?? $orderIdsByDeliveryId[$orderDeliveryData['id'] ?? ''] ?? null;
                 if (is_null($orderId)) {
-                    /** @var OrderDeliveryEntity $orderDelivery */
-                    $orderDelivery = $this->orderDeliveryRepository->search(new Criteria([$payload['id']]),
-                        $entityWrittenEvent->getContext())
-                        ->getEntities()
-                        ->first();
-
-                    $orderId = $orderDelivery->getOrderId();
+                    continue;
                 }
 
                 $trackingCodes = $orderDeliveryData['trackingCodes'];
@@ -94,5 +93,35 @@ readonly class ShipmentSubscriber implements EventSubscriberInterface
 
             return;
         }
+    }
+
+    /**
+     * Resolves the order ids of all written deliveries with tracking codes whose payload does not contain one.
+     *
+     * @param array<array<string, mixed>> $payloads
+     *
+     * @return array<string, string> order ids keyed by order delivery id
+     */
+    private function loadMissingOrderIds(array $payloads, Context $context): array
+    {
+        $deliveryIds = [];
+        foreach ($payloads as $orderDeliveryData) {
+            if (isset($orderDeliveryData['trackingCodes'], $orderDeliveryData['id']) && !isset($orderDeliveryData['orderId'])) {
+                $deliveryIds[] = $orderDeliveryData['id'];
+            }
+        }
+
+        if ([] === $deliveryIds) {
+            return [];
+        }
+
+        $orderDeliveries = $this->orderDeliveryRepository->search(new Criteria($deliveryIds), $context)->getEntities();
+
+        $orderIds = [];
+        foreach ($orderDeliveries as $orderDelivery) {
+            $orderIds[$orderDelivery->getId()] = $orderDelivery->getOrderId();
+        }
+
+        return $orderIds;
     }
 }
