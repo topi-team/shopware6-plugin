@@ -7,6 +7,8 @@ namespace TopiPaymentIntegration\Service;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -70,7 +72,7 @@ readonly class TopiPaymentProcessor
         $customerCompany->name = $orderCustomer?->getCompany()
             ?? $shopwareBillingAddress?->getCompany()
             ?? $customerInfo->fullName;
-        $customerCompany->vatNumber = ($orderCustomer?->getVatIds() ?? [null])[0] ?? $shopwareBillingAddress?->getVatId();
+        $customerCompany->vatNumber = ($orderCustomer?->getVatIds() ?? [null])[0] ?? $this->getLegacyAddressVatId($shopwareBillingAddress);
 
         $billingAddress = new PostalAddress();
         $billingAddress->city = $shopwareBillingAddress?->getCity() ?? '';
@@ -115,6 +117,21 @@ readonly class TopiPaymentProcessor
         return new RedirectResponse($createOffer->checkoutRedirectUrl);
     }
 
+    /**
+     * The VAT ID on order addresses is deprecated and removed with Shopware 6.8, the order customer is the
+     * primary source. Orders of older Shopware versions may still only carry it on the address.
+     */
+    private function getLegacyAddressVatId(?OrderAddressEntity $address): ?string
+    {
+        if (!$address instanceof OrderAddressEntity || !$address->has('vatId')) {
+            return null;
+        }
+
+        $vatId = $address->get('vatId');
+
+        return is_string($vatId) ? $vatId : null;
+    }
+
     private function buildMoneyAmount(
         ?CalculatedPrice $calculatedPrice,
         OrderEntity $order,
@@ -124,9 +141,7 @@ readonly class TopiPaymentProcessor
         $taxAmount = $calculatedPrice?->getCalculatedTaxes()->getAmount() ?? 0.0;
 
         // Maßgeblich ist der Tax-Status der Order, nicht der Preis selbst
-        $taxStatus = $order->getPrice()?->getTaxStatus()
-            ?? $order->getTaxStatus()
-            ?? CartPrice::TAX_STATE_GROSS;
+        $taxStatus = $order->getPrice()->getTaxStatus();
 
         if (CartPrice::TAX_STATE_NET === $taxStatus) {
             // Preise sind netto -> Steuer kommt obendrauf
@@ -175,7 +190,7 @@ readonly class TopiPaymentProcessor
         return $orderTransaction;
     }
 
-    private function buildOfferLineFromOrderItem($orderLineItem, OrderEntity $order): OfferLinePayload
+    private function buildOfferLineFromOrderItem(OrderLineItemEntity $orderLineItem, OrderEntity $order): OfferLinePayload
     {
         $lineItem = new OfferLinePayload();
         $lineItem->title = (string) $orderLineItem->getLabel();

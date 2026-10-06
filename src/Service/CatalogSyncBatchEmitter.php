@@ -6,6 +6,8 @@ namespace TopiPaymentIntegration\Service;
 
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
@@ -25,13 +27,15 @@ use TopiPaymentIntegration\Util\GeneratorHelper;
  */
 class CatalogSyncBatchEmitter
 {
+    /** @var array<string, list<string>> */
     private array $seenItemIdentifiers = [
         CatalogSyncBatchEntity::ITEM_TYPE_PRODUCT => [],
         CatalogSyncBatchEntity::ITEM_TYPE_SWP_PRODUCT_OPTION => [],
     ];
 
     /**
-     * @param EntityRepository<ProductCollection> $productRepository
+     * @param EntityRepository<ProductCollection>             $productRepository
+     * @param EntityRepository<EntityCollection<Entity>>|null $swpProductToOptionsRepository
      */
     public function __construct(
         private readonly EntityRepository $productRepository,
@@ -97,6 +101,11 @@ class CatalogSyncBatchEmitter
         }
     }
 
+    /**
+     * @param string[] $productIds
+     *
+     * @return \Generator<CatalogSyncBatchItemIdentifier>
+     */
     private function appendSwpOptionsToBatch(array $productIds): \Generator
     {
         // Fetch mappings: options assigned to products in this batch

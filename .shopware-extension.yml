@@ -21,3 +21,9 @@ validation:
   # version matching the composer constraint (>6.5.8.0 <6.8.0.0 can resolve
   # to 6.5.x => PHP 8.1), which chokes on our readonly classes (PHP 8.2).
   php_version: '8.2'
+  ignore:
+    # Only loaded on Shopware < 6.7, where the legacy payment handler interfaces still exist.
+    - path: src/PaymentHandler/TopiAsyncPaymentHandlerLegacy.php
+    # Fallback for Shopware 6.5 / early 6.6, where Context::createCLIContext() does not exist.
+    - identifier: phpstan/shopware.disallow.default.context.creation
+      path: src/Util/ContextHelper.php

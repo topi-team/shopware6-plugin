@@ -30,8 +30,8 @@ class SwpOptionToTopiProductConverter
         $price = new MoneyAmountWithOptionalTax();
         // Best-effort fixed price: try to extract any price for the sales channel currency; fallback to 0
         $priceValues = $this->extractPriceForCurrency($option, $currency->getIsoCode());
-        $price->net = (int) round(($priceValues['net'] ?? 0.0) * 100);
-        $price->gross = (int) round(($priceValues['gross'] ?? 0.0) * 100);
+        $price->net = (int) round($priceValues['net'] * 100);
+        $price->gross = (int) round($priceValues['gross'] * 100);
         $price->currency = $currency->getIsoCode();
         $price->taxRate = (int) ($this->getNumeric($option, 'getTaxRate') ?? 0);
         $product->price = $price;
@@ -55,6 +55,9 @@ class SwpOptionToTopiProductConverter
         return $product;
     }
 
+    /**
+     * @return array{gross: float, net: float}
+     */
     private function extractPriceForCurrency(object $option, string $iso): array
     {
         // Try generic getPrice() API with currency-specific access

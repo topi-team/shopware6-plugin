@@ -177,7 +177,7 @@ readonly class SyncCatalogAction
         ]], $context)->getPrimaryKeys(CatalogSyncProcessDefinition::ENTITY_NAME);
 
         /** @var CatalogSyncProcessEntity|null $entity */
-        $entity = $this->catalogSyncProcessRepository->search(new Criteria([$entityId]), $context)->first();
+        $entity = $this->catalogSyncProcessRepository->search(new Criteria([$entityId]), $context)->getEntities()->first();
         // we just wrote this entity, so it should be there
         assert($entity instanceof CatalogSyncProcessEntity);
 

@@ -97,7 +97,7 @@ class WebhookController extends AbstractController
             );
         }
 
-        return new Response(status: 201);
+        return new JsonResponse(['status' => 'success'], status: 201);
     }
 
     protected function malformedRequestError(): Response

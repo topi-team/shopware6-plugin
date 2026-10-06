@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use TopiPaymentIntegration\Content\CatalogSyncProcess\CatalogSyncProcessDefinition;
 
 /**
- * @@phpstan-import-type CatalogSyncBatchItemIdentifier from CatalogSyncBatchEntity
+ * @phpstan-import-type CatalogSyncBatchItemIdentifier from CatalogSyncBatchEntity
  *
  * @phpstan-type CatalogSyncBatchData array{
  *     id?: string,

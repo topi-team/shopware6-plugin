@@ -38,7 +38,7 @@ readonly class OrderUpdatedService
     public function orderUpdated(string $orderId, array $trackingCodes, Context $context): void
     {
         /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->getEntities()->first();
 
         if (is_null($order)) {
             return;

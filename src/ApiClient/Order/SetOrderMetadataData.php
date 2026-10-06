@@ -14,7 +14,7 @@ class SetOrderMetadataData implements AppliesArrayDataInterface
     public string $orderId;
 
     /**
-     * @var array<string,string>|null
+     * @var array<string, string|string[]>|null
      */
     public ?array $metadata = null;
 }

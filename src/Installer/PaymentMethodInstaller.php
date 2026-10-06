@@ -107,6 +107,7 @@ readonly class PaymentMethodInstaller implements InstallerInterface
         /** @var PaymentMethodEntity|null $paymentMethod */
         $paymentMethod = $this->paymentMethodRepository
             ->search(new Criteria([$id]), $context)
+            ->getEntities()
             ->first();
 
         return $paymentMethod;

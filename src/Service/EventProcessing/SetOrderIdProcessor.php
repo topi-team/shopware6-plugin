@@ -39,7 +39,7 @@ class SetOrderIdProcessor implements ProcessorInterface
         $orderTransaction = $this->orderTransactionRepository->search(
             new Criteria([$event->order->sellerOfferReference]),
             $context
-        )->first();
+        )->getEntities()->first();
 
         if (!$orderTransaction instanceof OrderTransactionEntity) {
             return;

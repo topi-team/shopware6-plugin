@@ -108,7 +108,7 @@ readonly class CartAvailabilityService
                 }
 
                 // add each option child by its option id if available
-                foreach ($item->getChildren() ?? [] as $child) {
+                foreach ($item->getChildren() as $child) {
                     if (!\in_array($child->getType(), ['product-option', 'product-option-product'], true)) {
                         continue;
                     }

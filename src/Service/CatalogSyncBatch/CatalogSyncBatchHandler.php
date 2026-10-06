@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace TopiPaymentIntegration\Service\CatalogSyncBatch;
 
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -29,12 +29,16 @@ use TopiPaymentIntegration\Service\ShopwareProductToTopiProductConverter;
 use TopiPaymentIntegration\Service\SwpOptionToTopiProductConverter;
 use TopiPaymentIntegration\Util\ContextHelper;
 
+/**
+ * @phpstan-import-type CatalogSyncBatchItemIdentifier from CatalogSyncBatchEntity
+ */
 #[AsMessageHandler(handles: CatalogSyncBatchMessage::class)]
 readonly class CatalogSyncBatchHandler
 {
     /**
      * @param EntityRepository<CatalogSyncBatchCollection>          $catalogSyncBatchRepository
      * @param SalesChannelRepository<SalesChannelProductCollection> $salesChannelRepository
+     * @param EntityRepository<EntityCollection<Entity>>|null       $swpOptionsRepository
      */
     public function __construct(
         private EntityRepository $catalogSyncBatchRepository,
@@ -58,7 +62,7 @@ readonly class CatalogSyncBatchHandler
                         ->addAssociation('catalogSyncProcess.salesChannel.currency');
 
         /** @var CatalogSyncBatchEntity $batch */
-        $batch = $this->catalogSyncBatchRepository->search($criteria, $context)->first();
+        $batch = $this->catalogSyncBatchRepository->search($criteria, $context)->getEntities()->first();
 
         try {
             $this->run($batch);
@@ -119,6 +123,11 @@ readonly class CatalogSyncBatchHandler
         )->importCatalog($topiProductBatch);
     }
 
+    /**
+     * @param string[] $optionIds
+     *
+     * @return EntityCollection<Entity>
+     */
     private function queryProductOptions(array $optionIds): EntityCollection
     {
         // Fetch mappings: options assigned to products in this batch
@@ -130,6 +139,11 @@ readonly class CatalogSyncBatchHandler
         return $this->swpOptionsRepository->search($criteria, ContextHelper::createCliContext())->getEntities();
     }
 
+    /**
+     * @param CatalogSyncBatchItemIdentifier[] $identifiers
+     *
+     * @return array<string, list<string>>
+     */
     private function groupIdentifiersByType(array $identifiers): array
     {
         $grouped = [];
@@ -145,13 +159,11 @@ readonly class CatalogSyncBatchHandler
      *
      * @param string[]            $productIds          list of product IDs to query
      * @param SalesChannelContext $salesChannelContext the sales channel context for executing the query
-     *
-     * @return EntityCollection<ProductEntity>
      */
     private function queryProductEntities(
         array $productIds,
         SalesChannelContext $salesChannelContext,
-    ): EntityCollection {
+    ): SalesChannelProductCollection {
         $criteria = (new Criteria($productIds))
             ->addAssociation('translations')
             ->addAssociation('manufacturer')
