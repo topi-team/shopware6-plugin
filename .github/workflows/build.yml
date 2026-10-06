@@ -68,10 +68,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # shopware-cli 0.19.1 made --full the default (runs phpstan etc.); keep
+      # the release gate on the built-in checks it has always used.
       - name: 🔎 Validate Zips
         run: |
-          shopware-cli extension validate /tmp/zips/${EXTENSION_NAME}-sw66.zip
-          shopware-cli extension validate /tmp/zips/${EXTENSION_NAME}-sw65.zip
+          shopware-cli extension validate --only builtin /tmp/zips/${EXTENSION_NAME}-sw66.zip
+          shopware-cli extension validate --only builtin /tmp/zips/${EXTENSION_NAME}-sw65.zip
 
       - name: 📋 Extract Changelog
         if: steps.checkTag.outputs.exists != 'true'
