@@ -4,6 +4,8 @@
     {% block topi_product_rental_summary_label_script %}
         <script>
             var pdpItem = {{ product.getExtension(extensionName)|json_encode|raw }};
+            {# Tells the storefront plugin whether displayed prices are gross, so it does not have to guess from the DOM #}
+            var topiDisplayGross = {{ context.taxState == 'gross' ? 'true' : 'false' }};
             if (typeof topi === 'undefined') {
                 window.addEventListener("topi.widgets.loaded", function () {
                     topi.pdpItem = pdpItem;

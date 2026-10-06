@@ -50,6 +50,7 @@ export default class TopiCartPlugin extends Plugin {
       content.insertAdjacentHTML('beforeend', event.detail);
 
       const priceElement = content.querySelector('.swp-productoptions--result-totalrow .price');
+      if (!priceElement) return;
 
       const price = parseInt(priceElement.innerText
         .replace(/[^\d,.-]/g, '')
@@ -58,12 +59,16 @@ export default class TopiCartPlugin extends Plugin {
         .trim()
       );
 
+      if (Number.isNaN(price)) return;
+
       const isGross = this.isGross();
+      const taxFactor = this.getTaxFactor();
       const item = {...window.pdpItem,
         price: {
-          currency: 'EUR',
-          net: isGross ? Math.round((price / 119) * 100) : price,
-          gross: isGross ? price : Math.round((price / 100) * 119),
+          ...window.pdpItem?.price,
+          currency: window.pdpItem?.price?.currency ?? 'EUR',
+          net: isGross ? Math.round(price / taxFactor) : price,
+          gross: isGross ? price : Math.round(price * taxFactor),
         }
       };
 
@@ -77,7 +82,23 @@ export default class TopiCartPlugin extends Plugin {
     });
   }
 
+  /**
+   * Gross/net ratio of the server-rendered pdpItem, so non-19% tax rates are
+   * converted correctly. Falls back to 19% if the item carries no usable price.
+   */
+  getTaxFactor() {
+    const { net, gross } = window.pdpItem?.price ?? {};
+
+    return net > 0 && gross > 0 ? gross / net : 1.19;
+  }
+
   isGross() {
+    // Rendered server-side next to pdpItem. The DOM heuristic below is only a
+    // fallback for overridden templates: SwpProductOptions adds the "*" price
+    // marker only after its first result was inserted, so on the initial
+    // calculation the heuristic cannot tell and the gross price was sent as net.
+    if (typeof window.topiDisplayGross === 'boolean') return window.topiDisplayGross;
+
     const priceElement = document.querySelector('.product-detail-price, .price');
     if (priceElement?.textContent.includes('*')) {
       // Suche nach dem Sternchen-Hinweis
