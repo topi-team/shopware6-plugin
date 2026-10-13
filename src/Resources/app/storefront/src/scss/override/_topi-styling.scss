@@ -36,6 +36,14 @@ div.topi__detail-widget {
 }
 
 .mrg-computer {
+  // The widget renders its modal overlay (position: fixed) inside itself. Themes
+  // that transform or filter the product box (e.g. scale on hover) turn the box
+  // into the overlay's containing block, which confines the modal to the card.
+  .product-box:has(x-topi-listing-rental-summary-label > [aria-modal="true"]) {
+    transform: none !important;
+    filter: none !important;
+  }
+
   .topi__price-legal-info {
     font-size: 10px;
   }
