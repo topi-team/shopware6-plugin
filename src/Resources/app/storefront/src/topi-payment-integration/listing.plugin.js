@@ -20,7 +20,15 @@ export default class TopiListingPlugin extends Plugin {
     if (!listings.length) return;
 
     let timer = null;
-    this._listingObserver = new MutationObserver(() => {
+    this._listingObserver = new MutationObserver((mutations) => {
+      // The widgets mutate their own subtree when they render or open their
+      // modal. Reacting to that would replace them with fresh clones and
+      // thereby close the modal right after it opened.
+      const widgetOnly = mutations.every(
+        (m) => m.target instanceof Element && m.target.closest('x-topi-listing-rental-summary-label'),
+      );
+      if (widgetOnly) return;
+
       window.clearTimeout(timer);
       timer = window.setTimeout(() => this.refreshListingItems(), 50);
     });
