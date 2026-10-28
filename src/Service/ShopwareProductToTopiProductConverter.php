@@ -18,7 +18,7 @@ use TopiPaymentIntegration\ApiClient\Common\ProductReference;
 
 class ShopwareProductToTopiProductConverter
 {
-    public function convert(SalesChannelProductEntity $shopwareProduct, SalesChannelEntity $salesChannel): Product
+    public function convert(SalesChannelProductEntity $shopwareProduct, SalesChannelEntity $salesChannel, CurrencyEntity $currency): Product
     {
         $topiProduct = new Product();
 
@@ -46,9 +46,6 @@ class ShopwareProductToTopiProductConverter
         $customFields = $shopwareProduct->getCustomFields() ?? [];
         $topiInactive = (bool) ($customFields['topi_is_inactive'] ?? false);
         $topiProduct->isActive = ($shopwareProduct->getActive() ?? false) && !$topiInactive;
-
-        $currency = $salesChannel->getCurrency();
-        assert($currency instanceof CurrencyEntity);
 
         $price = new MoneyAmountWithOptionalTax();
         $price->net = (int) (($shopwareProduct->getCurrencyPrice($currency->getId())?->getNet() ?? 0.0) * 100);

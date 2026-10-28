@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace TopiPaymentIntegration\Service;
 
 use Shopware\Core\System\Currency\CurrencyEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use TopiPaymentIntegration\ApiClient\Catalog\Image;
 use TopiPaymentIntegration\ApiClient\Catalog\MoneyAmountWithOptionalTax;
 use TopiPaymentIntegration\ApiClient\Catalog\Product;
@@ -13,7 +12,7 @@ use TopiPaymentIntegration\ApiClient\Common\ProductReference;
 
 class SwpOptionToTopiProductConverter
 {
-    public function convert(object $option, SalesChannelEntity $salesChannel): Product
+    public function convert(object $option, CurrencyEntity $currency): Product
     {
         $product = new Product();
 
@@ -23,9 +22,6 @@ class SwpOptionToTopiProductConverter
         $long = (string) ($translated['longDescription'] ?? '');
         $product->description = mb_substr($long, 0, 1500);
         $product->descriptionLines = '' !== $long ? array_map(static fn ($l) => mb_substr($l, 0, 1500), explode("\n", $long)) : [];
-
-        $currency = $salesChannel->getCurrency();
-        assert($currency instanceof CurrencyEntity);
 
         $price = new MoneyAmountWithOptionalTax();
         // Best-effort fixed price: try to extract any price for the sales channel currency; fallback to 0

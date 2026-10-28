@@ -58,8 +58,7 @@ readonly class CatalogSyncBatchHandler
         $criteria = (new Criteria([$message->catalogSyncBatchId]))
                         ->addAssociation('catalogSyncProcess')
                         ->addAssociation('catalogSyncProcess.salesChannel')
-                        ->addAssociation('catalogSyncProcess.salesChannel.domains')
-                        ->addAssociation('catalogSyncProcess.salesChannel.currency');
+                        ->addAssociation('catalogSyncProcess.salesChannel.domains');
 
         /** @var CatalogSyncBatchEntity $batch */
         $batch = $this->catalogSyncBatchRepository->search($criteria, $context)->getEntities()->first();
@@ -105,7 +104,7 @@ readonly class CatalogSyncBatchHandler
                 $identifiersByType[CatalogSyncBatchEntity::ITEM_TYPE_PRODUCT],
                 $salesChannelContext
             ) as $product) {
-                $topiProductBatch->add($this->productConverter->convert($product, $salesChannel));
+                $topiProductBatch->add($this->productConverter->convert($product, $salesChannel, $salesChannelContext->getCurrency()));
             }
         }
 
@@ -114,7 +113,7 @@ readonly class CatalogSyncBatchHandler
             $options = $this->queryProductOptions($identifiersByType[CatalogSyncBatchEntity::ITEM_TYPE_SWP_PRODUCT_OPTION]);
 
             foreach ($options as $opt) {
-                $topiProductBatch->add($this->optionConverter->convert($opt, $salesChannel));
+                $topiProductBatch->add($this->optionConverter->convert($opt, $salesChannelContext->getCurrency()));
             }
         }
 

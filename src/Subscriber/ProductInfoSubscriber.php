@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntitySearchResultLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;
@@ -82,9 +81,7 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
 
     private function lineItemToProductExtension(LineItem $lineItem, SalesChannelContext $salesChannelContext): ProductExtension
     {
-        $salesChannel = $salesChannelContext->getSalesChannel();
-        $currency = $salesChannel->getCurrency();
-        assert($currency instanceof CurrencyEntity);
+        $currency = $salesChannelContext->getCurrency();
 
         $price = new MoneyAmountWithOptionalTax();
         $unitPrice = $lineItem->getPrice()?->getUnitPrice();
@@ -122,9 +119,7 @@ readonly class ProductInfoSubscriber implements EventSubscriberInterface
 
     private function swProductToProductExtension(SalesChannelProductEntity $product, SalesChannelContext $salesChannelContext): ProductExtension
     {
-        $salesChannel = $salesChannelContext->getSalesChannel();
-        $currency = $salesChannel->getCurrency();
-        assert($currency instanceof CurrencyEntity);
+        $currency = $salesChannelContext->getCurrency();
 
         $price = new MoneyAmountWithOptionalTax();
         $calculatedPrice = $product->getCalculatedCheapestPrice();
